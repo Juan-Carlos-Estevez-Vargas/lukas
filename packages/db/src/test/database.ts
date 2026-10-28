@@ -5,7 +5,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import * as schema from "../schema";
 
-const migrationsFolder = fileURLToPath(new URL("../../migrations", import.meta.url));
+const migrationsFolder = fileURLToPath(new URL("../../migrations", import.meta.url).href);
 
 /** Postgres en memoria (PGlite) con todas las migraciones aplicadas. */
 export const createTestDatabase = async () => {

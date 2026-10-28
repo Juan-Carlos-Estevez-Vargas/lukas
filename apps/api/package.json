@@ -13,13 +13,19 @@
     "deploy:production": "wrangler deploy --env production"
   },
   "dependencies": {
+    "@better-auth/passkey": "1.7.7",
     "@hono/zod-openapi": "1.6.3",
+    "@lukas/db": "workspace:*",
     "@lukas/domain": "workspace:*",
+    "@neondatabase/serverless": "1.2.0",
+    "better-auth": "1.7.7",
+    "drizzle-orm": "0.45.4",
     "hono": "4.13.13",
     "zod": "4.6.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261013.1",
+    "@electric-sql/pglite": "0.5.9",
     "@lukas/config": "workspace:*",
     "@vitest/coverage-v8": "5.0.4",
     "vitest": "5.0.4",
