@@ -1,0 +1,37 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Bogota
+    # Solo versiones con al menos 14 días de publicadas (protección ante paquetes comprometidos).
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+      dependencies:
+        dependency-type: production
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Bogota
+    cooldown:
+      default-days: 14
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
