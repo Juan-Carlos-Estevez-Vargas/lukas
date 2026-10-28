@@ -32,6 +32,10 @@ updates:
       default-days: 14
     commit-message:
       prefix: ci
+    ignore:
+      # changesets/action v2 exige Changesets CLI v3, que aún falla en este repo. Seguimos en v1.
+      - dependency-name: changesets/action
+        update-types: ["version-update:semver-major"]
     groups:
       actions:
         patterns: ["*"]
