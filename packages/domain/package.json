@@ -14,6 +14,7 @@
   "devDependencies": {
     "@lukas/config": "workspace:*",
     "@vitest/coverage-v8": "5.0.4",
+    "fast-check": "4.10.2",
     "vitest": "5.0.4"
   }
 }
