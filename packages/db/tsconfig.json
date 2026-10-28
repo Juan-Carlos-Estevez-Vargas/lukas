@@ -1,0 +1,8 @@
+{
+  "extends": "@lukas/config/tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["src", "drizzle.config.ts", "vitest.config.ts"]
+}

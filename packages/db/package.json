@@ -1,0 +1,28 @@
+{
+  "name": "@lukas/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Esquema de Postgres (Drizzle), migraciones y semillas",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.4"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.9",
+    "@lukas/config": "workspace:*",
+    "@types/node": "26.6.5",
+    "@vitest/coverage-v8": "5.0.4",
+    "drizzle-kit": "0.31.11",
+    "vitest": "5.0.4"
+  }
+}
