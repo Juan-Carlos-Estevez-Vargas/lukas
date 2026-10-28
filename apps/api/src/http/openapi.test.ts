@@ -62,7 +62,7 @@ describe("GET /v1/openapi.json", () => {
 
   it("usa 'dev' como versión si no hay una configurada", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
-    const res = await createApp().request("/v1/openapi.json", {}, { ENVIRONMENT: "preview" });
+    const res = await createApp().request("/v1/openapi.json", {}, { ENVIRONMENT: "development" });
     expect(((await res.json()) as { info: { version: string } }).info.version).toBe("dev");
   });
 });
