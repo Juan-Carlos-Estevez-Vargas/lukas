@@ -14,6 +14,8 @@ export interface Env {
   readonly BETTER_AUTH_SECRET?: string;
   /** Cadena de conexión a Neon (`wrangler secret put`), nunca en vars. */
   readonly DATABASE_URL?: string;
+  /** Secreto de Turnstile (`wrangler secret put`); sin él no se exige captcha. */
+  readonly TURNSTILE_SECRET_KEY?: string;
   /** Límite estricto para login, registro y recuperación de cuenta. */
   readonly AUTH_LIMITER?: RateLimit;
 }

@@ -3,6 +3,7 @@ import { loginAccounts, passkeys, sessions, users, verifications } from "@lukas/
 import { uuidv7 } from "@lukas/domain";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { captcha } from "better-auth/plugins";
 import { bearer } from "better-auth/plugins/bearer";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import type { Env } from "../../env";
@@ -74,6 +75,17 @@ export const createAuth = ({ db, env, mailer }: AuthDeps) => {
         authenticatorSelection: { residentKey: "preferred", userVerification: "required" },
       }),
       bearer(),
+      // Turnstile (gratis) frena bots y el abuso de correos antes de enviar un código.
+      ...(env.TURNSTILE_SECRET_KEY
+        ? [
+            captcha({
+              provider: "cloudflare-turnstile",
+              secretKey: env.TURNSTILE_SECRET_KEY,
+              endpoints: ["/email-otp/send-verification-otp"],
+              expectedAction: "send-otp",
+            }),
+          ]
+        : []),
     ],
   });
 };

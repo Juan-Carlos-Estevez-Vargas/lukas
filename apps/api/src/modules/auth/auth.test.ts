@@ -144,3 +144,26 @@ describe("autenticación sin contraseña", () => {
     expect(res.status).toBeGreaterThanOrEqual(400);
   });
 });
+
+describe("Turnstile", () => {
+  it("exige el captcha antes de enviar un código cuando está configurado", async () => {
+    const protectedEnv: Env = {
+      ...env,
+      TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
+    };
+    const database = await createTestDatabase();
+    const guarded = createAuth({ db: database.db, env: protectedEnv, mailer });
+    const res = await createApp({ auth: () => guarded }).request(
+      "http://localhost:8787/v1/auth/email-otp/send-verification-otp",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: ORIGIN },
+        body: JSON.stringify({ email: "bot@lukas.test", type: "sign-in" }),
+      },
+      protectedEnv,
+    );
+    expect(res.status).toBe(400);
+    expect(outbox.some((m) => m.to === "bot@lukas.test")).toBe(false);
+    await database.client.close();
+  });
+});
