@@ -9,3 +9,8 @@ minimumReleaseAge: 20160
 trustPolicy: no-downgrade
 # Las dependencias transitivas solo pueden venir del registro, no de git ni URLs.
 blockExoticSubdeps: true
+
+# drizzle-kit arrastra @esbuild-kit/core-utils con esbuild 0.18 (GHSA-67mh-4wv8-2f99).
+# Solo se usa en desarrollo para generar migraciones; se fuerza una versión corregida.
+overrides:
+  "@esbuild-kit/core-utils>esbuild": 0.25.12
