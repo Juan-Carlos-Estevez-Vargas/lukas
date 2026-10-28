@@ -29,3 +29,8 @@ En repositorios **privados** de cuentas personales, los rulesets y la protecció
 | gitleaks | Tokens, llaves y contraseñas en commits | Cada PR (solo commits nuevos), `main` y lunes (todo el historial) |
 | OSV-Scanner | Dependencias con vulnerabilidades conocidas | Cada PR, `main` y lunes |
 | Dependabot | Actualizaciones de dependencias y acciones, con 14 días de espera | Lunes |
+
+## Dependencias
+
+- `pnpm-workspace.yaml` exige 14 días de publicadas (`minimumReleaseAge`), rechaza pérdidas de procedencia (`trustPolicy: no-downgrade`) y bloquea dependencias transitivas desde git o URLs (`blockExoticSubdeps`).
+- Las acciones de GitHub se fijan a un SHA de commit con la versión en un comentario; Dependabot las actualiza.

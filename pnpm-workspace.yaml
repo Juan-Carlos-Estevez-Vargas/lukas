@@ -1,3 +1,11 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Protección de la cadena de suministro
+# Solo instala versiones con al menos 14 días de publicadas.
+minimumReleaseAge: 20160
+# Rechaza actualizaciones que pierdan la procedencia verificada de versiones anteriores.
+trustPolicy: no-downgrade
+# Las dependencias transitivas solo pueden venir del registro, no de git ni URLs.
+blockExoticSubdeps: true
