@@ -1,0 +1,31 @@
+name: Seguridad
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Lunes 06:00 hora Colombia: detecta vulnerabilidades nuevas aunque no haya cambios.
+    - cron: "0 11 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    name: Semgrep (análisis estático)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep:1.179.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep CE
+        run: >
+          semgrep scan
+          --config p/default
+          --config p/typescript
+          --config p/secrets
+          --config p/github-actions
+          --error
+          --metrics off

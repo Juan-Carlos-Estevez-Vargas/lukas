@@ -43,7 +43,7 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-004 · Seguridad de la cadena de suministro
 
 - Tipo: `security` · Tamaño: S
-- [ ] CodeQL y Semgrep CE
+- [ ] Semgrep CE (CodeQL requiere repo público o plan pago)
 - [ ] gitleaks y OSV-Scanner
 - [ ] Dependabot agrupado semanal
 - [ ] Guía de protección de rama main
