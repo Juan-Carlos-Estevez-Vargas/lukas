@@ -16,3 +16,12 @@ export const createTestDatabase = async () => {
 };
 
 export const newId = (): string => randomUUID();
+
+type TestDatabase = Awaited<ReturnType<typeof createTestDatabase>>["db"];
+
+/** Crea usuarios mínimos para que las FKs `user_id` se cumplan. */
+export const insertUsers = async (db: TestDatabase, ...ids: string[]) => {
+  await db
+    .insert(schema.users)
+    .values(ids.map((id) => ({ id, name: id, email: `${id}@lukas.test` })));
+};
