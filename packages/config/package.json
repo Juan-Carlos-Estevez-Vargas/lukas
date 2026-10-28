@@ -1,0 +1,9 @@
+{
+  "name": "@lukas/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Configuración compartida (TypeScript, Biome)",
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json"
+  }
+}
