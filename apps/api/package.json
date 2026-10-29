@@ -1,6 +1,6 @@
 {
   "name": "@lukas/api",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "API de Lukas en Cloudflare Workers (Hono)",
   "type": "module",
