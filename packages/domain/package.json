@@ -1,6 +1,6 @@
 {
   "name": "@lukas/domain",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Reglas de dominio puras compartidas: dinero, monedas, resultados e identificadores",
   "type": "module",
