@@ -14,3 +14,5 @@ blockExoticSubdeps: true
 # Solo se usa en desarrollo para generar migraciones; se fuerza una versión corregida.
 overrides:
   "@esbuild-kit/core-utils>esbuild": 0.25.12
+  # wrangler arrastra miniflare con undici 7.29.1 (8 avisos de OSV); 7.30.1 los corrige.
+  "miniflare>undici": 7.30.1
