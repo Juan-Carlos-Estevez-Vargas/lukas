@@ -2,7 +2,9 @@ import { Hono } from "hono";
 import type { AppContext } from "./env";
 import { createRouter } from "./http/openapi";
 import { notFound, problemResponse } from "./http/problem";
+import { rateLimit } from "./http/rate-limit";
 import { log, requestContext } from "./http/request-context";
+import { corsPolicy, securityHeaders } from "./http/security";
 import { healthRoutes } from "./modules/health/routes";
 
 export const createApp = () => {
@@ -17,7 +19,14 @@ export const createApp = () => {
     servers: [{ url: `${new URL(c.req.url).origin}/v1` }],
   }));
 
-  const app = new Hono<AppContext>().use(requestContext).route("/", healthRoutes).route("/v1", v1);
+  const app = new Hono<AppContext>()
+    .use(requestContext)
+    .use(securityHeaders)
+    .use(corsPolicy)
+    .use("/v1/*", rateLimit("API_LIMITER", 60))
+    .use("/v1/auth/*", rateLimit("AUTH_LIMITER", 60))
+    .route("/", healthRoutes)
+    .route("/v1", v1);
 
   app.notFound(notFound);
   app.onError((error, c) => {
