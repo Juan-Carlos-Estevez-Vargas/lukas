@@ -1,0 +1,28 @@
+{
+  "name": "@lukas/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "API de Lukas en Cloudflare Workers (Hono)",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "build": "wrangler deploy --dry-run --env staging --outdir dist",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "1.6.3",
+    "@lukas/domain": "workspace:*",
+    "hono": "4.13.13",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261013.1",
+    "@lukas/config": "workspace:*",
+    "@vitest/coverage-v8": "5.0.4",
+    "vitest": "5.0.4",
+    "wrangler": "4.150.0"
+  }
+}
