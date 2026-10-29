@@ -6,11 +6,9 @@ import { testEnv } from "../test/env";
 import { fakeRateLimiter } from "../test/rate-limiter";
 import { rateLimit } from "./rate-limit";
 
-const appWithLogin = () => {
-  const app = createApp();
-  app.post("/v1/auth/login", (c) => c.json({ ok: true }));
-  return app;
-};
+// Sin autenticación configurada Better Auth responde 503, pero el limitador actúa antes.
+const appWithLogin = () => createApp({ auth: () => undefined });
+const LOGIN = "/v1/auth/sign-in/email-otp";
 
 const quiet = () => {
   vi.spyOn(console, "log").mockImplementation(() => {});
@@ -30,13 +28,9 @@ describe("rate limiting", () => {
     };
     const app = appWithLogin();
     const login = () =>
-      app.request(
-        "/v1/auth/login",
-        { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" } },
-        env,
-      );
+      app.request(LOGIN, { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" } }, env);
 
-    for (let i = 0; i < 5; i++) expect((await login()).status).toBe(200);
+    for (let i = 0; i < 5; i++) expect((await login()).status).toBe(503);
     const blocked = await login();
     expect(blocked.status).toBe(429);
     expect(blocked.headers.get("retry-after")).toBe("60");
@@ -53,10 +47,10 @@ describe("rate limiting", () => {
     };
     const app = appWithLogin();
     const from = (ip: string) =>
-      app.request("/v1/auth/login", { method: "POST", headers: { "cf-connecting-ip": ip } }, env);
-    expect((await from("203.0.113.1")).status).toBe(200);
+      app.request(LOGIN, { method: "POST", headers: { "cf-connecting-ip": ip } }, env);
+    expect((await from("203.0.113.1")).status).toBe(503);
     expect((await from("203.0.113.1")).status).toBe(429);
-    expect((await from("203.0.113.2")).status).toBe(200);
+    expect((await from("203.0.113.2")).status).toBe(503);
   });
 
   it("aplica el límite general a /v1 pero no a /health de la raíz", async () => {
