@@ -14,39 +14,39 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-001 · Inicializar monorepo
 
 - Tipo: `chore` · Tamaño: S
-- [ ] pnpm workspace y estructura apps/ packages/
-- [ ] turbo.json con pipelines build, lint, test, typecheck
-- [ ] tsconfig base estricto y Biome
-- [ ] README, .editorconfig, .nvmrc
+- [x] pnpm workspace y estructura apps/ packages/
+- [x] turbo.json con pipelines build, lint, test, typecheck
+- [x] tsconfig base estricto y Biome
+- [x] README, .editorconfig, .nvmrc
 
 **Hecho cuando:** pnpm turbo run lint typecheck pasa en limpio.
 
 #### FIN-002 · Convenciones de commits, PRs y ADRs
 
 - Tipo: `docs` · Tamaño: S
-- [ ] commitlint + lefthook
-- [ ] Changesets configurado
-- [ ] Plantilla de PR y CODEOWNERS
-- [ ] ADR-0001 arquitectura y ADR-0002 modo gratuito
+- [x] commitlint + lefthook
+- [x] Changesets configurado
+- [x] Plantilla de PR y CODEOWNERS
+- [x] ADR-0001 arquitectura y ADR-0002 modo gratuito
 
 **Hecho cuando:** Un commit fuera de la convención es rechazado.
 
 #### FIN-003 · CI base en GitHub Actions
 
 - Tipo: `ci` · Tamaño: S
-- [ ] Workflow ci.yml con caché de pnpm y Turborepo
-- [ ] Solo paquetes afectados
-- [ ] Reporte de cobertura en el PR
+- [x] Workflow ci.yml con caché de pnpm y Turborepo
+- [x] Solo paquetes afectados
+- [x] Reporte de cobertura en el PR
 
 **Hecho cuando:** El PR muestra checks verdes y cobertura.
 
 #### FIN-004 · Seguridad de la cadena de suministro
 
 - Tipo: `security` · Tamaño: S
-- [ ] Semgrep CE (CodeQL requiere repo público o plan pago)
-- [ ] gitleaks y OSV-Scanner
-- [ ] Dependabot agrupado semanal
-- [ ] Guía de protección de rama main
+- [x] Semgrep CE (CodeQL requiere repo público o plan pago)
+- [x] gitleaks y OSV-Scanner
+- [x] Dependabot agrupado semanal
+- [x] Guía de protección de rama main
 
 **Hecho cuando:** Un secreto de prueba en un commit hace fallar el CI.
 
@@ -55,20 +55,20 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-005 · Paquete domain: dinero y utilidades
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Value object Money con bigint y moneda
-- [ ] Tipo Result y errores de dominio
-- [ ] Generador UUIDv7
-- [ ] Tests de propiedades con fast-check
+- [x] Value object Money con bigint y moneda
+- [x] Tipo Result y errores de dominio
+- [x] Generador UUIDv7
+- [x] Tests de propiedades con fast-check
 
 **Hecho cuando:** Sumar, dividir y convertir Money nunca pierde centavos en 10 mil casos aleatorios.
 
 #### FIN-006 · Esquema de base de datos inicial
 
 - Tipo: `feat` · Tamaño: M · Requiere cuenta: Neon
-- [ ] Drizzle con users, accounts, categories, transactions, entries
-- [ ] Trigger diferido de doble partida
-- [ ] Tablas changes, idempotency, outbox, audit_log
-- [ ] Migración 0001 y semilla de categorías
+- [x] Drizzle con users, accounts, categories, transactions, entries
+- [x] Trigger diferido de doble partida
+- [x] Tablas changes, idempotency, outbox, audit_log
+- [x] Migración 0001 y semilla de categorías
 
 **Hecho cuando:** Insertar asientos que no suman cero falla en el commit.
 
@@ -77,31 +77,31 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-007 · API esqueleto en Workers
 
 - Tipo: `feat` · Tamaño: M · Requiere cuenta: Cloudflare
-- [ ] Hono con /health y /v1
-- [ ] Errores RFC 9457 y logging estructurado
-- [ ] Zod + OpenAPI generado
-- [ ] wrangler.toml con entornos dev, staging, prod
+- [x] Hono con /health y /v1
+- [x] Errores RFC 9457 y logging estructurado
+- [x] Zod + OpenAPI generado
+- [x] wrangler.jsonc con entornos dev, staging, prod
 
 **Hecho cuando:** /v1/health responde en workers.dev.
 
 #### FIN-008 · Rate limiting y cabeceras de seguridad
 
 - Tipo: `security` · Tamaño: S
-- [ ] Binding de Rate Limiting por IP y por usuario
-- [ ] CORS cerrado y secure headers
-- [ ] Respuesta 429 con Retry-After
-- [ ] Tests de abuso
+- [x] Binding de Rate Limiting por IP y por usuario
+- [x] CORS cerrado y secure headers
+- [x] Respuesta 429 con Retry-After
+- [x] Tests de abuso
 
 **Hecho cuando:** El intento 6 de login en un minuto recibe 429.
 
 #### FIN-009 · Autenticación con Better Auth
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Registro y login con contraseña Argon2id
-- [ ] Passkeys (WebAuthn)
-- [ ] TOTP y códigos de recuperación
-- [ ] Sesiones con refresh rotativo
-- [ ] Turnstile en registro
+- [x] Acceso sin contraseña con código por correo (ADR 0003: Argon2id no cabe en 10 ms de CPU del plan gratuito)
+- [x] Passkeys (WebAuthn)
+- [ ] TOTP y códigos de recuperación (diferido: el plugin de Better Auth no protege el acceso por código)
+- [x] Sesiones de 30 días renovadas con el uso y cierre remoto
+- [x] Turnstile antes de enviar el código
 
 **Hecho cuando:** Se puede crear cuenta, entrar con passkey y cerrar sesión remota.
 
@@ -110,21 +110,21 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-010 · App Expo esqueleto
 
 - Tipo: `feat` · Tamaño: M · Requiere cuenta: Expo
-- [ ] Expo Router con pestañas
-- [ ] Paquete ui con tokens claro y oscuro
-- [ ] i18n español / inglés
-- [ ] Pantallas de login conectadas a FIN-009
+- [x] Expo Router con pestañas
+- [x] Paquete ui con tokens claro y oscuro
+- [x] i18n español / inglés
+- [x] Pantallas de login conectadas a FIN-009
 
 **Hecho cuando:** La app abre en Android y en web y permite iniciar sesión.
 
 #### FIN-011 · Previews por PR
 
 - Tipo: `ci` · Tamaño: L · Requiere cuenta: Secretos en GitHub
-- [ ] Rama Neon por PR con migraciones
-- [ ] Worker api-pr-N
+- [x] Rama Neon por PR con migraciones
+- [x] Worker api-pr-N
 - [ ] Web preview en Pages
 - [ ] EAS Update en canal pr-N con QR
-- [ ] Comentario automático y limpieza al cerrar
+- [x] Comentario automático y limpieza al cerrar
 
 **Hecho cuando:** Un PR de prueba comenta enlaces de API, web y QR de la app.
 
@@ -141,9 +141,9 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-013 · Modelo de amenazas y política de seguridad
 
 - Tipo: `docs` · Tamaño: S
-- [ ] STRIDE por módulo en docs/security.md
-- [ ] security.txt
-- [ ] Checklist ASVS / MASVS en la plantilla de PR
+- [x] STRIDE por módulo en docs/security/modelo-de-amenazas.md
+- [x] security.txt
+- [x] Checklist ASVS / MASVS en la plantilla de PR
 
 **Hecho cuando:** Documento revisado y enlazado desde el README.
 
