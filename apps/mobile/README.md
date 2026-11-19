@@ -178,6 +178,16 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Exportar CSV: una fila por cuenta de cada movimiento, separado por `;`, con coma decimal y BOM
   para Excel. Las celdas que parecen fórmulas se neutralizan.
 
+## Widgets de Android
+
+- `react-native-android-widget` (plugin en `app.json`). El manejador se registra en `index.ts`,
+  antes de expo-router, porque Android lo llama sin abrir la app.
+- **Gasto rápido:** un botón grande y tres categorías frecuentes. Abren el registro rápido por
+  enlace (`lukas://movement/new?kind=expense&category=…`), con el bloqueo de la app de por medio.
+- **Disponible del mes:** lo calcula la app al abrir el inicio y lo guarda cifrado en SecureStore
+  para pintarlo después. Si hay PIN o modo discreto muestra `••••`, y no se ofrece en la pantalla
+  de bloqueo del teléfono.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

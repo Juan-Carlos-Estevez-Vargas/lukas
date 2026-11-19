@@ -45,6 +45,37 @@
           "photosPermission": "Lukas usa tus fotos para adjuntar recibos a tus gastos.",
           "microphonePermission": false
         }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "MonthAvailable",
+              "label": "Disponible del mes",
+              "description": "Cuánto te queda este mes. Se oculta si usas PIN o modo discreto.",
+              "minWidth": "180dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "widgetCategory": "not_keyguard",
+              "updatePeriodMillis": 0
+            },
+            {
+              "name": "QuickExpense",
+              "label": "Gasto rápido",
+              "description": "Registra un gasto con un toque.",
+              "minWidth": "180dp",
+              "minHeight": "50dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 1,
+              "resizeMode": "horizontal",
+              "widgetCategory": "home_screen",
+              "updatePeriodMillis": 0
+            }
+          ]
+        }
       ]
     ],
     "experiments": {

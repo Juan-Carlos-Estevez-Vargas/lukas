@@ -1,6 +1,6 @@
 import { type Account, Money, type RateTable } from "@lukas/domain";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { civilDate } from "../../src/accounts/credit-card";
 import { groupAccounts } from "../../src/accounts/templates";
@@ -24,10 +24,13 @@ import {
 import { AvailableCard, TopCategoriesCard, UpcomingCard } from "../../src/home/home-cards";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { useAppLock } from "../../src/lock/app-lock";
 import { ratesClient } from "../../src/rates/client";
 import { copRates, refreshRates, type StoredRate } from "../../src/rates/rates";
 import { parseCivil } from "../../src/recurring/recurring";
 import { useRecurring } from "../../src/recurring/use-recurring";
+import { updateWidgets } from "../../src/widgets/bridge";
+import { availableSnapshot } from "../../src/widgets/snapshot";
 
 interface Row {
   readonly account: Account;
@@ -46,6 +49,20 @@ export default function Summary() {
   const [worth, setWorth] = useState<NetWorth | null>(null);
   const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
+  const lock = useAppLock();
+  // Los widgets se ven sin desbloquear: con PIN o modo discreto no muestran el monto.
+  const hiddenOnWidget = discreet || lock.status !== "off";
+
+  useEffect(() => {
+    if (!available) return;
+    const snapshot = availableSnapshot(available.available, {
+      locale,
+      hidden: hiddenOnWidget,
+      label: t("widget.label"),
+      hint: t(hiddenOnWidget ? "widget.hidden" : "widget.hint"),
+    });
+    void updateWidgets(snapshot, t("widget.quick")).catch(() => undefined);
+  }, [available, hiddenOnWidget, locale, t]);
 
   useFocusEffect(
     useCallback(() => {

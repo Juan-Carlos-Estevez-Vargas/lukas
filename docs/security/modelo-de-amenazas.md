@@ -84,6 +84,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | T | Respaldo manipulado para inyectar SQL o datos inválidos | ✓ Solo tablas conocidas y columnas que existen (`PRAGMA table_info`); valores escalares; restauración en una transacción con revisión de llaves foráneas; si algo falla no cambia nada (FIN-116) |
 | I | CSV exportado abierto en Excel ejecuta fórmulas | ✓ Celdas que empiezan con `=`, `+`, `-`, `@` se anteponen con `'`; el CSV no va cifrado y la pantalla lo advierte (FIN-116) |
 | I | Copias del respaldo o CSV quedan en el teléfono | ✓ Se escriben en la caché privada solo para compartirlos y se borran al terminar (FIN-116) |
+| I | Widget con el disponible a la vista sin desbloquear | ✓ Con PIN o modo discreto muestra `••••`; no se ofrece en la pantalla de bloqueo; el resumen se guarda en SecureStore (FIN-117) |
 | D | Actualización OTA maliciosa | ○ Firma de código de EAS Update (FIN-011) |
 | E | Permisos de notificaciones usados para leer más de lo necesario | ○ Filtro por paquete de banco/billetera y procesamiento solo local (F2) |
 

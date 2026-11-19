@@ -338,6 +338,10 @@ export const es = {
   "csv.amount": "Monto",
   "csv.currency": "Moneda",
   "csv.tags": "Etiquetas",
+  "widget.label": "Disponible este mes",
+  "widget.hint": "Toca para abrir",
+  "widget.hidden": "Abre Lukas para verlo",
+  "widget.quick": "+ Gasto",
 } as const;
 
 export type MessageKey = keyof typeof es;
