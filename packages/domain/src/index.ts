@@ -38,6 +38,16 @@ export {
   type StatementCycle,
   summarizeCard,
 } from "./ledger/credit-card";
+export {
+  type CategoryUse,
+  type MovementCategory,
+  type MovementDeps,
+  type MovementInput,
+  type MovementKind,
+  merchantKey,
+  newMovement,
+  suggestFromHistory,
+} from "./ledger/movement";
 export type {
   AccountRepository,
   LedgerRepositories,
