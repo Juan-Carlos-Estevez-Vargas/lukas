@@ -12,6 +12,10 @@ name: Registrar un gasto
     id: "movement-merchant"
 - inputText: "Tienda E2E"
 - hideKeyboard
+# Las categorías quedan debajo del teclado numérico: hay que bajar hasta ellas.
+- scrollUntilVisible:
+    element: ".*Mercado"
+    centerElement: true
 - tapOn: ".*Mercado"
 - scrollUntilVisible:
     element: "Guardar"
