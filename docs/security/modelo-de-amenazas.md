@@ -70,8 +70,9 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 
 | STRIDE | Amenaza | Control |
 | --- | --- | --- |
-| S | App modificada o falsa | ○ Firma del APK en CI y Play Integrity (FIN-012, F3) |
-| T | Base local alterada | ○ SQLite con SQLCipher y clave en Keystore (FIN-101) |
+| S | App modificada o falsa | ✓ APK firmado por EAS en cada release (FIN-012) · ○ Play Integrity (F3) |
+| T, I | Base local leída o alterada | ✓ SQLCipher (AES-256) con clave aleatoria en Keystore/Keychain; sin SQLCipher la app no abre la base (FIN-101) |
+| I | Finanzas guardadas en claro en el navegador | ✓ La web no tiene base local; usará la API (fase 2) |
 | I | Datos visibles en capturas o en el selector de apps | ○ `FLAG_SECURE` opcional y bloqueo con biometría (FIN-103) |
 | I | Copias de seguridad del teléfono con datos | ✓ `allowBackup: false` |
 | D | Actualización OTA maliciosa | ○ Firma de código de EAS Update (FIN-011) |
