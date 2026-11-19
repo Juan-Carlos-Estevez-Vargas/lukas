@@ -20,6 +20,8 @@ env:
   PR: ${{ github.event.pull_request.number }}
   WORKER: lukas-api-pr-${{ github.event.pull_request.number }}
   BRANCH: preview/pr-${{ github.event.pull_request.number }}
+  # GITHUB_SHA es el commit de merge temporal; el del PR es este.
+  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
 jobs:
   preflight:
@@ -116,7 +118,7 @@ jobs:
             if pnpm exec wrangler deploy --env preview --name "$WORKER" \
               --var "AUTH_URL:https://$HOST" \
               --var "PASSKEY_RP_ID:$HOST" \
-              --var "APP_VERSION:pr-$PR-${GITHUB_SHA::7}" \
+              --var "APP_VERSION:pr-$PR-${HEAD_SHA::7}" \
               --secrets-file "$secrets"; then
               break
             fi
@@ -153,7 +155,7 @@ jobs:
           | API | $URL/health |
           | OpenAPI | $URL/v1/openapi.json |
           | Base de datos | rama \`$BRANCH\` de Neon, migrada |
-          | Commit | \`${GITHUB_SHA::7}\` |
+          | Commit | \`${HEAD_SHA::7}\` |
 
           Para probar la app: \`EXPO_PUBLIC_API_URL=$URL pnpm --filter @lukas/mobile dev\`.
           Se borra al cerrar el PR."
