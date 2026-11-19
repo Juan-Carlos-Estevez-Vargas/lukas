@@ -216,9 +216,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-107 · Transferencias entre cuentas
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Caso de uso TransferFunds con doble partida
-- [ ] Comisiones opcionales
-- [ ] Multi-moneda en transferencias
+- [x] Caso de uso TransferFunds con doble partida
+- [x] Comisiones opcionales
+- [x] Multi-moneda en transferencias
 
 **Hecho cuando:** El patrimonio total no cambia tras una transferencia.
 

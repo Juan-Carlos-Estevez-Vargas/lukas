@@ -90,6 +90,15 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Categoría sugerida: la que más ha usado la persona con ese comercio; si es nuevo, reglas de
   comercios colombianos conocidos (`src/movements/merchant-rules.ts`).
 
+## Transferencias
+
+- Desde el registro rápido, "Transferencia" abre `app/movement/transfer.tsx`: pagar la tarjeta,
+  pasar de Nequi al banco o cambiar dólares.
+- La comisión (o el 4x1000) sale de la cuenta de origen hacia "Comisiones e impuestos bancarios".
+- Entre monedas se escribe lo que sale y lo que llega; la categoría de sistema "Cambio de moneda"
+  hace que cada moneda cuadre por su lado. Las cuentas pueden crearse en COP, USD o EUR.
+- Montos con coma decimal y punto de miles ("1.234,56"); en pesos, solo enteros.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y
