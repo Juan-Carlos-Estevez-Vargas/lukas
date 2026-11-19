@@ -16,6 +16,20 @@
 3. Al fusionar ese PR se crean los tags `<paquete>@<versión>` y un GitHub Release por cada uno, con su changelog.
 4. Desde FIN-012, un tag `api@*` despliega la API a producción y un tag `mobile@*` construye el APK firmado y lo adjunta al release. Los despliegues a producción esperan aprobación manual en el entorno `production`.
 
+## Previews por PR
+
+El workflow `preview.yml` crea, para cada PR del propio repo:
+
+- una rama de Neon `preview/pr-<N>` con las migraciones aplicadas (compute de 0.25 CU que se
+  suspende a los 5 minutos);
+- un Worker `lukas-api-pr-<N>` en workers.dev con esa base, un `BETTER_AUTH_SECRET` propio y
+  `ENVIRONMENT=preview`;
+- un comentario en el PR con los enlaces, que se actualiza en cada push.
+
+Al cerrar o fusionar el PR se borran el Worker y la rama. Necesita los secretos
+`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` y `NEON_API_KEY`; sin ellos el workflow se salta
+sin fallar. La web en Pages y el QR de EAS Update se suman cuando existan la web y `EXPO_TOKEN`.
+
 ## App móvil
 
 - `version` de `apps/mobile/package.json` es la versión visible (`versionName` en Android, `CFBundleShortVersionString` en iOS).
