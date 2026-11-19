@@ -1,12 +1,13 @@
-import type { CivilDate } from "@lukas/domain";
+import { type CivilDate, Money } from "@lukas/domain";
 import { describe, expect, it } from "vitest";
 import { createFromTemplate } from "../accounts/accounts";
 import { cardFixture, cop, local } from "../accounts/card.test-helper";
 import { templateByKey } from "../accounts/templates";
 import { createBudget } from "../budgets/budgets";
+import { sqliteAccounts } from "../data/ledger-sqlite";
 import { recordMovement } from "../movements/movements";
 import { createRecurring } from "../recurring/recurring";
-import { monthAvailable, topCategories, upcomingPayments } from "./home";
+import { monthAvailable, netWorthOf, topCategories, upcomingPayments } from "./home";
 
 const d = (year: number, month: number, day: number): CivilDate => ({ year, month, day });
 const today = d(2026, 11, 21);
@@ -143,5 +144,65 @@ describe("inicio", () => {
     expect(list.map((p) => [p.name, p.date])).toEqual([["Visa", d(2027, 1, 2)]]);
     expect(list[0]?.amount).toEqual(cop(70_000n));
     expect(await upcomingPayments(fx.db, d(2026, 11, 20), 30)).toEqual([]);
+  });
+
+  it("una cuenta en USD suma al patrimonio en COP con la TRM del día", async () => {
+    const fx = await setup();
+    await fx.add(1_000_000n, local(2026, 11, 1), "default.salario", "income");
+    const tpl = templateByKey("bancolombia");
+    if (!tpl) throw new Error("falta plantilla");
+    const usd = await createFromTemplate(
+      fx.db,
+      tpl,
+      { name: "Ahorro USD", currency: "USD", openingBalance: Money.ofMinor(100_000n, "USD") },
+      fx.clock,
+    );
+    if (!usd.ok) throw usd.error;
+    await fx.db.run(
+      "INSERT INTO accounts (id, name, type, currency, created_at, updated_at) VALUES ('eur', 'EUR', 'bank', 'EUR', 'x', 'x')",
+    );
+    const repo = sqliteAccounts(fx.db);
+    const balances = await Promise.all(
+      (await repo.list()).map(async (a) => ({ balance: await repo.balance(a), archived: false })),
+    );
+    balances.push({ balance: cop(999n), archived: true });
+    const rates = new Map([["USD", "4012.35"]] as const);
+    const worth = netWorthOf(balances, "COP", rates);
+    // Tarjeta $0 + Nequi $1.000.000 + US$1.000 × 4.012,35 = $5.012.350; la cuenta en EUR no tiene tasa.
+    expect(worth.total).toEqual(cop(5_012_350n));
+    expect(worth.missing).toEqual(["EUR"]);
+    expect(netWorthOf(balances, "COP", new Map()).missing).toEqual(["USD", "EUR"]);
+  });
+
+  it("los gastos en dólares cuentan en el mes y en el top, convertidos", async () => {
+    const fx = await setup();
+    const tpl = templateByKey("bancolombia");
+    if (!tpl) throw new Error("falta plantilla");
+    const usd = await createFromTemplate(fx.db, tpl, { name: "USD", currency: "USD" }, fx.clock);
+    if (!usd.ok) throw usd.error;
+    const res = await recordMovement(
+      fx.db,
+      {
+        kind: "expense",
+        accountId: usd.value.id,
+        categoryId: "default.entretenimiento",
+        amount: Money.ofMinor(1_000n, "USD"),
+        occurredAt: local(2026, 11, 3),
+      },
+      fx.clock,
+    );
+    if (!res.ok) throw res.error;
+    await fx.add(30_000n, local(2026, 11, 3), "default.entretenimiento");
+    await fx.add(50_000n, local(2026, 11, 3), "default.mercado");
+    const rates = new Map([["USD", "4000"]] as const);
+    const m = await monthAvailable(fx.db, today, "COP", rates);
+    expect(m.expenses).toEqual(cop(120_000n));
+    const top = await topCategories(fx.db, today, "COP", 3, rates);
+    expect(top.map((c) => [c.id, c.spent])).toEqual([
+      ["default.entretenimiento", cop(70_000n)],
+      ["default.mercado", cop(50_000n)],
+    ]);
+    // Sin tasa, el gasto en dólares no se puede sumar.
+    expect((await monthAvailable(fx.db, today, "COP")).expenses).toEqual(cop(80_000n));
   });
 });

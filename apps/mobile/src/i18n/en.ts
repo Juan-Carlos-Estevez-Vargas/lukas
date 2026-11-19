@@ -302,4 +302,6 @@ export const en: Messages = {
   "home.upcoming": "Upcoming payments",
   "home.upcomingEmpty": "Nothing due in the next 30 days.",
   "home.overdue": "overdue",
+  "summary.trm": "Dollars at the TRM of {rate} from {date}.",
+  "summary.noRate": "No rate for {currencies}: those accounts aren't in your net worth.",
 };

@@ -301,6 +301,8 @@ export const es = {
   "home.upcoming": "Próximos pagos",
   "home.upcomingEmpty": "Nada por pagar en los próximos 30 días.",
   "home.overdue": "vencido",
+  "summary.trm": "Dólares a la TRM de {rate} del {date}.",
+  "summary.noRate": "Sin tasa para {currencies}: esas cuentas no suman al patrimonio.",
 } as const;
 
 export type MessageKey = keyof typeof es;
