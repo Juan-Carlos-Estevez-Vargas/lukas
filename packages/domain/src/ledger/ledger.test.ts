@@ -172,6 +172,73 @@ describe("transferFunds", () => {
     expect(ledger.saved).toHaveLength(0);
   });
 
+  it("registra la comisión como gasto de la cuenta de origen", async () => {
+    const ledger = memoryLedger([account("a"), account("b")]);
+    const res = await transferFunds(ledger, {
+      ...input,
+      fee: { amount: cop(20_000n), categoryId: "comisiones" },
+    });
+    if (!res.ok) throw res.error;
+    expect(res.value.entries.map((e) => [e.target, e.amount.amountMinor])).toEqual([
+      [{ accountId: "a" }, -5_000_000n],
+      [{ accountId: "b" }, 5_000_000n],
+      [{ accountId: "a" }, -20_000n],
+      [{ categoryId: "comisiones" }, 20_000n],
+    ]);
+  });
+
+  it("entre monedas, cada moneda cuadra por la categoría de cambio", async () => {
+    const ledger = memoryLedger([account("usd", { currency: "USD" }), account("b")]);
+    const usd = Money.ofMinor(10_000n, "USD"); // US$100
+    const res = await transferFunds(ledger, {
+      ...input,
+      fromAccountId: "usd",
+      amount: usd,
+      exchange: { received: cop(39_000_000n), categoryId: "cambio" },
+      fee: { amount: Money.ofMinor(300n, "USD"), categoryId: "comisiones" },
+    });
+    if (!res.ok) throw res.error;
+    expect(
+      res.value.entries.map((e) => [e.target, e.amount.toDecimalString(), e.amount.currencyCode]),
+    ).toEqual([
+      [{ accountId: "usd" }, "-100.00", "USD"],
+      [{ categoryId: "cambio" }, "100.00", "USD"],
+      [{ categoryId: "cambio" }, "-390000.00", "COP"],
+      [{ accountId: "b" }, "390000.00", "COP"],
+      [{ accountId: "usd" }, "-3.00", "USD"],
+      [{ categoryId: "comisiones" }, "3.00", "USD"],
+    ]);
+  });
+
+  it.each([
+    ["comisión en cero", { fee: { amount: cop(0n), categoryId: "f" } }, "invalid_fee"],
+    [
+      "comisión en otra moneda",
+      { fee: { amount: Money.ofMinor(1n, "USD"), categoryId: "f" } },
+      "currency_mismatch",
+    ],
+    [
+      "recibido en cero",
+      { toAccountId: "usd", exchange: { received: Money.ofMinor(0n, "USD"), categoryId: "x" } },
+      "invalid_amount",
+    ],
+    [
+      "recibido en otra moneda",
+      { toAccountId: "usd", exchange: { received: cop(1n), categoryId: "x" } },
+      "currency_mismatch",
+    ],
+    [
+      "cambio entre la misma moneda",
+      { exchange: { received: cop(1n), categoryId: "x" } },
+      "currency_mismatch",
+    ],
+  ] as const)("rechaza %s", async (_name, patch, code) => {
+    const ledger = memoryLedger([account("a"), account("b"), account("usd", { currency: "USD" })]);
+    const res = await transferFunds(ledger, { ...input, ...patch });
+    expect(!res.ok && res.error.code).toBe(code);
+    expect(ledger.saved).toHaveLength(0);
+  });
+
   it("usa la descripción dada", async () => {
     const ledger = memoryLedger([account("a"), account("b")]);
     const res = await transferFunds(ledger, { ...input, description: " Ahorro " });
