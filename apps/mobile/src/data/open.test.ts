@@ -52,6 +52,10 @@ function fakeDevice(options: { cipher?: boolean } = {}) {
         }
         return (f.db.prepare(sql).get(...params) as T | undefined) ?? null;
       },
+      all: async <T>(sql: string, params: SqlValue[]) => f.db.prepare(sql).all(...params) as T[],
+      run: async (sql: string, params: SqlValue[]) => {
+        f.db.prepare(sql).run(...params);
+      },
       close: async () => undefined,
     };
   };

@@ -13,6 +13,10 @@ export function nodeSqlite(): RawDatabase & { raw: DatabaseSync } {
     },
     get: async <T>(sql: string, params: SqlValue[]) =>
       (raw.prepare(sql).get(...params) as T | undefined) ?? null,
+    all: async <T>(sql: string, params: SqlValue[]) => raw.prepare(sql).all(...params) as T[],
+    run: async (sql: string, params: SqlValue[]) => {
+      raw.prepare(sql).run(...params);
+    },
     close: async () => raw.close(),
   };
 }
