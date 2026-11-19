@@ -1,0 +1,26 @@
+import type { Messages } from "./es";
+
+export const en: Messages = {
+  "app.name": "Lukas",
+  "tabs.summary": "Summary",
+  "tabs.transactions": "Transactions",
+  "tabs.budgets": "Budgets",
+  "tabs.settings": "Settings",
+  "signIn.title": "Sign in to Lukas",
+  "signIn.subtitle": "We'll email you a 6-digit code. No passwords.",
+  "signIn.email": "Email",
+  "signIn.sendCode": "Send code",
+  "signIn.code": "6-digit code",
+  "signIn.codeSentTo": "Enter the code we sent to {email}.",
+  "signIn.verify": "Sign in",
+  "signIn.changeEmail": "Use another email",
+  "signIn.invalidEmail": "Check the email; it looks incomplete.",
+  "signIn.invalidCode": "The code is invalid or has expired.",
+  "signIn.tooMany": "Too many attempts. Wait {seconds} seconds.",
+  "signIn.network": "We couldn't reach Lukas. Check your connection.",
+  "summary.empty": "No transactions yet. Your balance and monthly spending will show up here.",
+  "transactions.empty": "Your income and expenses will show up here.",
+  "budgets.empty": "Create your first budget to keep your spending in check.",
+  "settings.signOut": "Sign out",
+  "settings.version": "Version {version}",
+};

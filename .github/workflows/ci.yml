@@ -57,6 +57,12 @@ jobs:
       - name: Lint, tipos y pruebas
         run: pnpm turbo run lint typecheck test ${{ steps.scope.outputs.flags }} --cache-dir=.turbo/cache
 
+      # Empaqueta lo afectado: el Worker con wrangler (sin publicar) y el bundle Android de Expo.
+      - name: Compilación
+        run: pnpm turbo run build ${{ steps.scope.outputs.flags }} --cache-dir=.turbo/cache
+        env:
+          CI: "1"
+
       - name: Resumen de cobertura
         if: always()
         run: node scripts/coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
