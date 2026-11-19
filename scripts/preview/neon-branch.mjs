@@ -45,16 +45,11 @@ async function findBranch() {
 if (command === "create") {
   let branch = await findBranch();
   if (!branch) {
-    // Compute mínimo que se suspende a los 5 minutos: las previews no gastan horas de cómputo.
+    // Compute mínimo (0.25 CU). El plan gratuito no deja cambiar la suspensión: usa la de Neon (5 min).
     ({ branch } = await neon("POST", `/projects/${project}/branches`, {
       branch: { name },
       endpoints: [
-        {
-          type: "read_write",
-          autoscaling_limit_min_cu: 0.25,
-          autoscaling_limit_max_cu: 0.25,
-          suspend_timeout_seconds: 300,
-        },
+        { type: "read_write", autoscaling_limit_min_cu: 0.25, autoscaling_limit_max_cu: 0.25 },
       ],
     }));
     console.log(`Rama ${name} creada (${branch.id})`);
