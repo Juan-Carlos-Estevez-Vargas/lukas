@@ -61,6 +61,15 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - En la web no hay base local: sin Keystore ni SQLCipher, los datos quedarían en claro en el
   navegador. La web usará la API cuando llegue el sync (fase 2).
 
+## Cuentas
+
+- Plantillas en `src/accounts/templates.ts`: Efectivo, Nequi, Daviplata, Bancolombia, Nu, Lulo Bank,
+  tarjeta de crédito y ahorros. Un toque crea la cuenta; nombre y saldo inicial son opcionales.
+- Los grupos (efectivo, billeteras, bancos, tarjetas, ahorros, deudas) salen del tipo de cuenta.
+- El saldo inicial es una transacción contra la categoría de sistema "Saldo inicial".
+- Archivar oculta la cuenta sin borrar su historia, y solo se permite con saldo en cero. Tipo y
+  moneda no se editan porque los asientos ya registrados dependen de ellos.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y
