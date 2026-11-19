@@ -72,6 +72,15 @@ CREATE INDEX entries_account_idx ON entries (account_id);
 CREATE INDEX entries_category_idx ON entries (category_id);
 `;
 
+/** Preferencias de la app en el dispositivo (onboarding, modo discreto). Nada secreto: el PIN vive en SecureStore. */
+const v2 = `
+CREATE TABLE preferences (
+  key TEXT PRIMARY KEY NOT NULL,
+  value TEXT NOT NULL
+) STRICT;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
+  { version: 2, name: "preferencias", sql: v2 },
 ];

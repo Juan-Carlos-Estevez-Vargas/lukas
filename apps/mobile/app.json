@@ -25,6 +25,12 @@
         {
           "useSQLCipher": true
         }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Lukas usa Face ID para desbloquear la app."
+        }
       ]
     ],
     "experiments": {

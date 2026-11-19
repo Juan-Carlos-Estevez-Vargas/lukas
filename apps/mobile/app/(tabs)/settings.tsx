@@ -1,25 +1,74 @@
 import Constants from "expo-constants";
 import { useState } from "react";
+import { ScrollView } from "react-native";
 import { useSession } from "../../src/auth/session";
-import { Body, Button, Screen, Title } from "../../src/components/ui";
+import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
+import { useLocalDatabase } from "../../src/data/provider";
+import { useDiscreet } from "../../src/display/discreet";
 import { useI18n } from "../../src/i18n/i18n";
+import { useAppLock } from "../../src/lock/app-lock";
+import { lockStore } from "../../src/lock/lock-store";
+import { PinSetup } from "../../src/lock/pin-setup";
+import { removeSampleData } from "../../src/onboarding/onboarding";
 
 export default function Settings() {
   const { t } = useI18n();
   const { signOut } = useSession();
+  const { discreet, setDiscreet } = useDiscreet();
+  const lock = useAppLock();
+  const database = useLocalDatabase();
   const [busy, setBusy] = useState(false);
+  const [settingPin, setSettingPin] = useState(false);
+
   return (
     <Screen>
-      <Title>{t("tabs.settings")}</Title>
-      <Button
-        label={t("settings.signOut")}
-        busy={busy}
-        onPress={() => {
-          setBusy(true);
-          void signOut();
-        }}
-      />
-      <Body muted>{t("settings.version", { version: Constants.expoConfig?.version ?? "?" })}</Body>
+      <ScrollView contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
+        <Title>{t("tabs.settings")}</Title>
+        <Toggle label={t("settings.discreet")} value={discreet} onChange={setDiscreet} />
+
+        {lockStore.available ? (
+          <>
+            <Body muted>{t(lock.status === "off" ? "settings.lock.off" : "settings.lock.on")}</Body>
+            {lock.status === "off" && !settingPin ? (
+              <Button
+                label={t("settings.lock.enable")}
+                variant="plain"
+                onPress={() => setSettingPin(true)}
+              />
+            ) : null}
+            {settingPin ? (
+              <PinSetup submitLabel={t("settings.lock.save")} onDone={() => setSettingPin(false)} />
+            ) : null}
+            {lock.status === "unlocked" ? (
+              <Button
+                label={t("settings.lock.disable")}
+                variant="plain"
+                onPress={() => void lock.disable()}
+              />
+            ) : null}
+          </>
+        ) : null}
+
+        {database.status === "ready" ? (
+          <Button
+            label={t("settings.sample.remove")}
+            variant="plain"
+            onPress={() => void removeSampleData(database.db)}
+          />
+        ) : null}
+
+        <Button
+          label={t("settings.signOut")}
+          busy={busy}
+          onPress={() => {
+            setBusy(true);
+            void signOut();
+          }}
+        />
+        <Body muted>
+          {t("settings.version", { version: Constants.expoConfig?.version ?? "?" })}
+        </Body>
+      </ScrollView>
     </Screen>
   );
 }
