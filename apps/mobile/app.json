@@ -83,7 +83,10 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "name": "Lukas",
+      "lang": "es-CO",
+      "description": "Tus finanzas personales, claras y en pesos."
     },
     "extra": {
       "eas": {
