@@ -9,6 +9,7 @@ import {
   type Result,
   suggestFromHistory,
   type Transaction,
+  type TransactionSource,
 } from "@lukas/domain";
 import type { Clock } from "../accounts/accounts";
 import { sqliteAccounts, sqliteRepositories } from "../data/ledger-sqlite";
@@ -62,6 +63,7 @@ export interface NewMovement {
   readonly suggestedCategoryId?: string | null;
   /** Foto del recibo ya guardada por el `ReceiptStore`. */
   readonly receipt?: { readonly fileName: string; readonly mimeType: string } | null;
+  readonly source?: TransactionSource;
 }
 
 interface CategoryRow {
@@ -81,59 +83,66 @@ export async function recordMovement(
 ): Promise<Result<Transaction, DomainError>> {
   let result: Result<Transaction, DomainError> | undefined;
   await db.transaction(async (tx) => {
-    const account = await sqliteAccounts(tx).get(input.accountId);
-    const parts =
-      input.splits && input.splits.length > 0
-        ? input.splits
-        : [{ categoryId: input.categoryId, amount: input.amount }];
-    const splits: MovementSplit[] = [];
-    for (const part of parts) {
-      const row = await tx.get<CategoryRow>(
-        "SELECT id, kind, archived_at FROM categories WHERE id = ?",
-        part.categoryId,
-      );
-      if (!row) break;
-      splits.push({
-        category: {
-          id: row.id,
-          kind: row.kind,
-          archivedAt: row.archived_at ? new Date(row.archived_at) : null,
-        },
-        amount: part.amount,
-      });
-    }
-    if (!account || splits.length !== parts.length) {
-      result = { ok: false, error: notFound() };
-      return;
-    }
-    result = newSplitMovement(account, splits, input, clock);
-    if (!result.ok) return;
-    const transaction = result.value;
-    await sqliteRepositories(tx).transactions.save(transaction);
-    await tagTransaction(tx, transaction.id, input.tags ?? [], clock);
-    if (input.receipt) {
-      await tx.run(
-        `INSERT INTO attachments (id, transaction_id, file_name, mime_type, created_at)
-         VALUES (?, ?, ?, ?, ?)`,
-        clock.newId(),
-        transaction.id,
-        input.receipt.fileName,
-        input.receipt.mimeType,
-        clock.now().toISOString(),
-      );
-    }
-    if (input.suggestedCategoryId !== undefined && splits.length === 1) {
-      await learnCorrection(
-        tx,
-        transaction.merchant,
-        input.suggestedCategoryId,
-        input.categoryId,
-        clock,
-      );
-    }
-    await sqlitePreferences(tx).set("movements.lastAccount", account.id);
+    result = await writeMovement(tx, input, clock);
+    if (result.ok) await sqlitePreferences(tx).set("movements.lastAccount", input.accountId);
   });
   if (!result) throw new Error("El registro no produjo resultado");
+  return result;
+}
+
+/** Valida y escribe el movimiento dentro de una transacción ya abierta. */
+export async function writeMovement(
+  tx: SqlConnection,
+  input: NewMovement,
+  clock: Clock,
+): Promise<Result<Transaction, DomainError>> {
+  const account = await sqliteAccounts(tx).get(input.accountId);
+  const parts =
+    input.splits && input.splits.length > 0
+      ? input.splits
+      : [{ categoryId: input.categoryId, amount: input.amount }];
+  const splits: MovementSplit[] = [];
+  for (const part of parts) {
+    const row = await tx.get<CategoryRow>(
+      "SELECT id, kind, archived_at FROM categories WHERE id = ?",
+      part.categoryId,
+    );
+    if (!row) break;
+    splits.push({
+      category: {
+        id: row.id,
+        kind: row.kind,
+        archivedAt: row.archived_at ? new Date(row.archived_at) : null,
+      },
+      amount: part.amount,
+    });
+  }
+  if (!account || splits.length !== parts.length) return { ok: false, error: notFound() };
+  const result = newSplitMovement(account, splits, input, clock);
+  if (!result.ok) return result;
+  const transaction = result.value;
+  await sqliteRepositories(tx).transactions.save(transaction);
+  await tagTransaction(tx, transaction.id, input.tags ?? [], clock);
+  if (input.receipt) {
+    await tx.run(
+      `INSERT INTO attachments (id, transaction_id, file_name, mime_type, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      clock.newId(),
+      transaction.id,
+      input.receipt.fileName,
+      input.receipt.mimeType,
+      clock.now().toISOString(),
+    );
+  }
+  if (input.suggestedCategoryId !== undefined && splits.length === 1) {
+    await learnCorrection(
+      tx,
+      transaction.merchant,
+      input.suggestedCategoryId,
+      input.categoryId,
+      clock,
+    );
+  }
   return result;
 }
 

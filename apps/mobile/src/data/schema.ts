@@ -168,6 +168,40 @@ CREATE TABLE category_rules (
 CREATE UNIQUE INDEX category_rules_unique_idx ON category_rules (source, match, pattern);
 `;
 
+/**
+ * Movimientos recurrentes (arriendo, salario, suscripciones). Cada ocurrencia generada u omitida
+ * queda en `recurring_occurrences`: la llave primaria impide registrar dos veces el mismo día.
+ */
+const v8 = `
+CREATE TABLE recurring (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+  kind TEXT NOT NULL CHECK (kind IN ('expense', 'income')),
+  account_id TEXT NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+  category_id TEXT NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
+  amount_minor INTEGER NOT NULL CHECK (amount_minor > 0),
+  currency TEXT NOT NULL CHECK (length(currency) = 3),
+  frequency TEXT NOT NULL CHECK (frequency IN ('daily', 'weekly', 'monthly', 'yearly')),
+  every INTEGER NOT NULL CHECK (every BETWEEN 1 AND 365),
+  starts_on TEXT NOT NULL,
+  ends_on TEXT,
+  auto_post INTEGER NOT NULL CHECK (auto_post IN (0, 1)),
+  remind INTEGER NOT NULL CHECK (remind IN (0, 1)),
+  posted_through TEXT,
+  archived_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE recurring_occurrences (
+  recurring_id TEXT NOT NULL REFERENCES recurring (id) ON DELETE CASCADE,
+  occurs_on TEXT NOT NULL,
+  transaction_id TEXT REFERENCES transactions (id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (recurring_id, occurs_on)
+) STRICT, WITHOUT ROWID;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -176,4 +210,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 5, name: "etiquetas y recibos", sql: v5 },
   { version: 6, name: "texto de búsqueda", sql: v6 },
   { version: 7, name: "reglas de categorías", sql: v7 },
+  { version: 8, name: "recurrentes", sql: v8 },
 ];
