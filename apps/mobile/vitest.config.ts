@@ -38,6 +38,8 @@ export default defineConfig({
         "src/receipts/receipt-store*.ts",
         "src/receipts/pick*.ts",
         "src/backup/files*.ts",
+        "src/widgets/register*.ts",
+        "src/widgets/bridge*.ts",
       ],
       reporter: ["text", "json-summary"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },

@@ -308,8 +308,8 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-117 · Widgets Android
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Widget de gasto rápido
-- [ ] Widget de disponible del mes
+- [x] Widget de gasto rápido
+- [x] Widget de disponible del mes
 
 **Hecho cuando:** Se registra un gasto desde la pantalla de inicio del teléfono.
 
