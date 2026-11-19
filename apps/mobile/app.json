@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Lukas",
+    "slug": "lukas",
+    "scheme": "lukas",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "android": {
+      "package": "co.lukas.app",
+      "edgeToEdgeEnabled": true,
+      "allowBackup": false
+    },
+    "ios": {
+      "bundleIdentifier": "co.lukas.app",
+      "supportsTablet": false
+    },
+    "plugins": ["expo-router", "expo-secure-store", "expo-localization"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
