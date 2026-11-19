@@ -20,6 +20,8 @@ env:
   PR: ${{ github.event.pull_request.number }}
   WORKER: lukas-api-pr-${{ github.event.pull_request.number }}
   BRANCH: preview/pr-${{ github.event.pull_request.number }}
+  # GITHUB_SHA es el commit de merge temporal; el del PR es este.
+  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
 jobs:
   preflight:
@@ -84,11 +86,14 @@ jobs:
       - name: Subdominio de workers.dev
         id: subdomain
         run: |
-          sub=$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
-            | jq -r '.result.subdomain')
-          if [ -z "$sub" ] || [ "$sub" = "null" ]; then
-            echo "::error::La cuenta de Cloudflare no tiene subdominio de workers.dev. Ábrelo una vez en Workers & Pages."
+          res=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")
+          sub=$(echo "$res" | jq -r '.result.subdomain // empty')
+          if [ -z "$sub" ]; then
+            # Muestra el error de Cloudflare (sin datos sensibles) para distinguir cuenta equivocada
+            # de subdominio sin registrar.
+            echo "$res" | jq -c '.errors'
+            echo "::error::No se pudo leer el subdominio de workers.dev. Revisa CLOUDFLARE_ACCOUNT_ID o elige el subdominio en Workers & Pages."
             exit 1
           fi
           echo "host=$WORKER.$sub.workers.dev" >> "$GITHUB_OUTPUT"
@@ -107,11 +112,20 @@ jobs:
             echo "DATABASE_URL=$DATABASE_URL"
             echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)"
           } > "$secrets"
-          pnpm exec wrangler deploy --env preview --name "$WORKER" \
-            --var "AUTH_URL:https://$HOST" \
-            --var "PASSKEY_RP_ID:$HOST" \
-            --var "APP_VERSION:pr-$PR-${GITHUB_SHA::7}" \
-            --secrets-file "$secrets"
+          # Al crear un Worker nuevo, la API de Cloudflare a veces aún no lo ve en el paso siguiente
+          # al upload (código 10007). Reintentar el deploy completo es idempotente y lo resuelve.
+          for attempt in 1 2 3; do
+            if pnpm exec wrangler deploy --env preview --name "$WORKER" \
+              --var "AUTH_URL:https://$HOST" \
+              --var "PASSKEY_RP_ID:$HOST" \
+              --var "APP_VERSION:pr-$PR-${HEAD_SHA::7}" \
+              --secrets-file "$secrets"; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then rm -f "$secrets"; exit 1; fi
+            echo "::warning::Deploy falló (intento $attempt); reintento en 10 s"
+            sleep 10
+          done
           rm -f "$secrets"
           echo "url=https://$HOST" >> "$GITHUB_OUTPUT"
 
@@ -119,9 +133,10 @@ jobs:
         env:
           URL: ${{ steps.worker.outputs.url }}
         run: |
-          for i in 1 2 3 4 5; do
-            if curl -fsS "$URL/health" | jq -e '.status == "ok" and .environment == "preview"'; then exit 0; fi
-            sleep 5
+          # Con un subdominio de workers.dev recién creado, el certificado TLS tarda unos minutos.
+          for i in $(seq 1 30); do
+            if curl -fsS --max-time 10 "$URL/health" | jq -e '.status == "ok" and .environment == "preview"'; then exit 0; fi
+            sleep 10
           done
           echo "::error::$URL/health no respondió"
           exit 1
@@ -140,7 +155,7 @@ jobs:
           | API | $URL/health |
           | OpenAPI | $URL/v1/openapi.json |
           | Base de datos | rama \`$BRANCH\` de Neon, migrada |
-          | Commit | \`${GITHUB_SHA::7}\` |
+          | Commit | \`${HEAD_SHA::7}\` |
 
           Para probar la app: \`EXPO_PUBLIC_API_URL=$URL pnpm --filter @lukas/mobile dev\`.
           Se borra al cerrar el PR."
