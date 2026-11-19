@@ -339,10 +339,10 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-202 · Protocolo de sync push / pull
 
 - Tipo: `feat` · Tamaño: L
-- [ ] packages/sync con tipos compartidos
-- [ ] Endpoint /v1/sync con cursor
-- [ ] Cola local de cambios pendientes
-- [ ] Idempotencia por operación
+- [x] packages/sync con tipos compartidos
+- [x] Endpoint /v1/sync con cursor
+- [x] Cola local de cambios pendientes
+- [x] Idempotencia por operación
 
 **Hecho cuando:** Cambios offline en el teléfono aparecen en la web al reconectar.
 

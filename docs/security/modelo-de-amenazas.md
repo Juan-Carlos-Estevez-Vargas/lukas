@@ -41,6 +41,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | I | Logs con datos personales | ✓ Los logs solo llevan ids y nombres de error · ○ revisión con Semgrep de reglas propias (F1) |
 | D | Abuso o fuerza bruta | ✓ 120 solicitudes/min en `/v1` y 5/min en `/v1/auth` · Plan gratis: 10 ms de CPU por solicitud |
 | E | Leer o cambiar datos de otro usuario (IDOR) | ✓ `requireUser` en rutas privadas · ✓ RLS en Postgres: la API consulta con `withUser` (rol `lukas_app` + `app.user_id` locales a la transacción) y solo ve lo propio y lo compartido con sus hogares; pruebas de aislamiento en `packages/db/src/rls.test.ts` · ✓ escrituras y accesos sensibles quedan en `audit_log` por trigger (la app no puede escribirla ni leer la de otros) |
+| T | Sync: lotes manipulados, reenviados o con datos de otro usuario | ✓ `@lukas/sync` valida cada operación (tipos, UUID, montos enteros, asientos que cuadran, máximo 100 por lote) · ✓ el usuario sale de la sesión, nunca del cuerpo, y todo corre en `withUser` con RLS · ✓ `opId` idempotente y versión por registro: un reenvío no duplica y una versión vieja responde `conflict` |
 | T | Una TRM falsa o corrupta desde datos abiertos | ✓ Solo se acepta un decimal positivo de `datos.gov.co` por HTTPS; se guarda por día y la app valida el formato antes de usarla |
 | D | Datos abiertos caídos | ✓ Cron diario y respaldo en la última TRM guardada; `GET /v1/rates/usd-cop` es público, sin datos personales y con caché de 1 hora |
 
