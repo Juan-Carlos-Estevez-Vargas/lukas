@@ -139,7 +139,7 @@ jobs:
           for attempt in 1 2 3; do
             if pnpm exec wrangler deploy --env preview --name "$WORKER" \
               --var "AUTH_URL:https://$HOST" \
-              --var "PASSKEY_RP_ID:$HOST" \
+              --var "PASSKEY_RP_ID:${WEB_URL#https://}" \
               --var "APP_VERSION:pr-$PR-${HEAD_SHA::7}" \
               --var "CORS_ORIGINS:$WEB_URL,http://localhost:8081" \
               --secrets-file "$secrets"; then
