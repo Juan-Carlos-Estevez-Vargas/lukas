@@ -98,6 +98,27 @@ jobs:
           fi
           echo "host=$WORKER.$sub.workers.dev" >> "$GITHUB_OUTPUT"
 
+      # La web se compila apuntando a la API de esta preview y se publica como rama de Pages.
+      - name: Web en Cloudflare Pages
+        id: web
+        env:
+          EXPO_PUBLIC_API_URL: https://${{ steps.subdomain.outputs.host }}
+          CI: "1"
+        run: |
+          out="$RUNNER_TEMP/web"
+          (cd apps/mobile && pnpm exec expo export --platform web --output-dir "$out")
+          cd apps/api
+          # Crea el proyecto la primera vez; si ya existe, Cloudflare responde error y se sigue.
+          pnpm exec wrangler pages project create lukas-web --production-branch main >/dev/null 2>&1 || true
+          pnpm exec wrangler pages deploy "$out" --project-name lukas-web --branch "pr-$PR" \
+            --commit-hash "$HEAD_SHA" --commit-dirty=true
+          # El subdominio real puede llevar sufijo si lukas-web.pages.dev ya estaba tomado.
+          sub=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/lukas-web" \
+            | jq -r '.result.subdomain // empty')
+          if [ -z "$sub" ]; then echo "::error::No se encontró el proyecto lukas-web en Pages"; exit 1; fi
+          echo "url=https://pr-$PR.$sub" >> "$GITHUB_OUTPUT"
+
       # Turnstile no se activa en previews hasta que la app envíe el token del widget.
       - name: Desplegar Worker
         id: worker
@@ -105,6 +126,7 @@ jobs:
         env:
           DATABASE_URL: ${{ steps.neon.outputs.database_url }}
           HOST: ${{ steps.subdomain.outputs.host }}
+          WEB_URL: ${{ steps.web.outputs.url }}
         run: |
           umask 077
           secrets="$RUNNER_TEMP/preview-secrets.env"
@@ -119,6 +141,7 @@ jobs:
               --var "AUTH_URL:https://$HOST" \
               --var "PASSKEY_RP_ID:$HOST" \
               --var "APP_VERSION:pr-$PR-${HEAD_SHA::7}" \
+              --var "CORS_ORIGINS:$WEB_URL,http://localhost:8081" \
               --secrets-file "$secrets"; then
               break
             fi
@@ -145,6 +168,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           URL: ${{ steps.worker.outputs.url }}
+          WEB_URL: ${{ steps.web.outputs.url }}
         run: |
           marker="<!-- lukas-preview -->"
           body="$marker
@@ -152,12 +176,13 @@ jobs:
 
           | | |
           | --- | --- |
+          | Web | $WEB_URL |
           | API | $URL/health |
           | OpenAPI | $URL/v1/openapi.json |
           | Base de datos | rama \`$BRANCH\` de Neon, migrada |
           | Commit | \`${HEAD_SHA::7}\` |
 
-          Para probar la app: \`EXPO_PUBLIC_API_URL=$URL pnpm --filter @lukas/mobile dev\`.
+          Para probar la app Android: \`EXPO_PUBLIC_API_URL=$URL pnpm --filter @lukas/mobile dev\`.
           Se borra al cerrar el PR."
           id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
             --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -1)
@@ -192,6 +217,15 @@ jobs:
       - name: Borrar Worker
         working-directory: apps/api
         run: pnpm exec wrangler delete --name "$WORKER" --force || echo "El Worker $WORKER no existía"
+
+      - name: Borrar despliegues web
+        run: |
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/lukas-web/deployments"
+          ids=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api?per_page=25" \
+            | jq -r --arg b "pr-$PR" '.result // [] | .[] | select(.deployment_trigger.metadata.branch == $b) | .id')
+          for id in $ids; do
+            curl -sS -X DELETE -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/$id?force=true" | jq -c '.success'
+          done
 
       - name: Borrar rama de Neon
         run: node scripts/preview/neon-branch.mjs delete "$BRANCH"
