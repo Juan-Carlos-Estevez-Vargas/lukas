@@ -9,7 +9,14 @@ export default defineConfig({
       provider: "v8",
       include: ["src/**/*.ts"],
       // El esquema es declarativo; su comportamiento se prueba en ledger.test.ts contra Postgres.
-      exclude: ["src/**/*.test.ts", "src/test/**", "src/index.ts", "src/schema/**"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/test/**",
+        "src/index.ts",
+        "src/schema/**",
+        // Script de despliegue: se ejecuta contra Neon en el workflow de previews.
+        "src/migrate.ts",
+      ],
       reporter: ["text", "json-summary"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },
     },
