@@ -3,7 +3,12 @@ appId: co.lukas.app
 name: Reportes
 ---
 - runFlow: subflows/primer-uso.yaml
-- tapOn: "Registrar movimiento"
+# Mismo enlace del widget de gasto rápido (ver registrar-gasto.yaml).
+- openLink: "lukas://movement/new?kind=expense&category=default.mercado"
+- extendedWaitUntil:
+    visible:
+      id: "movement-merchant"
+    timeout: 10000
 - tapOn: "4"
 - tapOn: "0"
 - tapOn: "000"
@@ -11,14 +16,6 @@ name: Reportes
     id: "movement-merchant"
 - inputText: "Almuerzo E2E"
 - hideKeyboard
-- scrollUntilVisible:
-    element:
-      id: "movement-categories"
-    centerElement: true
-- scrollUntilVisible:
-    element: ".*Mercado"
-    direction: RIGHT
-- tapOn: ".*Mercado"
 - scrollUntilVisible:
     element: "Guardar"
 - tapOn: "Guardar"
