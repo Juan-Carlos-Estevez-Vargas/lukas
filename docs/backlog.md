@@ -176,10 +176,10 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-103 · Onboarding y bloqueo de la app
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Flujo de 3 pasos
-- [ ] Bloqueo con biometría o PIN
-- [ ] Datos de ejemplo opcionales
-- [ ] Modo discreto que oculta montos
+- [x] Flujo de 3 pasos
+- [x] Bloqueo con biometría o PIN
+- [x] Datos de ejemplo opcionales
+- [x] Modo discreto que oculta montos
 
 **Hecho cuando:** Una persona nueva registra su primer gasto en menos de 1 minuto.
 

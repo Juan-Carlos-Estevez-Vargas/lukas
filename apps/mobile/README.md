@@ -61,6 +61,21 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - En la web no hay base local: sin Keystore ni SQLCipher, los datos quedarían en claro en el
   navegador. La web usará la API cuando llegue el sync (fase 2).
 
+## Primer uso y bloqueo
+
+- Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y
+  protección. El saldo inicial se registra contra la categoría de sistema "Saldo inicial"
+  (patrimonio), así que el libro siempre cuadra. Todo se guarda en una sola transacción.
+- Datos de ejemplo opcionales en su propia cuenta; se borran desde Ajustes sin tocar lo demás.
+- Bloqueo con PIN de 4 a 6 dígitos (sin repetidos ni seguidos) y, si el teléfono la tiene, huella
+  o rostro. Se guarda solo el hash con sal (SHA-256 iterado) en Keystore/Keychain. Tras 5 fallos
+  la espera crece de 30 s hasta 15 min. Se bloquea al abrir y tras un minuto en segundo plano, y la
+  pantalla se tapa en el selector de apps.
+- El PIN no cifra la base: la clave de SQLCipher es independiente, así que cambiar o quitar el PIN
+  no recifra nada.
+- Modo discreto: oculta todos los montos (`••••`), guardado en la tabla `preferences`.
+- En la web no hay onboarding ni bloqueo: no hay base local.
+
 Las pruebas corren la lógica sobre `node:sqlite`. Que el archivo no se abra sin la clave lo
 garantiza SQLCipher y se comprueba en el dispositivo.
 
