@@ -124,6 +124,16 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Al corregir la categoría sugerida, o al recategorizar desde el detalle de un movimiento, se
   aprende una regla para ese comercio y el siguiente sale bien.
 
+## Recurrentes
+
+- Reglas diarias, semanales, mensuales o anuales cada N periodos (`packages/domain`,
+  `ledger/recurrence.ts`). El arriendo del 31 cae el 30 en abril y vuelve al 31 en mayo.
+- Al abrir la app o volver a ella se registran solos los vencidos (`src/recurring`), cada uno en
+  su transacción. `recurring_occurrences` (migración 8) impide registrar dos veces el mismo día.
+- Los que solo avisan quedan pendientes hasta que la persona los registra u omite.
+- Si empieza en el pasado no se rellena la historia. El aviso local sale a las 9 a. m. del día y
+  no muestra montos.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

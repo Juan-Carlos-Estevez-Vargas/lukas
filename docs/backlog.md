@@ -252,9 +252,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-111 · Recurrentes y recordatorios
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Reglas de repetición
-- [ ] Notificaciones locales
-- [ ] Generación automática al vencer
+- [x] Reglas de repetición
+- [x] Notificaciones locales
+- [x] Generación automática al vencer
 
 **Hecho cuando:** El arriendo aparece solo cada mes.
 
