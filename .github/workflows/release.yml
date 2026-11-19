@@ -14,6 +14,8 @@ jobs:
   release:
     name: Versionar y publicar releases
     runs-on: ubuntu-latest
+    outputs:
+      mobile_tag: ${{ steps.tags.outputs.mobile }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -30,7 +32,8 @@ jobs:
 
       # Si hay changesets pendientes, abre o actualiza el PR "Version Packages".
       # Al fusionar ese PR, crea los tags <paquete>@<versión> y sus GitHub Releases.
-      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+      - id: changesets
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           version: pnpm changeset version
           publish: pnpm changeset tag
@@ -39,3 +42,21 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag de la app
+        id: tags
+        env:
+          PUBLISHED: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          v=$(echo "${PUBLISHED:-[]}" | jq -r '.[] | select(.name == "@lukas/mobile") | .version')
+          if [ -n "$v" ]; then echo "mobile=@lukas/mobile@$v" >> "$GITHUB_OUTPUT"; fi
+
+  # Cada release de @lukas/mobile lleva su APK firmado adjunto.
+  apk:
+    name: APK del release
+    needs: release
+    if: needs.release.outputs.mobile_tag != ''
+    uses: ./.github/workflows/eas.yml
+    with:
+      release_tag: ${{ needs.release.outputs.mobile_tag }}
+    secrets: inherit
