@@ -1,0 +1,159 @@
+name: Deploy
+
+# Despliega la API (Worker), la web (Pages) y las migraciones de un entorno fijo.
+#   - staging: en cada push a main.
+#   - production: solo a mano (Actions → Deploy → Run workflow → production), y solo con
+#     aprobación explícita del dueño. Los repos privados del plan gratuito no tienen revisores
+#     obligatorios en environments, así que la aprobación es este disparo manual.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Entorno a desplegar
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Desplegar ${{ inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-${{ inputs.environment || 'staging' }}
+      cancel-in-progress: false
+    environment:
+      name: ${{ inputs.environment || 'staging' }}
+      url: ${{ steps.web.outputs.url }}
+    env:
+      TARGET: ${{ inputs.environment || 'staging' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: super-rice-42769984
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Producción usa la rama principal de Neon; staging, una rama persistente que nace de ella.
+      - name: Base de datos
+        id: neon
+        run: |
+          if [ "$TARGET" = production ]; then branch=main; else branch=staging; fi
+          node scripts/preview/neon-branch.mjs create "$branch"
+
+      - name: Migraciones
+        env:
+          DATABASE_URL: ${{ steps.neon.outputs.database_url }}
+        run: pnpm --filter @lukas/db db:migrate
+
+      - name: Nombres y dominios
+        id: names
+        run: |
+          cf="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
+          auth="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+          workers=$(curl -sS -H "$auth" "$cf/workers/subdomain" | jq -r '.result.subdomain // empty')
+          pages=$(curl -sS -H "$auth" "$cf/pages/projects/lukas-web" | jq -r '.result.subdomain // empty')
+          if [ -z "$workers" ] || [ -z "$pages" ]; then
+            echo "::error::Falta el subdominio de workers.dev o el proyecto lukas-web en Pages"
+            exit 1
+          fi
+          if [ "$TARGET" = production ]; then
+            worker=lukas-api; web_host="$pages"
+          else
+            worker=lukas-api-staging; web_host="staging.$pages"
+          fi
+          {
+            echo "worker=$worker"
+            echo "api_url=https://$worker.$workers.workers.dev"
+            echo "web_host=$web_host"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Web en Cloudflare Pages
+        id: web
+        env:
+          EXPO_PUBLIC_API_URL: ${{ steps.names.outputs.api_url }}
+          WEB_HOST: ${{ steps.names.outputs.web_host }}
+          CI: "1"
+        run: |
+          out="$RUNNER_TEMP/web"
+          (cd apps/mobile && pnpm exec expo export --platform web --output-dir "$out")
+          # La rama de producción del proyecto es main; staging es una rama de vista previa fija.
+          if [ "$TARGET" = production ]; then branch=main; else branch=staging; fi
+          cd apps/api
+          pnpm exec wrangler pages deploy "$out" --project-name lukas-web --branch "$branch" \
+            --commit-hash "$GITHUB_SHA" --commit-dirty=true
+          echo "url=https://$WEB_HOST" >> "$GITHUB_OUTPUT"
+
+      - name: API en Workers
+        working-directory: apps/api
+        env:
+          DATABASE_URL: ${{ steps.neon.outputs.database_url }}
+          WORKER: ${{ steps.names.outputs.worker }}
+          API_URL: ${{ steps.names.outputs.api_url }}
+          WEB_HOST: ${{ steps.names.outputs.web_host }}
+        run: |
+          umask 077
+          secrets="$RUNNER_TEMP/secrets.env"
+          echo "DATABASE_URL=$DATABASE_URL" > "$secrets"
+          # BETTER_AUTH_SECRET firma las sesiones: se crea una sola vez por entorno y luego se
+          # conserva, o todas las sesiones abiertas se invalidarían en cada despliegue.
+          if ! pnpm exec wrangler secret list --env "$TARGET" --format json 2>/dev/null \
+            | jq -e 'map(.name) | index("BETTER_AUTH_SECRET")' > /dev/null; then
+            echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)" >> "$secrets"
+          fi
+          version=$(jq -r .version package.json)
+          for attempt in 1 2 3; do
+            if pnpm exec wrangler deploy --env "$TARGET" \
+              --var "AUTH_URL:$API_URL" \
+              --var "PASSKEY_RP_ID:$WEB_HOST" \
+              --var "CORS_ORIGINS:https://$WEB_HOST" \
+              --var "APP_VERSION:$version" \
+              --secrets-file "$secrets"; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then rm -f "$secrets"; exit 1; fi
+            echo "::warning::Deploy falló (intento $attempt); reintento en 10 s"
+            sleep 10
+          done
+          rm -f "$secrets"
+
+      - name: Prueba de humo
+        env:
+          API_URL: ${{ steps.names.outputs.api_url }}
+          WEB_URL: ${{ steps.web.outputs.url }}
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS --max-time 10 "$API_URL/health" | jq -e --arg e "$TARGET" '.status == "ok" and .environment == $e'; then
+              curl -fsS --max-time 10 -o /dev/null "$WEB_URL" && echo "Web OK" && exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::$API_URL/health o $WEB_URL no respondieron"
+          exit 1
+
+      - name: Resumen
+        env:
+          API_URL: ${{ steps.names.outputs.api_url }}
+          WEB_URL: ${{ steps.web.outputs.url }}
+        run: |
+          {
+            echo "### Despliegue a $TARGET"
+            echo "- Web: $WEB_URL"
+            echo "- API: $API_URL/health"
+            echo "- Commit: \`${GITHUB_SHA::7}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

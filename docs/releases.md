@@ -32,6 +32,19 @@ Al cerrar o fusionar el PR se borran el Worker, los despliegues web de esa rama 
 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` y `NEON_API_KEY`; sin ellos el workflow se salta
 sin fallar. El QR de EAS Update se suma en un PR aparte.
 
+## Entornos
+
+| Entorno | Cuándo se despliega | Web | API | Base de datos |
+| --- | --- | --- | --- | --- |
+| Preview | Cada PR (`preview.yml`) | `pr-<N>.<proyecto>.pages.dev` | `lukas-api-pr-<N>` | Rama `preview/pr-<N>` |
+| Staging | Cada push a `main` (`deploy.yml`) | `staging.<proyecto>.pages.dev` | `lukas-api-staging` | Rama `staging` |
+| Producción | Manual: Actions → Deploy → Run workflow → `production` | `<proyecto>.pages.dev` | `lukas-api` | Rama `main` de Neon |
+
+Producción solo se despliega con aprobación explícita del dueño. El plan gratuito de GitHub no
+permite revisores obligatorios en repos privados, así que la aprobación es el disparo manual.
+`BETTER_AUTH_SECRET` se genera una sola vez por entorno y se conserva entre despliegues.
+Las cuotas de cada servicio están en [cuotas-gratuitas.md](cuotas-gratuitas.md).
+
 ## App móvil
 
 - `version` de `apps/mobile/package.json` es la versión visible (`versionName` en Android, `CFBundleShortVersionString` en iOS).
