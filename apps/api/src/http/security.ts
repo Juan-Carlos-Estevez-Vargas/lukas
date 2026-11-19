@@ -3,18 +3,17 @@ import { createMiddleware } from "hono/factory";
 import { secureHeaders } from "hono/secure-headers";
 import type { AppContext } from "../env";
 
-const allowedOrigins = (value: string | undefined): ReadonlySet<string> =>
-  new Set(
-    (value ?? "")
-      .split(",")
-      .map((origin) => origin.trim())
-      .filter(Boolean),
-  );
+/** Lista de orígenes de `CORS_ORIGINS`; la usan CORS, las cookies y las passkeys. */
+export const parseOrigins = (value: string | undefined): string[] =>
+  (value ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 /** CORS cerrado: solo los orígenes de `CORS_ORIGINS`. Cualquier otro no recibe cabeceras CORS. */
 export const corsPolicy = createMiddleware<AppContext>((c, next) =>
   cors({
-    origin: (origin) => (allowedOrigins(c.env.CORS_ORIGINS).has(origin) ? origin : null),
+    origin: (origin) => (parseOrigins(c.env.CORS_ORIGINS).includes(origin) ? origin : null),
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Request-Id"],

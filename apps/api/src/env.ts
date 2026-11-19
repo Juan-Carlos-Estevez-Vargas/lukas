@@ -6,6 +6,16 @@ export interface Env {
   readonly CORS_ORIGINS?: string;
   /** Límite general de la API por usuario o IP. */
   readonly API_LIMITER?: RateLimit;
+  /** URL pública de la API (base para enlaces y cookies de Better Auth). */
+  readonly AUTH_URL?: string;
+  /** Dominio de las passkeys (rpID de WebAuthn), p. ej. `lukas.pages.dev`. */
+  readonly PASSKEY_RP_ID?: string;
+  /** Secreto de Better Auth (`wrangler secret put`), nunca en vars. */
+  readonly BETTER_AUTH_SECRET?: string;
+  /** Cadena de conexión a Neon (`wrangler secret put`), nunca en vars. */
+  readonly DATABASE_URL?: string;
+  /** Secreto de Turnstile (`wrangler secret put`); sin él no se exige captcha. */
+  readonly TURNSTILE_SECRET_KEY?: string;
   /** Límite estricto para login, registro y recuperación de cuenta. */
   readonly AUTH_LIMITER?: RateLimit;
 }
@@ -14,7 +24,8 @@ export interface AppContext {
   Bindings: Env;
   Variables: {
     requestId: string;
-    /** Usuario autenticado; lo asigna el middleware de sesión (FIN-009). */
+    /** Usuario y sesión autenticados; los asigna `sessionContext`. */
     userId?: string;
+    sessionId?: string;
   };
 }

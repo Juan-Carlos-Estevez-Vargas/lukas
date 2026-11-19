@@ -1,0 +1,5 @@
+# Copia este archivo a .dev.vars para `pnpm dev`. Nunca subas .dev.vars al repo.
+BETTER_AUTH_SECRET=genera-uno-con-openssl-rand-base64-32
+DATABASE_URL=postgresql://usuario:clave@host.neon.tech/lukas?sslmode=require
+AUTH_URL=http://localhost:8787
+PASSKEY_RP_ID=localhost
