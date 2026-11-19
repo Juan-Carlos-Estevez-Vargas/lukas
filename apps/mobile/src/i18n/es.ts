@@ -66,6 +66,28 @@ export const es = {
   "summary.accounts": "Cuentas",
   "summary.unavailable":
     "En la web aún no guardamos movimientos. Usa la app de Android para registrar tus finanzas.",
+  "accounts.add": "Agregar cuenta",
+  "accounts.new.title": "Nueva cuenta",
+  "accounts.new.body": "Toca una para crearla. Si quieres, primero escribe un nombre o el saldo.",
+  "accounts.name": "Nombre (opcional)",
+  "accounts.edit.title": "Editar cuenta",
+  "accounts.editName": "Nombre",
+  "accounts.balance": "Saldo: {amount}",
+  "accounts.save": "Guardar",
+  "accounts.archive": "Archivar cuenta",
+  "accounts.unarchive": "Restaurar cuenta",
+  "accounts.archivedNote": "Archivada: no aparece en el resumen ni suma al patrimonio.",
+  "accounts.showArchived": "Mostrar archivadas",
+  "accounts.notFound": "Esta cuenta ya no existe.",
+  "accounts.error.balance_not_zero": "Lleva el saldo a cero antes de archivar la cuenta.",
+  "accounts.error.account_name_required": "La cuenta necesita un nombre.",
+  "accounts.error.generic": "No pudimos guardar la cuenta. Intenta de nuevo.",
+  "groups.cash": "Efectivo",
+  "groups.wallets": "Billeteras digitales",
+  "groups.banks": "Bancos",
+  "groups.cards": "Tarjetas de crédito",
+  "groups.investments": "Ahorros e inversiones",
+  "groups.debts": "Deudas",
 } as const;
 
 export type MessageKey = keyof typeof es;
