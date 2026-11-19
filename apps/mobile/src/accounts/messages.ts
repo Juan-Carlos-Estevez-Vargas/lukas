@@ -1,7 +1,12 @@
 import type { DomainError } from "@lukas/domain";
 import type { MessageKey } from "../i18n/es";
 
-const KNOWN = new Set(["balance_not_zero", "account_name_required"]);
+const KNOWN = new Set([
+  "balance_not_zero",
+  "account_name_required",
+  "invalid_day",
+  "billing_days_missing",
+]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */
 export const accountErrorKey = (error: DomainError): MessageKey =>

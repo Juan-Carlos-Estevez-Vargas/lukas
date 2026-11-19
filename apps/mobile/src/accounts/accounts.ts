@@ -74,11 +74,18 @@ export async function recordOpeningBalance(
   });
 }
 
+/** Datos propios de una tarjeta de crédito. Nunca el número: solo cupo y días. */
+export interface CardSettings {
+  readonly creditLimit: Money | null;
+  readonly closingDay: number | null;
+  readonly dueDay: number | null;
+}
+
 /** Crea una cuenta desde una plantilla, con saldo inicial opcional, en una sola transacción. */
 export async function createFromTemplate(
   db: SqlConnection,
   template: AccountTemplate,
-  options: { name?: string; openingBalance?: Money | null },
+  options: { name?: string; openingBalance?: Money | null; card?: CardSettings },
   clock: Clock,
 ): Promise<Result<Account, DomainError>> {
   const res = createAccount(
@@ -87,6 +94,7 @@ export async function createFromTemplate(
       type: template.type,
       currency: "COP",
       institution: template.institution,
+      ...(template.type === "credit_card" && options.card ? options.card : {}),
     },
     clock.newId(),
     clock.now(),
