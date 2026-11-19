@@ -291,6 +291,16 @@ export const es = {
     "El avance sale del saldo de {account}. Para abonar, haz una transferencia a esa cuenta.",
   "goals.archive": "Archivar meta",
   "goals.notFound": "Esta meta ya no existe.",
+  "home.available": "Disponible este mes",
+  "home.availableBudget": "Disponible de tu presupuesto",
+  "home.perDay": "≈ {amount} por día · quedan {days} días",
+  "home.overspent": "Gastaste más de lo que entró este mes.",
+  "home.flow": "Entró {income} · salió {expenses}",
+  "home.top": "En qué se va",
+  "home.topEmpty": "Aún no hay gastos este mes.",
+  "home.upcoming": "Próximos pagos",
+  "home.upcomingEmpty": "Nada por pagar en los próximos 30 días.",
+  "home.overdue": "vencido",
 } as const;
 
 export type MessageKey = keyof typeof es;

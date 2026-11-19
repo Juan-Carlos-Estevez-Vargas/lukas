@@ -2,6 +2,7 @@ import { type Account, Money } from "@lukas/domain";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
+import { civilDate } from "../../src/accounts/credit-card";
 import { groupAccounts } from "../../src/accounts/templates";
 import { Fab } from "../../src/components/quick";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
@@ -9,8 +10,18 @@ import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
 import { formatMoney } from "../../src/format/money";
+import {
+  type CategorySpend,
+  type MonthAvailable,
+  monthAvailable,
+  topCategories,
+  type UpcomingPayment,
+  upcomingPayments,
+} from "../../src/home/home";
+import { AvailableCard, TopCategoriesCard, UpcomingCard } from "../../src/home/home-cards";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { useRecurring } from "../../src/recurring/use-recurring";
 
 interface Row {
   readonly account: Account;
@@ -23,12 +34,21 @@ export default function Summary() {
   const database = useLocalDatabase();
   const [rows, setRows] = useState<Row[]>([]);
   const [showArchived, setShowArchived] = useState(false);
+  const [available, setAvailable] = useState<MonthAvailable | null>(null);
+  const [top, setTop] = useState<CategorySpend[]>([]);
+  const [upcoming, setUpcoming] = useState<UpcomingPayment[]>([]);
+  const { version } = useRecurring();
 
   useFocusEffect(
     useCallback(() => {
-      if (database.status !== "ready") return;
+      // `version` cambia cuando se registran recurrentes con la pantalla abierta.
+      if (database.status !== "ready" || version < 0) return;
       const repo = sqliteAccounts(database.db);
+      const today = civilDate(new Date());
       void (async () => {
+        setAvailable(await monthAvailable(database.db, today, "COP"));
+        setTop(await topCategories(database.db, today, "COP"));
+        setUpcoming(await upcomingPayments(database.db, today));
         const accounts = await repo.list({ includeArchived: showArchived });
         setRows(
           await Promise.all(
@@ -36,7 +56,7 @@ export default function Summary() {
           ),
         );
       })();
-    }, [database, showArchived]),
+    }, [database, showArchived, version]),
   );
 
   if (database.status === "error") {
@@ -57,7 +77,9 @@ export default function Summary() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
-        <Title>{t("tabs.summary")}</Title>
+        {available ? <AvailableCard data={available} /> : null}
+        <TopCategoriesCard data={top} />
+        <UpcomingCard data={upcoming} />
         <Body muted>{t("summary.netWorth")}</Body>
         <Title>{fmt(netWorth)}</Title>
         {rows.length === 0 ? <Body muted>{t("summary.empty")}</Body> : null}

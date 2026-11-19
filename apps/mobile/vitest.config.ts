@@ -21,6 +21,7 @@ export default defineConfig({
         "src/recurring/**/*.ts",
         "src/budgets/**/*.ts",
         "src/goals/**/*.ts",
+        "src/home/**/*.ts",
         "app.config.ts",
       ],
       // database*.ts, lock-store*.ts, notifications*.ts y receipt-store*.ts envuelven módulos nativos; su lógica vive
