@@ -105,6 +105,14 @@ describe("listMovements", () => {
     expect(ids(all.filter((r) => spec.isSatisfiedBy(r)))).toEqual(ids(rows));
   });
 
+  it("busca uno por id", async () => {
+    const { db } = await setup();
+    const [first] = await listMovements(db, {});
+    const { movementById } = await import("./list");
+    expect((await movementById(db, first?.id ?? ""))?.title).toBe(first?.title);
+    expect(await movementById(db, "no-existe")).toBeNull();
+  });
+
   it("filtra por cuenta", async () => {
     const { db, card } = await setup();
     expect((await listMovements(db, { accountId: card.id })).map((r) => r.kind)).toEqual([

@@ -243,9 +243,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-110 · Categorías y reglas
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Jerarquía padre / hijo con íconos
-- [ ] Reglas por comercio o palabra clave
-- [ ] Aprender de correcciones
+- [x] Jerarquía padre / hijo con íconos
+- [x] Reglas por comercio o palabra clave
+- [x] Aprender de correcciones
 
 **Hecho cuando:** Al corregir una categoría, la siguiente del mismo comercio sale bien.
 

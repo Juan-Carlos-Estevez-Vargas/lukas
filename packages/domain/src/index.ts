@@ -19,6 +19,12 @@ export {
   updateAccount,
 } from "./ledger/account";
 export {
+  type CategoryRule,
+  learnFromCorrection,
+  matchRule,
+  type RuleInput,
+} from "./ledger/categorization";
+export {
   addMonths,
   type BillingDays,
   billingDaysOf,

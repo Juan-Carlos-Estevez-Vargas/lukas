@@ -55,6 +55,8 @@ export const KIND_SQL: Record<ListKind, string> = {
 
 export const byKind = (kind: ListKind) => sqlSpec(KIND_SQL[kind], [], (r) => r.kind === kind);
 
+export const byId = (id: string) => sqlSpec("t.id = ?", [id], (r) => r.id === id);
+
 export const byAccount = (id: string) =>
   sqlSpec(
     "EXISTS (SELECT 1 FROM entries e WHERE e.transaction_id = t.id AND e.account_id = ?)",
@@ -133,6 +135,7 @@ export function allSql(...specs: readonly SqlSpecification[]): SqlSpecification 
 
 /** Filtros que la pantalla puede combinar. Todos opcionales. */
 export interface MovementFilters {
+  readonly id?: string;
   readonly text?: string;
   readonly kind?: ListKind | null;
   readonly accountId?: string | null;
@@ -144,6 +147,7 @@ export interface MovementFilters {
 
 export function filtersToSpec(f: MovementFilters): SqlSpecification {
   const specs: SqlSpecification[] = [];
+  if (f.id) specs.push(byId(f.id));
   if (f.text?.trim()) specs.push(byText(f.text));
   if (f.kind) specs.push(byKind(f.kind));
   if (f.accountId) specs.push(byAccount(f.accountId));

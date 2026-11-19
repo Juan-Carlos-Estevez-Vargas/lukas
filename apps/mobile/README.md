@@ -115,6 +115,15 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - La búsqueda ignora tildes y mayúsculas gracias a `transactions.search_text` (migración 6) y
   entiende montos ("85.400", "12,50"), incluidas las comisiones.
 
+## Categorías y reglas
+
+- Categorías con un nivel de subcategorías e ícono; las de sistema no admiten hijas y archivar
+  una categoría archiva también sus hijas (`src/movements/categories.ts`).
+- Reglas por comercio o palabra clave (tabla `category_rules`, migración 7). Gana la regla del
+  usuario sobre la aprendida, el comercio sobre la palabra clave y el patrón más largo.
+- Al corregir la categoría sugerida, o al recategorizar desde el detalle de un movimiento, se
+  aprende una regla para ese comercio y el siguiente sale bien.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

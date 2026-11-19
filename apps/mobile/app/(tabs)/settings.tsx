@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import { router } from "expo-router";
 import { useState } from "react";
 import { ScrollView } from "react-native";
 import { useSession } from "../../src/auth/session";
@@ -60,6 +61,13 @@ export default function Settings() {
           </>
         ) : null}
 
+        {database.status === "ready" ? (
+          <Button
+            label={t("categories.manage")}
+            variant="plain"
+            onPress={() => router.push("/categories")}
+          />
+        ) : null}
         {database.status === "ready" ? (
           <Button
             label={t("settings.sample.remove")}
