@@ -80,7 +80,32 @@ CREATE TABLE preferences (
 ) STRICT;
 `;
 
+/**
+ * Categorías por defecto para registrar desde el primer gasto. Ids fijos (`default.*`) para que las
+ * reglas de sugerencia las encuentren; la persona puede renombrarlas o archivarlas.
+ */
+const v3 = `
+INSERT INTO categories (id, name, kind, icon, created_at, updated_at) VALUES
+  ('default.mercado', 'Mercado', 'expense', '🛒', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.restaurantes', 'Restaurantes y domicilios', 'expense', '🍽️', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.transporte', 'Transporte', 'expense', '🚌', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.servicios', 'Servicios públicos', 'expense', '💡', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.celular', 'Celular e internet', 'expense', '📱', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.arriendo', 'Arriendo', 'expense', '🏠', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.salud', 'Salud', 'expense', '🩺', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.educacion', 'Educación', 'expense', '🎓', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.entretenimiento', 'Entretenimiento', 'expense', '🎬', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.compras', 'Compras', 'expense', '🛍️', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.otros_gastos', 'Otros gastos', 'expense', '📦', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.salario', 'Salario', 'income', '💼', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.ventas', 'Ventas e independiente', 'income', '🧾', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('default.otros_ingresos', 'Otros ingresos', 'income', '➕', '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z');
+
+CREATE INDEX transactions_merchant_idx ON transactions (merchant);
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
+  { version: 3, name: "categorías por defecto", sql: v3 },
 ];
