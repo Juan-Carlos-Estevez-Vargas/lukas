@@ -1,12 +1,13 @@
 import { eq, isNull } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { categories } from "../schema";
-import { createTestDatabase, newId } from "../test/database";
+import { createTestDatabase, insertUsers, newId } from "../test/database";
 import { DEFAULT_CATEGORIES, seedDefaultCategories } from "./categories";
 
 describe("semilla de categorías", () => {
   it("crea las categorías por defecto con su jerarquía", async () => {
     const { client, db } = await createTestDatabase();
+    await insertUsers(db, "user_1");
     const created = await seedDefaultCategories(db, "user_1", newId);
 
     const expected = DEFAULT_CATEGORIES.reduce((n, c) => n + 1 + (c.children?.length ?? 0), 0);

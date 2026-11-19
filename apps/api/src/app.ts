@@ -5,10 +5,18 @@ import { notFound, problemResponse } from "./http/problem";
 import { rateLimit } from "./http/rate-limit";
 import { log, requestContext } from "./http/request-context";
 import { corsPolicy, securityHeaders } from "./http/security";
+import { type AuthFactory, neonAuthFactory } from "./modules/auth/factory";
+import { authHandler, meRoutes } from "./modules/auth/routes";
+import { sessionContext } from "./modules/auth/session";
 import { healthRoutes } from "./modules/health/routes";
 
-export const createApp = () => {
-  const v1 = createRouter().route("/", healthRoutes);
+export interface AppDeps {
+  /** Permite inyectar la autenticación (p. ej. con PGlite en pruebas). */
+  readonly auth?: AuthFactory;
+}
+
+export const createApp = ({ auth = neonAuthFactory }: AppDeps = {}) => {
+  const v1 = createRouter().route("/", healthRoutes).route("/", meRoutes);
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {
@@ -23,8 +31,10 @@ export const createApp = () => {
     .use(requestContext)
     .use(securityHeaders)
     .use(corsPolicy)
+    .use("/v1/*", sessionContext(auth))
     .use("/v1/*", rateLimit("API_LIMITER", 60))
     .use("/v1/auth/*", rateLimit("AUTH_LIMITER", 60))
+    .on(["GET", "POST"], "/v1/auth/*", authHandler(auth))
     .route("/", healthRoutes)
     .route("/v1", v1);
 

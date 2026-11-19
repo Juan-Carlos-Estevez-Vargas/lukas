@@ -1,8 +1,8 @@
 import type { PGlite } from "@electric-sql/pglite";
 import { eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { accounts, auditLog, categories, entries, transactions } from "./schema";
-import { createTestDatabase, newId } from "./test/database";
+import { accounts, auditLog, categories, entries, transactions, users } from "./schema";
+import { createTestDatabase, insertUsers, newId } from "./test/database";
 
 type Db = Awaited<ReturnType<typeof createTestDatabase>>["db"];
 
@@ -22,6 +22,7 @@ const ids = {
 
 beforeAll(async () => {
   ({ client, db } = await createTestDatabase());
+  await insertUsers(db, ALICE, BOB);
   await db.insert(accounts).values([
     { id: ids.nequi, userId: ALICE, name: "Nequi", type: "digital_wallet", currency: "COP" },
     { id: ids.bancolombia, userId: ALICE, name: "Bancolombia", type: "bank", currency: "COP" },
@@ -217,5 +218,43 @@ describe("bitácora de auditoría", () => {
       .execute<{ count: number }>(sql`select count(*)::int as count from app.audit_log`)
       .then((r) => r.rows);
     expect(count).toBe(1);
+  });
+});
+
+describe("supresión de cuenta (Ley 1581)", () => {
+  it("al borrar el usuario se borran sus datos pero se conserva la auditoría", async () => {
+    const carol = "user_carol";
+    await insertUsers(db, carol);
+    const wallet = newId();
+    const food = newId();
+    await db.insert(accounts).values({
+      id: wallet,
+      userId: carol,
+      name: "Daviplata",
+      type: "digital_wallet",
+      currency: "COP",
+    });
+    await db
+      .insert(categories)
+      .values({ id: food, userId: carol, name: "Mercado", kind: "expense" });
+    await record(
+      [
+        { accountId: wallet, amountMinor: -500n, currency: "COP" },
+        { categoryId: food, amountMinor: 500n, currency: "COP" },
+      ],
+      carol,
+    );
+    await db
+      .insert(auditLog)
+      .values({ userId: carol, actor: carol, action: "account.delete", entity: "user" });
+
+    await db.delete(users).where(eq(users.id, carol));
+
+    expect(await db.select().from(accounts).where(eq(accounts.userId, carol))).toHaveLength(0);
+    expect(await db.select().from(transactions).where(eq(transactions.userId, carol))).toHaveLength(
+      0,
+    );
+    expect(await db.select().from(entries).where(eq(entries.userId, carol))).toHaveLength(0);
+    expect(await db.select().from(auditLog).where(eq(auditLog.userId, carol))).toHaveLength(1);
   });
 });
