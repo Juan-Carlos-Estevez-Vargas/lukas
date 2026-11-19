@@ -21,6 +21,24 @@ describe("conexión local", () => {
     expect(await count(db)).toBe(2);
   });
 
+  it("revierte si el COMMIT falla por llaves foráneas diferidas", async () => {
+    const raw = nodeSqlite();
+    raw.raw.exec("PRAGMA foreign_keys = ON");
+    const db = createConnection(raw);
+    await db.exec(
+      "CREATE TABLE p (id INTEGER PRIMARY KEY); CREATE TABLE c (p INTEGER REFERENCES p (id));",
+    );
+    await expect(
+      db.transaction(async (tx) => {
+        await tx.exec("PRAGMA defer_foreign_keys = ON");
+        await tx.exec("INSERT INTO c VALUES (7)");
+      }),
+    ).rejects.toThrow();
+    expect(await db.get("SELECT 1 AS x FROM c")).toBeNull();
+    // La conexión quedó libre: otra transacción funciona.
+    await db.transaction(async (tx) => tx.exec("INSERT INTO p VALUES (7)"));
+  });
+
   it("revierte todo si algo falla a mitad", async () => {
     const db = await setup();
     await expect(

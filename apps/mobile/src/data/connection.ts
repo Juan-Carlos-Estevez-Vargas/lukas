@@ -47,11 +47,12 @@ export function createConnection(raw: RawSql): SqlConnection {
         await raw.exec("BEGIN IMMEDIATE");
         try {
           await work(inside);
+          // Con llaves foráneas diferidas, el COMMIT puede fallar: también se revierte.
+          await raw.exec("COMMIT");
         } catch (error) {
           await raw.exec("ROLLBACK");
           throw error;
         }
-        await raw.exec("COMMIT");
       }),
   };
 }
