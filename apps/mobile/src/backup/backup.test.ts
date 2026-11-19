@@ -12,6 +12,7 @@ import { createGoal } from "../goals/goals";
 import { recordMovement } from "../movements/movements";
 import { recordTransfer } from "../movements/transfers";
 import { createRecurring } from "../recurring/recurring";
+import { backupFileName, createBackup, restoreBackup } from "./backup";
 import { BackupError, decryptBackup, encryptBackup, fromBase64, toBase64 } from "./crypto";
 import { csvCell, movementsCsv } from "./csv";
 import { BACKUP_TABLES, exportSnapshot, parseSnapshot, restoreSnapshot } from "./snapshot";
@@ -296,4 +297,15 @@ describe("exportar CSV", () => {
     expect(csvCell("normal")).toBe("normal");
     expect(Money.zero("COP").isZero()).toBe(true);
   });
+});
+
+describe("flujo completo", () => {
+  it("crea el archivo y lo restaura con la misma contraseña", async () => {
+    const fx = await fullDb();
+    const file = await createBackup(fx.db, "clave segura", random, new Date());
+    const fresh = await emptyDb();
+    expect(await restoreBackup(fresh, file, "clave segura")).toBeGreaterThan(20);
+    expect(await dump(fresh)).toEqual(await dump(fx.db));
+    expect(backupFileName(new Date(2026, 0, 5), "csv")).toBe("lukas-2026-01-05.csv");
+  }, 30_000);
 });
