@@ -1,7 +1,7 @@
 import { BUDGET_GROUPS, type BudgetLevel, type Money } from "@lukas/domain";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { civilDate } from "../../src/accounts/credit-card";
 import {
   archiveBudget,
@@ -10,36 +10,15 @@ import {
   type FiftyThirtyTwenty,
   fiftyThirtyTwenty,
 } from "../../src/budgets/budgets";
+import { Progress } from "../../src/components/progress";
 import { Body, Button, Screen, Title } from "../../src/components/ui";
 import { newId } from "../../src/data/ids";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
 import { formatMoney } from "../../src/format/money";
+import { type GoalView, goalViews } from "../../src/goals/goals";
+import { goalLine } from "../../src/goals/text";
 import { useI18n } from "../../src/i18n/i18n";
-import { useTheme } from "../../src/theme/theme";
-
-/** Barra de avance; el color cambia al 80 % y al 100 %. */
-function Progress({ percent, level }: { readonly percent: number; readonly level: BudgetLevel }) {
-  const { colors, radius } = useTheme();
-  const color =
-    level === "over" ? colors.expense : level === "warning" ? colors.warning : colors.primary;
-  return (
-    <View
-      accessibilityRole="progressbar"
-      accessibilityValue={{ min: 0, max: 100, now: Math.min(percent, 100) }}
-      style={{ height: 8, borderRadius: radius.md, backgroundColor: colors.border }}
-    >
-      <View
-        style={{
-          width: `${Math.min(percent, 100)}%`,
-          height: 8,
-          borderRadius: radius.md,
-          backgroundColor: color,
-        }}
-      />
-    </View>
-  );
-}
 
 export default function Budgets() {
   const { t, locale } = useI18n();
@@ -48,12 +27,14 @@ export default function Budgets() {
   const db = database.status === "ready" ? database.db : null;
   const [views, setViews] = useState<BudgetView[]>([]);
   const [rule, setRule] = useState<FiftyThirtyTwenty | null>(null);
+  const [goals, setGoals] = useState<GoalView[]>([]);
 
   const load = useCallback(async () => {
     if (!db) return;
     const today = civilDate(new Date());
     setViews(await budgetViews(db, today));
     setRule(await fiftyThirtyTwenty(db, today, "COP"));
+    setGoals(await goalViews(db, today));
   }, [db]);
 
   useFocusEffect(
@@ -106,6 +87,22 @@ export default function Budgets() {
           </View>
         ))}
         <Button label={t("budgets.new")} onPress={() => router.push("/budgets/new")} />
+
+        <Title>{t("goals.title")}</Title>
+        {goals.length === 0 ? <Body muted>{t("goals.empty")}</Body> : null}
+        {goals.map(({ goal, progress }) => (
+          <Pressable
+            key={goal.id}
+            accessibilityRole="button"
+            onPress={() => router.push({ pathname: "/goals/[id]", params: { id: goal.id } })}
+            style={{ gap: 6 }}
+          >
+            <Body>{goal.icon ? `${goal.icon} ${goal.name}` : goal.name}</Body>
+            <Progress percent={progress.percent} level={progress.overdue ? "warning" : "ok"} />
+            <Body muted>{goalLine(progress, t, money)}</Body>
+          </Pressable>
+        ))}
+        <Button label={t("goals.new")} variant="plain" onPress={() => router.push("/goals/new")} />
 
         <Title>{t("budgets.rule.title")}</Title>
         <Body muted>{t("budgets.rule.body")}</Body>
