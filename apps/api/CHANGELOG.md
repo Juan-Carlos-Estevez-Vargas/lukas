@@ -1,5 +1,11 @@
 # @lukas/api
 
+## 0.1.1
+
+### Patch Changes
+
+- 7d9ab62: Publica `/.well-known/security.txt` (RFC 9116) con el canal privado para reportar vulnerabilidades.
+
 ## 0.1.0
 
 ### Minor Changes
