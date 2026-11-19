@@ -1,7 +1,11 @@
 import type { SqlConnection } from "./sql";
 
 /** Claves conocidas. Los valores se guardan como texto. */
-export type PreferenceKey = "onboarding.completedAt" | "display.discreet" | "sample.ids";
+export type PreferenceKey =
+  | "onboarding.completedAt"
+  | "display.discreet"
+  | "sample.ids"
+  | "reminders.cardPayments";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;

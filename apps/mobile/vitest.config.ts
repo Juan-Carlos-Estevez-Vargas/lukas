@@ -15,15 +15,17 @@ export default defineConfig({
         "src/lock/**/*.ts",
         "src/onboarding/**/*.ts",
         "src/accounts/**/*.ts",
+        "src/reminders/**/*.ts",
         "app.config.ts",
       ],
-      // database*.ts y lock-store*.ts envuelven módulos nativos; su lógica vive en open.ts, pin.ts y
-      // policy.ts, que sí tienen pruebas.
+      // database*.ts, lock-store*.ts y notifications*.ts envuelven módulos nativos; su lógica vive
+      // en open.ts, pin.ts, policy.ts y card-reminders.ts, que sí tienen pruebas.
       exclude: [
         "src/**/*.test.ts",
         "src/**/*.test-helper.ts",
         "src/data/database*.ts",
         "src/lock/lock-store*.ts",
+        "src/reminders/notifications*.ts",
       ],
       reporter: ["text", "json-summary"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },
