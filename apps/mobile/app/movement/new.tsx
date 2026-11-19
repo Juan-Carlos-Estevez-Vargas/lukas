@@ -228,7 +228,7 @@ export default function NewMovement() {
 
         <Toggle label={t("movement.split")} value={split} onChange={setSplit} />
         <Body muted>{t("movement.category")}</Body>
-        <ChipRow>
+        <ChipRow testID="movement-categories">
           {categories.map((c) => (
             <Chip
               key={c.id}

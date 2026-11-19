@@ -41,10 +41,17 @@ export function Chip({
   );
 }
 
-export function ChipRow({ children }: { readonly children: React.ReactNode }) {
+export function ChipRow({
+  children,
+  testID,
+}: {
+  readonly children: React.ReactNode;
+  readonly testID?: string;
+}) {
   const { space } = useTheme();
   return (
     <ScrollView
+      testID={testID}
       horizontal
       showsHorizontalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"

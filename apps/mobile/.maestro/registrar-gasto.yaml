@@ -12,10 +12,15 @@ name: Registrar un gasto
     id: "movement-merchant"
 - inputText: "Tienda E2E"
 - hideKeyboard
-# Las categorías quedan debajo del teclado numérico: hay que bajar hasta ellas.
+# Las categorías quedan debajo del teclado numérico y en una fila horizontal: primero se baja hasta
+# la fila (centrada, para que el gesto horizontal caiga sobre ella) y luego se recorre a la derecha.
+- scrollUntilVisible:
+    element:
+      id: "movement-categories"
+    centerElement: true
 - scrollUntilVisible:
     element: ".*Mercado"
-    centerElement: true
+    direction: RIGHT
 - tapOn: ".*Mercado"
 - scrollUntilVisible:
     element: "Guardar"
