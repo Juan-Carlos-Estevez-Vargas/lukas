@@ -22,6 +22,7 @@ export default defineConfig({
         "src/budgets/**/*.ts",
         "src/goals/**/*.ts",
         "src/home/**/*.ts",
+        "src/display/**/*.ts",
         "src/rates/**/*.ts",
         "src/backup/**/*.ts",
         "src/widgets/**/*.ts",
@@ -29,12 +30,13 @@ export default defineConfig({
         "app.config.ts",
         "e2e/perf.ts",
       ],
-      // database*.ts, lock-store*.ts, notifications*.ts y receipt-store*.ts envuelven módulos nativos; su lógica vive
+      // database*.ts, expo-raw.ts, lock-store*.ts, notifications*.ts y receipt-store*.ts envuelven módulos nativos; su lógica vive
       // en open.ts, pin.ts, policy.ts y card-reminders.ts, que sí tienen pruebas.
       exclude: [
         "src/**/*.test.ts",
         "src/**/*.test-helper.ts",
         "src/data/database*.ts",
+        "src/data/expo-raw.ts",
         "src/lock/lock-store*.ts",
         "src/reminders/notifications*.ts",
         "src/receipts/receipt-store*.ts",
