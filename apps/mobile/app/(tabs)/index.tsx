@@ -3,6 +3,7 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { groupAccounts } from "../../src/accounts/templates";
+import { Fab } from "../../src/components/quick";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
@@ -55,7 +56,7 @@ export default function Summary() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ gap: 12 }}>
+      <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
         <Title>{t("tabs.summary")}</Title>
         <Body muted>{t("summary.netWorth")}</Body>
         <Title>{fmt(netWorth)}</Title>
@@ -89,6 +90,9 @@ export default function Summary() {
           onChange={setShowArchived}
         />
       </ScrollView>
+      {rows.length > 0 ? (
+        <Fab label={t("movement.add")} onPress={() => router.push("/movement/new")} />
+      ) : null}
     </Screen>
   );
 }

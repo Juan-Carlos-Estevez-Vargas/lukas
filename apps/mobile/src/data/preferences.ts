@@ -5,7 +5,8 @@ export type PreferenceKey =
   | "onboarding.completedAt"
   | "display.discreet"
   | "sample.ids"
-  | "reminders.cardPayments";
+  | "reminders.cardPayments"
+  | "movements.lastAccount";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;

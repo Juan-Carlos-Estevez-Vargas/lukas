@@ -16,6 +16,7 @@ export default defineConfig({
         "src/onboarding/**/*.ts",
         "src/accounts/**/*.ts",
         "src/reminders/**/*.ts",
+        "src/movements/**/*.ts",
         "app.config.ts",
       ],
       // database*.ts, lock-store*.ts y notifications*.ts envuelven módulos nativos; su lógica vive
