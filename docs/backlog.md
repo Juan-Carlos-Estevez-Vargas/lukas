@@ -290,9 +290,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-115 · Multi-moneda con TRM
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Cron diario de TRM (datos abiertos)
-- [ ] Conversión en reportes
-- [ ] Cuentas en USD
+- [x] Cron diario de TRM (datos abiertos)
+- [x] Conversión en reportes
+- [x] Cuentas en USD
 
 **Hecho cuando:** Una cuenta en USD suma al patrimonio en COP con la TRM del día.
 
