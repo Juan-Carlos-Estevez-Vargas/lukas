@@ -71,3 +71,4 @@ export { type TransferDeps, type TransferInput, transferFunds } from "./ledger/t
 export { Money } from "./money";
 export * from "./result";
 export { divideRounded, type ExactDecimal, parseDecimal, type RoundingMode } from "./rounding";
+export { allOf, anyOf, not, type Specification, spec } from "./specification";
