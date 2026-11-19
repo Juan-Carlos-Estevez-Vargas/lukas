@@ -131,9 +131,10 @@ jobs:
         env:
           URL: ${{ steps.worker.outputs.url }}
         run: |
-          for i in 1 2 3 4 5; do
-            if curl -fsS "$URL/health" | jq -e '.status == "ok" and .environment == "preview"'; then exit 0; fi
-            sleep 5
+          # Con un subdominio de workers.dev recién creado, el certificado TLS tarda unos minutos.
+          for i in $(seq 1 30); do
+            if curl -fsS --max-time 10 "$URL/health" | jq -e '.status == "ok" and .environment == "preview"'; then exit 0; fi
+            sleep 10
           done
           echo "::error::$URL/health no respondió"
           exit 1
