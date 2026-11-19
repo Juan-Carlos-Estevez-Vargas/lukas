@@ -70,6 +70,17 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Archivar oculta la cuenta sin borrar su historia, y solo se permite con saldo en cero. Tipo y
   moneda no se editan porque los asientos ya registrados dependen de ellos.
 
+## Tarjetas de crédito
+
+- Solo se guardan cupo, día de corte y día de pago; nunca el número de la tarjeta.
+- El resumen (`src/accounts/credit-card.ts` y `packages/domain/src/ledger/credit-card.ts`) usa el
+  calendario del teléfono: deuda total, saldo por pagar del último extracto, compras del ciclo
+  abierto y cupo disponible. Un corte "31" cae el último día de los meses más cortos.
+- El pago mínimo es un estimado (2,78 % del saldo por pagar, redondeado a pesos); el exacto está en
+  el extracto del banco.
+- Recordatorio: notificación local 3 días antes y el día límite, a las 9 a. m., sin montos en el
+  texto. Está apagado por defecto y se recalcula al abrir la app y al cambiar una tarjeta.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

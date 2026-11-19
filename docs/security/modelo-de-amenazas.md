@@ -75,6 +75,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | I | Finanzas guardadas en claro en el navegador | ✓ La web no tiene base local; usará la API (fase 2) |
 | I | Alguien con el teléfono desbloqueado abre la app | ✓ Bloqueo con PIN (hash con sal en Keystore) o biometría; espera progresiva tras 5 fallos (FIN-103) |
 | I | Datos visibles en el selector de apps o mirando la pantalla | ✓ Pantalla tapada en segundo plano y modo discreto (FIN-103) · ○ `FLAG_SECURE` contra capturas |
+| I | Montos visibles en notificaciones con el teléfono bloqueado | ✓ Los avisos de pago de tarjetas no incluyen montos y son locales, sin push ni servidor (FIN-105) |
 | I | Copias de seguridad del teléfono con datos | ✓ `allowBackup: false` |
 | D | Actualización OTA maliciosa | ○ Firma de código de EAS Update (FIN-011) |
 | E | Permisos de notificaciones usados para leer más de lo necesario | ○ Filtro por paquete de banco/billetera y procesamiento solo local (F2) |
