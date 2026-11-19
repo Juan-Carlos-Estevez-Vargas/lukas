@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { Money } from "../money";
 import { type Account, createAccount } from "./account";
-import { type MovementCategory, merchantKey, newMovement, suggestFromHistory } from "./movement";
+import {
+  type MovementCategory,
+  merchantKey,
+  newMovement,
+  newSplitMovement,
+  normalizeTag,
+  parseTags,
+  suggestFromHistory,
+} from "./movement";
 
 const now = new Date("2026-11-19T12:00:00Z");
 const cop = (pesos: bigint) => Money.ofMinor(pesos * 100n, "COP");
@@ -117,5 +125,61 @@ describe("suggestFromHistory", () => {
         { categoryId: "b", occurredAt: at(5) },
       ]),
     ).toBe("b");
+  });
+});
+
+describe("newSplitMovement", () => {
+  const household: MovementCategory = { id: "c-aseo", kind: "expense", archivedAt: null };
+  const input = { kind: "expense" as const, amount: cop(100_000n), occurredAt: now };
+
+  it("un asiento a la cuenta por el total y uno por categoría", () => {
+    const res = newSplitMovement(
+      account(),
+      [
+        { category: groceries, amount: cop(70_000n) },
+        { category: household, amount: cop(30_000n) },
+      ],
+      input,
+      deps(),
+    );
+    if (!res.ok) throw res.error;
+    expect(res.value.entries.map((e) => [e.target, e.amount.toDecimalString()])).toEqual([
+      [{ accountId: "a1" }, "-100000.00"],
+      [{ categoryId: "c-mercado" }, "70000.00"],
+      [{ categoryId: "c-aseo" }, "30000.00"],
+    ]);
+  });
+
+  it.each([
+    ["sin partes", [], "invalid_category"],
+    ["partes que no suman", [{ category: groceries, amount: cop(99_999n) }], "split_mismatch"],
+    [
+      "categoría repetida",
+      [
+        { category: groceries, amount: cop(50_000n) },
+        { category: groceries, amount: cop(50_000n) },
+      ],
+      "invalid_category",
+    ],
+    [
+      "parte en cero",
+      [
+        { category: groceries, amount: cop(100_000n) },
+        { category: household, amount: cop(0n) },
+      ],
+      "invalid_split",
+    ],
+  ] as const)("rechaza %s", (_name, splits, code) => {
+    const res = newSplitMovement(account(), splits, input, deps());
+    expect(!res.ok && res.error.code).toBe(code);
+  });
+});
+
+describe("etiquetas", () => {
+  it("limpia y quita duplicados sin importar mayúsculas", () => {
+    expect(normalizeTag("  #Viaje   Cartagena ")).toBe("Viaje Cartagena");
+    expect(normalizeTag(" # ")).toBeNull();
+    expect(normalizeTag("x".repeat(40))).toHaveLength(30);
+    expect(parseTags("viaje, Viaje ,#oficina,, ")).toEqual(["viaje", "oficina"]);
   });
 });

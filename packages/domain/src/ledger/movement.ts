@@ -1,5 +1,5 @@
 import { DomainError } from "../errors";
-import type { Money } from "../money";
+import { Money } from "../money";
 import { err, ok, type Result } from "../result";
 import type { Account } from "./account";
 import { checkBalanced, type Transaction } from "./transaction";
@@ -32,6 +32,12 @@ const clean = (s: string | null | undefined): string | null => {
   return v ? v : null;
 };
 
+/** Una parte de un movimiento dividido: cuánto va a cada categoría. */
+export interface MovementSplit {
+  readonly category: MovementCategory;
+  readonly amount: Money;
+}
+
 /**
  * Un gasto o ingreso es una transacción de doble partida entre una cuenta y una categoría: el
  * gasto sale de la cuenta y entra a la categoría; el ingreso al revés.
@@ -39,6 +45,19 @@ const clean = (s: string | null | undefined): string | null => {
 export function newMovement(
   account: Account,
   category: MovementCategory,
+  input: MovementInput,
+  deps: MovementDeps,
+): Result<Transaction, DomainError> {
+  return newSplitMovement(account, [{ category, amount: input.amount }], input, deps);
+}
+
+/**
+ * Movimiento dividido en varias categorías (p. ej. el mercado con aseo y licor). Un solo asiento a
+ * la cuenta por el total y uno por categoría; las partes deben sumar exactamente el total.
+ */
+export function newSplitMovement(
+  account: Account,
+  splits: readonly MovementSplit[],
   input: MovementInput,
   deps: MovementDeps,
 ): Result<Transaction, DomainError> {
@@ -53,10 +72,25 @@ export function newMovement(
       new DomainError("currency_mismatch", "El monto debe estar en la moneda de la cuenta"),
     );
   }
-  if (category.kind !== input.kind || category.archivedAt) {
-    return err(new DomainError("invalid_category", "La categoría no corresponde al movimiento"));
+  if (splits.length === 0) {
+    return err(new DomainError("invalid_category", "Elige al menos una categoría"));
   }
-  const toAccount = input.kind === "income" ? input.amount : input.amount.negate();
+  const ids = new Set<string>();
+  let total = Money.zero(input.amount.currencyCode);
+  for (const s of splits) {
+    if (s.category.kind !== input.kind || s.category.archivedAt || ids.has(s.category.id)) {
+      return err(new DomainError("invalid_category", "La categoría no corresponde al movimiento"));
+    }
+    if (s.amount.isZero() || s.amount.isNegative() || s.amount.currencyCode !== account.currency) {
+      return err(new DomainError("invalid_split", "Cada parte debe ser mayor que cero"));
+    }
+    ids.add(s.category.id);
+    total = total.add(s.amount);
+  }
+  if (!total.equals(input.amount)) {
+    return err(new DomainError("split_mismatch", "Las partes no suman el total"));
+  }
+  const sign = (m: Money) => (input.kind === "income" ? m : m.negate());
   const merchant = clean(input.merchant);
   const now = deps.now();
   const transaction: Transaction = {
@@ -68,8 +102,12 @@ export function newMovement(
     status: "cleared",
     source: "manual",
     entries: [
-      { id: deps.newId(), target: { accountId: account.id }, amount: toAccount },
-      { id: deps.newId(), target: { categoryId: category.id }, amount: toAccount.negate() },
+      { id: deps.newId(), target: { accountId: account.id }, amount: sign(input.amount) },
+      ...splits.map((s) => ({
+        id: deps.newId(),
+        target: { categoryId: s.category.id },
+        amount: sign(s.amount).negate(),
+      })),
     ],
     createdAt: now,
     updatedAt: now,
@@ -77,6 +115,25 @@ export function newMovement(
   };
   const balanced = checkBalanced(transaction.entries);
   return balanced.ok ? ok(transaction) : balanced;
+}
+
+/** Etiqueta limpia: sin "#" inicial ni espacios de más, máximo 30 caracteres. `null` si queda vacía. */
+export function normalizeTag(name: string): string | null {
+  const v = name.trim().replace(/^#+/, "").replace(/\s+/g, " ").trim().slice(0, 30).trim();
+  return v.length > 0 ? v : null;
+}
+
+/** Etiquetas únicas (sin distinguir mayúsculas) a partir de lo escrito, separado por comas. */
+export function parseTags(text: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of text.split(",")) {
+    const tag = normalizeTag(part);
+    if (!tag || seen.has(tag.toLocaleLowerCase("es"))) continue;
+    seen.add(tag.toLocaleLowerCase("es"));
+    out.push(tag);
+  }
+  return out;
 }
 
 /** Clave para comparar comercios: sin tildes, mayúsculas ni espacios de más. */

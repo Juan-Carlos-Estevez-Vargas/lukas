@@ -44,8 +44,12 @@ export {
   type MovementDeps,
   type MovementInput,
   type MovementKind,
+  type MovementSplit,
   merchantKey,
   newMovement,
+  newSplitMovement,
+  normalizeTag,
+  parseTags,
   suggestFromHistory,
 } from "./ledger/movement";
 export type {
