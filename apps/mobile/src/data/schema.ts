@@ -113,9 +113,40 @@ INSERT INTO categories (id, name, kind, icon, is_system, created_at, updated_at)
     '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z');
 `;
 
+/**
+ * Etiquetas y recibos. Del recibo solo se guarda el nombre del archivo: la foto vive en el
+ * almacenamiento privado de la app y la ruta absoluta cambia entre instalaciones.
+ */
+const v5 = `
+CREATE TABLE tags (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL COLLATE NOCASE UNIQUE CHECK (length(trim(name)) BETWEEN 1 AND 30),
+  created_at TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE transaction_tags (
+  transaction_id TEXT NOT NULL REFERENCES transactions (id) ON DELETE CASCADE,
+  tag_id TEXT NOT NULL REFERENCES tags (id) ON DELETE CASCADE,
+  PRIMARY KEY (transaction_id, tag_id)
+) STRICT, WITHOUT ROWID;
+
+CREATE INDEX transaction_tags_tag_idx ON transaction_tags (tag_id);
+
+CREATE TABLE attachments (
+  id TEXT PRIMARY KEY NOT NULL,
+  transaction_id TEXT NOT NULL REFERENCES transactions (id) ON DELETE CASCADE,
+  file_name TEXT NOT NULL UNIQUE CHECK (file_name NOT LIKE '%/%' AND file_name NOT LIKE '%..%'),
+  mime_type TEXT NOT NULL,
+  created_at TEXT NOT NULL
+) STRICT;
+
+CREATE INDEX attachments_transaction_idx ON attachments (transaction_id);
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
   { version: 3, name: "categorías por defecto", sql: v3 },
   { version: 4, name: "comisiones y cambio de moneda", sql: v4 },
+  { version: 5, name: "etiquetas y recibos", sql: v5 },
 ];

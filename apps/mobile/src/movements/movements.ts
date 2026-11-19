@@ -2,8 +2,9 @@ import {
   DomainError,
   type Money,
   type MovementKind,
+  type MovementSplit,
   merchantKey,
-  newMovement,
+  newSplitMovement,
   type Result,
   suggestFromHistory,
   type Transaction,
@@ -13,6 +14,7 @@ import { sqliteAccounts, sqliteRepositories } from "../data/ledger-sqlite";
 import { sqlitePreferences } from "../data/preferences";
 import type { SqlConnection } from "../data/sql";
 import { ruleCategoryFor } from "./merchant-rules";
+import { tagTransaction } from "./tags";
 
 export interface Category {
   readonly id: string;
@@ -45,14 +47,29 @@ export async function listCategories(
 export interface NewMovement {
   readonly kind: MovementKind;
   readonly accountId: string;
+  /** Categoría única. Se ignora si hay `splits`. */
   readonly categoryId: string;
+  /** Movimiento dividido: cuánto va a cada categoría; deben sumar `amount`. */
+  readonly splits?: readonly { readonly categoryId: string; readonly amount: Money }[];
   readonly amount: Money;
   readonly occurredAt: Date;
   readonly merchant?: string | null;
   readonly note?: string | null;
+  readonly tags?: readonly string[];
+  /** Foto del recibo ya guardada por el `ReceiptStore`. */
+  readonly receipt?: { readonly fileName: string; readonly mimeType: string } | null;
 }
 
-/** Guarda un gasto o ingreso y recuerda la cuenta para el siguiente registro. */
+interface CategoryRow {
+  id: string;
+  kind: MovementKind;
+  archived_at: string | null;
+}
+
+/**
+ * Guarda un gasto o ingreso (simple o dividido) con sus etiquetas y recibo, todo en una
+ * transacción, y recuerda la cuenta para el siguiente registro.
+ */
 export async function recordMovement(
   db: SqlConnection,
   input: NewMovement,
@@ -61,22 +78,46 @@ export async function recordMovement(
   let result: Result<Transaction, DomainError> | undefined;
   await db.transaction(async (tx) => {
     const account = await sqliteAccounts(tx).get(input.accountId);
-    const row = await tx.get<{ id: string; kind: MovementKind; archived_at: string | null }>(
-      "SELECT id, kind, archived_at FROM categories WHERE id = ?",
-      input.categoryId,
-    );
-    if (!account || !row) {
+    const parts =
+      input.splits && input.splits.length > 0
+        ? input.splits
+        : [{ categoryId: input.categoryId, amount: input.amount }];
+    const splits: MovementSplit[] = [];
+    for (const part of parts) {
+      const row = await tx.get<CategoryRow>(
+        "SELECT id, kind, archived_at FROM categories WHERE id = ?",
+        part.categoryId,
+      );
+      if (!row) break;
+      splits.push({
+        category: {
+          id: row.id,
+          kind: row.kind,
+          archivedAt: row.archived_at ? new Date(row.archived_at) : null,
+        },
+        amount: part.amount,
+      });
+    }
+    if (!account || splits.length !== parts.length) {
       result = { ok: false, error: notFound() };
       return;
     }
-    const category = {
-      id: row.id,
-      kind: row.kind,
-      archivedAt: row.archived_at ? new Date(row.archived_at) : null,
-    };
-    result = newMovement(account, category, input, clock);
+    result = newSplitMovement(account, splits, input, clock);
     if (!result.ok) return;
-    await sqliteRepositories(tx).transactions.save(result.value);
+    const transaction = result.value;
+    await sqliteRepositories(tx).transactions.save(transaction);
+    await tagTransaction(tx, transaction.id, input.tags ?? [], clock);
+    if (input.receipt) {
+      await tx.run(
+        `INSERT INTO attachments (id, transaction_id, file_name, mime_type, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        clock.newId(),
+        transaction.id,
+        input.receipt.fileName,
+        input.receipt.mimeType,
+        clock.now().toISOString(),
+      );
+    }
     await sqlitePreferences(tx).set("movements.lastAccount", account.id);
   });
   if (!result) throw new Error("El registro no produjo resultado");
