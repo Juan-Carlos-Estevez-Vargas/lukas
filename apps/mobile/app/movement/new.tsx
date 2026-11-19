@@ -1,5 +1,5 @@
 import { type Account, type MovementKind, parseTags } from "@lukas/domain";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text } from "react-native";
 import { accountErrorKey } from "../../src/accounts/messages";
@@ -40,7 +40,9 @@ export default function NewMovement() {
   const database = useLocalDatabase();
   const reminders = useCardReminders();
   const budgets = useBudgetAlerts();
-  const [kind, setKind] = useState<MovementKind>("expense");
+  // Los widgets abren esta pantalla con `?kind=…&category=…` para registrar más rápido.
+  const params = useLocalSearchParams<{ kind?: string; category?: string }>();
+  const [kind, setKind] = useState<MovementKind>(params.kind === "income" ? "income" : "expense");
   const [digits, setDigits] = useState("");
   const [merchant, setMerchant] = useState("");
   const [merchants, setMerchants] = useState<string[]>([]);
@@ -74,8 +76,15 @@ export default function NewMovement() {
     setCategoryId(null);
     setCategoryTouched(false);
     setParts({});
-    void listCategories(db, kind, new Date()).then(setCategories);
-  }, [db, kind]);
+    void listCategories(db, kind, new Date()).then((list) => {
+      setCategories(list);
+      const wanted = params.category;
+      if (wanted && list.some((c) => c.id === wanted)) {
+        setCategoryId(wanted);
+        setCategoryTouched(true);
+      }
+    });
+  }, [db, kind, params.category]);
 
   useEffect(() => {
     if (!db) return;
