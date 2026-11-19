@@ -3,7 +3,13 @@ appId: co.lukas.app
 name: Registrar un gasto
 ---
 - runFlow: subflows/primer-uso.yaml
-- tapOn: "Registrar movimiento"
+# Se entra por el mismo enlace que usa el widget de gasto rápido en Mercado: la fila de categorías es
+# horizontal y Maestro no la recorre de forma fiable en el emulador.
+- openLink: "lukas://movement/new?kind=expense&category=default.mercado"
+- extendedWaitUntil:
+    visible:
+      id: "movement-merchant"
+    timeout: 10000
 - tapOn: "2"
 - tapOn: "5"
 - tapOn: "000"
@@ -12,16 +18,6 @@ name: Registrar un gasto
     id: "movement-merchant"
 - inputText: "Tienda E2E"
 - hideKeyboard
-# Las categorías quedan debajo del teclado numérico y en una fila horizontal: primero se baja hasta
-# la fila (centrada, para que el gesto horizontal caiga sobre ella) y luego se recorre a la derecha.
-- scrollUntilVisible:
-    element:
-      id: "movement-categories"
-    centerElement: true
-- scrollUntilVisible:
-    element: ".*Mercado"
-    direction: RIGHT
-- tapOn: ".*Mercado"
 - scrollUntilVisible:
     element: "Guardar"
 - tapOn: "Guardar"
