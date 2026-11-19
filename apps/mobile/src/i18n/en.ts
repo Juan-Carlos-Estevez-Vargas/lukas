@@ -338,4 +338,8 @@ export const en: Messages = {
   "csv.amount": "Amount",
   "csv.currency": "Currency",
   "csv.tags": "Tags",
+  "widget.label": "Available this month",
+  "widget.hint": "Tap to open",
+  "widget.hidden": "Open Lukas to see it",
+  "widget.quick": "+ Expense",
 };

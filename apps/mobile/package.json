@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "description": "App de Lukas para Android, iOS y web (Expo)",
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "scripts": {
     "dev": "expo start",
     "android": "expo start --android",
@@ -39,6 +39,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
+    "react-native-android-widget": "0.26.0",
     "react-native-safe-area-context": "5.11.1",
     "react-native-screens": "4.30.1",
     "react-native-web": "0.21.4"
