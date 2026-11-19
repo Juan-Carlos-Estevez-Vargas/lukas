@@ -7,11 +7,13 @@
     "jsx": "react-jsx",
     "lib": ["ES2023", "DOM"],
     "types": [],
-    "allowJs": false
+    "allowJs": false,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "app",
     "src",
+    "e2e",
     "app.config.ts",
     "app.config.test.ts",
     "vitest.config.ts",
