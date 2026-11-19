@@ -1,29 +1,14 @@
-import {
-  type Account,
-  type AccountType,
-  createAccount,
-  type Entry,
-  Money,
-  type Transaction,
-} from "@lukas/domain";
+import { type Account, createAccount, type Entry, Money, type Transaction } from "@lukas/domain";
+import { recordOpeningBalance } from "../accounts/accounts";
+import { ACCOUNT_TEMPLATES, type AccountTemplate } from "../accounts/templates";
 import { sqliteRepositories } from "../data/ledger-sqlite";
 import { sqlitePreferences } from "../data/preferences";
 import type { SqlConnection } from "../data/sql";
 
-export interface AccountTemplate {
-  readonly key: "cash" | "nequi" | "daviplata" | "bancolombia";
-  readonly name: string;
-  readonly type: AccountType;
-  readonly institution: string | null;
-}
-
-/** Las cuentas más comunes en Colombia para empezar en un toque. FIN-104 suma el resto. */
-export const ONBOARDING_TEMPLATES: readonly AccountTemplate[] = [
-  { key: "cash", name: "Efectivo", type: "cash", institution: null },
-  { key: "nequi", name: "Nequi", type: "digital_wallet", institution: "Nequi" },
-  { key: "daviplata", name: "Daviplata", type: "digital_wallet", institution: "Daviplata" },
-  { key: "bancolombia", name: "Bancolombia", type: "bank", institution: "Bancolombia" },
-];
+/** En el onboarding se ofrecen las más comunes; el resto, desde Cuentas. */
+export const ONBOARDING_TEMPLATES: readonly AccountTemplate[] = (
+  ["cash", "nequi", "daviplata", "bancolombia"] as const
+).flatMap((key) => ACCOUNT_TEMPLATES.filter((t) => t.key === key));
 
 export interface OnboardingInput {
   readonly template: AccountTemplate;
@@ -61,17 +46,6 @@ async function insertCategory(
     now.toISOString(),
     now.toISOString(),
   );
-}
-
-/** Categoría de sistema contra la que se registran los saldos iniciales (patrimonio). */
-async function openingBalanceCategory(db: SqlConnection, deps: OnboardingDeps): Promise<string> {
-  const row = await db.get<{ id: string }>(
-    "SELECT id FROM categories WHERE kind = 'equity' AND is_system = 1 AND name = 'Saldo inicial'",
-  );
-  if (row) return row.id;
-  const id = deps.newId();
-  await insertCategory(db, id, "Saldo inicial", "equity", deps.now(), true);
-  return id;
 }
 
 function movement(
@@ -142,7 +116,7 @@ export async function completeOnboarding(
 ): Promise<Account> {
   let created: Account | undefined;
   await db.transaction(async (tx) => {
-    const { accounts, transactions } = sqliteRepositories(tx);
+    const { accounts } = sqliteRepositories(tx);
     const prefs = sqlitePreferences(tx);
     const now = deps.now();
     const res = createAccount(
@@ -158,11 +132,8 @@ export async function completeOnboarding(
     if (!res.ok) throw res.error;
     await accounts.save(res.value);
 
-    if (input.openingBalance && !input.openingBalance.isZero()) {
-      const equity = await openingBalanceCategory(tx, deps);
-      await transactions.save(
-        movement(deps, "Saldo inicial", res.value.id, equity, input.openingBalance, now),
-      );
+    if (input.openingBalance) {
+      await recordOpeningBalance(tx, res.value, input.openingBalance, deps);
     }
     if (input.sampleData) {
       await prefs.set("sample.ids", JSON.stringify(await createSampleData(tx, deps)));
