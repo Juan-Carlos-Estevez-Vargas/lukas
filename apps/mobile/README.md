@@ -37,6 +37,15 @@ src/theme/      tema claro u oscuro según el sistema, con tokens de @lukas/ui
 (se borra al cerrar la pestaña), porque la API y la web están en dominios distintos y una cookie
 sería de terceros. `public/_headers` aplica CSP estricta y demás cabeceras en Cloudflare Pages.
 
+- Datos: SQLite solo en memoria, llenado por el sync al entrar; los cambios se suben en segundos y
+  al cerrar con algo pendiente el navegador pregunta. Nada queda en el equipo
+  ([ADR 0005](../../docs/adr/0005-web-sin-datos-en-reposo.md)).
+- Escritorio: desde 900 px el menú pasa a la izquierda y el contenido se centra (máx. 760 px).
+- PWA: `public/manifest.webmanifest`, íconos en `public/icons/` (fuente `icon.svg`) y
+  `public/index.html` con lo que pide Safari. En el iPhone: Safari → Compartir → Agregar a inicio.
+- `metro.config.js` empaqueta el `.wasm` de SQLite y aísla el origen (COOP/COEP) en desarrollo;
+  en producción lo hace `_headers`. `pwa.test.ts` vigila esas cabeceras y el manifest.
+
 ## Seguridad
 
 - El token de sesión se guarda en Keystore/Keychain (`WHEN_UNLOCKED_THIS_DEVICE_ONLY`), nunca en
@@ -58,8 +67,7 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Migraciones en `src/data/schema.ts`, numeradas desde 1 y guardadas en `PRAGMA user_version`.
   Cada una corre en su transacción. Las publicadas no se editan: un cambio es una migración nueva.
 - Montos en INTEGER (unidades menores); las tablas son STRICT y rechazan decimales.
-- En la web no hay base local: sin Keystore ni SQLCipher, los datos quedarían en claro en el
-  navegador. La web usará la API cuando llegue el sync (fase 2).
+- En la web no hay SQLCipher ni Keystore: la base es solo de memoria (ver Web).
 
 ## Cuentas
 
@@ -201,7 +209,7 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - El PIN no cifra la base: la clave de SQLCipher es independiente, así que cambiar o quitar el PIN
   no recifra nada.
 - Modo discreto: oculta todos los montos (`••••`), guardado en la tabla `preferences`.
-- En la web no hay onboarding ni bloqueo: no hay base local.
+- En la web el onboarding espera al primer sync: si ya hay cuentas en tu cuenta, no aparece.
 
 Las pruebas corren la lógica sobre `node:sqlite`. Que el archivo no se abra sin la clave lo
 garantiza SQLCipher y se comprueba en el dispositivo.

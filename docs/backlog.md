@@ -360,9 +360,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-204 · App web y PWA
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Expo Web con layout de escritorio
-- [ ] PWA instalable en iPhone y Android
-- [ ] CSP estricta
+- [x] Expo Web con layout de escritorio
+- [x] PWA instalable en iPhone y Android
+- [x] CSP estricta
 
 **Hecho cuando:** Se instala desde Safari en un iPhone.
 

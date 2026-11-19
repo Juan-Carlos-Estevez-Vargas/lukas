@@ -75,7 +75,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | --- | --- | --- |
 | S | App modificada o falsa | ✓ APK firmado por EAS en cada release (FIN-012) · ○ Play Integrity (F3) |
 | T, I | Base local leída o alterada | ✓ SQLCipher (AES-256) con clave aleatoria en Keystore/Keychain; sin SQLCipher la app no abre la base (FIN-101) |
-| I | Finanzas guardadas en claro en el navegador | ✓ La web no tiene base local; usará la API (fase 2) |
+| I | Finanzas guardadas en claro en el navegador | ✓ La web usa SQLite solo en memoria, llenado por el sync; nada queda en disco (ADR 0005) |
 | I | Alguien con el teléfono desbloqueado abre la app | ✓ Bloqueo con PIN (hash con sal en Keystore) o biometría; espera progresiva tras 5 fallos (FIN-103) |
 | I | Datos visibles en el selector de apps o mirando la pantalla | ✓ Pantalla tapada en segundo plano y modo discreto (FIN-103) · ○ `FLAG_SECURE` contra capturas |
 | I | Montos visibles en notificaciones con el teléfono bloqueado | ✓ Los avisos de pago de tarjetas, recurrentes y presupuestos no incluyen montos y son locales, sin push ni servidor (FIN-105, FIN-111, FIN-112) |
