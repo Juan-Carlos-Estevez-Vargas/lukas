@@ -316,8 +316,8 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-118 · E2E y presupuesto de rendimiento
 
 - Tipo: `test` · Tamaño: M
-- [ ] Flujos Maestro críticos
-- [ ] Medición de arranque y tamaño del APK en CI
+- [x] Flujos Maestro críticos
+- [x] Medición de arranque y tamaño del APK en CI
 
 **Hecho cuando:** El CI falla si el arranque pasa de 1,5 s.
 
