@@ -189,20 +189,11 @@ describe("sincronización del teléfono", () => {
     expect((await syncStatus(a)).pending).toBe(0);
   });
 
-  it("en conflicto gana el servidor por ahora y lo rechazado sale de la cola", async () => {
+  it("lo rechazado sale de la cola y queda el motivo", async () => {
     const server = fakeServer();
     const a = await phone();
     const { nequi } = await withNequiAndExpense(a);
     await syncNow(a, server.api, USER);
-
-    server.edit("accounts", nequi, (r) => ({ ...r, name: "Desde la web" }));
-    await a.run("UPDATE accounts SET name = 'Desde el teléfono' WHERE id = ?", nequi);
-    const res = await syncNow(a, server.api, USER);
-    expect(res.conflicts).toBe(1);
-    expect(await a.get("SELECT name FROM accounts WHERE id = ?", nequi)).toEqual({
-      name: "Desde la web",
-    });
-
     server.rejectWhen((op) => (op.entity === "accounts" ? "invalid" : null));
     await a.run("UPDATE accounts SET institution = 'X' WHERE id = ?", nequi);
     const rejected = await syncNow(a, server.api, USER);
@@ -227,6 +218,104 @@ describe("sincronización del teléfono", () => {
       nequi,
     );
     expect(row?.archived_at).not.toBeNull();
+  });
+});
+
+describe("conflictos entre dos teléfonos (FIN-203)", () => {
+  const edit = (db: SqlConnection, sql: string, minute: number, id: string) =>
+    db.run(
+      sql.replace(
+        "SET ",
+        `SET updated_at = '2026-11-19T16:${String(minute).padStart(2, "0")}:00.000Z', `,
+      ),
+      id,
+    );
+
+  async function twoPhones() {
+    const server = fakeServer();
+    const a = await phone();
+    const b = await phone();
+    const data = await withNequiAndExpense(a);
+    await syncNow(a, server.api, USER);
+    await syncNow(b, server.api, USER);
+    return { server, a, b, ...data };
+  }
+
+  const settle = async (server: ReturnType<typeof fakeServer>, ...phones: SqlConnection[]) => {
+    for (const p of [...phones, ...phones]) await syncNow(p, server.api, USER);
+  };
+
+  it("editar campos distintos sin conexión conserva ambos cambios en los dos", async () => {
+    const { server, a, b, nequi } = await twoPhones();
+    await edit(a, "UPDATE accounts SET name = 'Nequi Ana' WHERE id = ?", 1, nequi);
+    await edit(b, "UPDATE accounts SET institution = 'Nequi S.A.' WHERE id = ?", 2, nequi);
+    await settle(server, a, b);
+    for (const p of [a, b]) {
+      expect(await p.get("SELECT name, institution FROM accounts WHERE id = ?", nequi)).toEqual({
+        name: "Nequi Ana",
+        institution: "Nequi S.A.",
+      });
+    }
+    expect(await count(b, "sync_conflicts")).toBe(0);
+  });
+
+  it("el mismo campo editado en ambos: gana la edición más reciente y queda registro", async () => {
+    const { server, a, b, nequi, expense } = await twoPhones();
+    await edit(
+      a,
+      "UPDATE transactions SET notes = 'nota vieja del teléfono A' WHERE id = ?",
+      1,
+      expense,
+    );
+    await edit(
+      b,
+      "UPDATE transactions SET notes = 'nota nueva del teléfono B' WHERE id = ?",
+      9,
+      expense,
+    );
+    await edit(a, "UPDATE accounts SET name = 'Nueva de A' WHERE id = ?", 8, nequi);
+    await edit(b, "UPDATE accounts SET name = 'Vieja de B' WHERE id = ?", 2, nequi);
+    await settle(server, a, b);
+    for (const p of [a, b]) {
+      expect(await p.get("SELECT notes FROM transactions WHERE id = ?", expense)).toEqual({
+        notes: "nota nueva del teléfono B",
+      });
+      expect(await p.get("SELECT name FROM accounts WHERE id = ?", nequi)).toEqual({
+        name: "Nueva de A",
+      });
+    }
+    const log = await b.all<{ field: string; kept: string; local_value: string }>(
+      "SELECT field, kept, local_value FROM sync_conflicts ORDER BY id",
+    );
+    expect(log).toEqual(
+      expect.arrayContaining([
+        { field: "notes", kept: "local", local_value: JSON.stringify("nota nueva del teléfono B") },
+        { field: "name", kept: "server", local_value: JSON.stringify("Vieja de B") },
+      ]),
+    );
+  });
+
+  it("borrar en uno y editar en otro: la edición no se pierde", async () => {
+    const { server, a, b, expense } = await twoPhones();
+    await edit(a, "UPDATE transactions SET merchant = 'Carulla' WHERE id = ?", 3, expense);
+    await b.run("DELETE FROM transactions WHERE id = ?", expense);
+    await settle(server, a, b);
+    for (const p of [a, b]) {
+      expect(await p.get("SELECT merchant FROM transactions WHERE id = ?", expense)).toEqual({
+        merchant: "Carulla",
+      });
+    }
+
+    // Al revés: primero llega el borrado y después la edición de un teléfono que no se enteró.
+    await b.run("DELETE FROM transactions WHERE id = ?", expense);
+    await syncNow(b, server.api, USER);
+    await edit(a, "UPDATE transactions SET merchant = 'Olímpica' WHERE id = ?", 4, expense);
+    await settle(server, a, b);
+    for (const p of [a, b]) {
+      expect(await p.get("SELECT merchant FROM transactions WHERE id = ?", expense)).toEqual({
+        merchant: "Olímpica",
+      });
+    }
   });
 });
 

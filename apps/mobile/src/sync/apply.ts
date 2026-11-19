@@ -9,17 +9,25 @@ const toInt = (minor: string): number => {
   return n;
 };
 
-const setVersion = (tx: SqlConnection, entity: SyncEntity, id: string, version: number) =>
+/** Versión del servidor que queda conocida y su contenido, base de la próxima fusión. */
+export const setVersion = (
+  tx: SqlConnection,
+  entity: SyncEntity,
+  id: string,
+  version: number,
+  base: SyncRecord | null,
+) =>
   tx.run(
-    `INSERT INTO sync_versions (entity, entity_id, version) VALUES (?, ?, ?)
-     ON CONFLICT (entity, entity_id) DO UPDATE SET version = excluded.version`,
+    `INSERT INTO sync_versions (entity, entity_id, version, base) VALUES (?, ?, ?, ?)
+     ON CONFLICT (entity, entity_id) DO UPDATE SET version = excluded.version, base = excluded.base`,
     entity,
     id,
     version,
+    base === null ? null : JSON.stringify(base),
   );
 
 /** Escribe un registro del servidor en la base local (sin pasar por la cola de subida). */
-async function upsertLocal(
+export async function upsertLocal(
   tx: SqlConnection,
   ids: IdMap,
   entity: SyncEntity,
@@ -112,7 +120,7 @@ async function upsertLocal(
   } else {
     throw new Error(`Registro que no corresponde a ${entity}`);
   }
-  await setVersion(tx, entity, id, version);
+  await setVersion(tx, entity, id, version, record);
 }
 
 async function deleteLocal(tx: SqlConnection, ids: IdMap, entity: SyncEntity, serverId: string) {
