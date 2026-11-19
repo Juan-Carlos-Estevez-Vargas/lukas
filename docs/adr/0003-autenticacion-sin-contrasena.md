@@ -1,6 +1,6 @@
 # 0003. Autenticación sin contraseña en el plan gratuito
 
-- Estado: Propuesto
+- Estado: Aceptado
 - Fecha: 2026-10-28
 
 ## Contexto

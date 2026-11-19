@@ -7,3 +7,4 @@ Un ADR aceptado no se edita: si la decisión cambia, se escribe uno nuevo que lo
 | --- | --- | --- |
 | [0001](0001-arquitectura.md) | Arquitectura local-first y monolito modular hexagonal | Aceptado |
 | [0002](0002-modo-gratuito.md) | Operar solo con planes gratuitos al inicio | Aceptado |
+| [0003](0003-autenticacion-sin-contrasena.md) | Autenticación sin contraseña en el plan gratuito | Aceptado |
