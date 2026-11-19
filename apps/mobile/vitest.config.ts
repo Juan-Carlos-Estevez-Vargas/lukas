@@ -4,10 +4,10 @@ import { defineConfig } from "vitest/config";
 // en el dispositivo y, más adelante, con pruebas de extremo a extremo.
 export default defineConfig({
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "*.test.ts"],
     coverage: {
       provider: "v8",
-      include: ["src/i18n/**/*.ts", "src/api/**/*.ts"],
+      include: ["src/i18n/**/*.ts", "src/api/**/*.ts", "app.config.ts"],
       exclude: ["src/**/*.test.ts"],
       reporter: ["text", "json-summary"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },

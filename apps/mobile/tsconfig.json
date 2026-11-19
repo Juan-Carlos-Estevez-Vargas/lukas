@@ -9,5 +9,13 @@
     "types": [],
     "allowJs": false
   },
-  "include": ["app", "src", "vitest.config.ts", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": [
+    "app",
+    "src",
+    "app.config.ts",
+    "app.config.test.ts",
+    "vitest.config.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }
