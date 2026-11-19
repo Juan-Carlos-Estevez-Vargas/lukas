@@ -10,7 +10,7 @@ los primeros usuarios externos.
 | Cloudflare Pages | Web de producción, staging y una rama por PR | Número de despliegues al mes del plan Free | Panel → Workers & Pages → `lukas-web` → Deployments | Juntar PRs o dejar de desplegar web en PRs de solo backend |
 | Neon | Rama `main` (producción), `staging` y una por PR | 1 GiB por rama (lo reporta la API del proyecto) y horas de cómputo del plan Free | https://console.neon.tech → proyecto `lukas` → Usage | Borrar ramas huérfanas `preview/*`; revisar consultas lentas |
 | GitHub Actions | CI, previews y despliegues | 2 000 minutos al mes en repos privados del plan Free | Settings → Billing → Usage | Reducir jobs de PRs o hacer el repo público |
-| Expo EAS | Builds de Android y actualizaciones OTA (próximo PR) | Cupo mensual de builds y de usuarios de OTA del plan Free | https://expo.dev → Usage | Compilar APK solo en releases |
+| Expo EAS | APK de Android en cada release y actualizaciones OTA (pendiente) | Cupo mensual de builds y de usuarios de OTA del plan Free | https://expo.dev → Usage | Compilar APK solo en releases |
 | Turnstile | Captcha antes de enviar el código | Sin límite práctico en el plan Free | Panel → Turnstile | — |
 
 ## Alertas

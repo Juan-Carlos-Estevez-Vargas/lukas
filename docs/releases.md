@@ -14,7 +14,7 @@
 1. Los PRs se fusionan a `main` con sus changesets.
 2. El workflow **Release** abre o actualiza un PR `chore(release): versionar paquetes` que sube versiones y escribe los `CHANGELOG.md`.
 3. Al fusionar ese PR se crean los tags `<paquete>@<versión>` y un GitHub Release por cada uno, con su changelog.
-4. Desde FIN-012, un tag `api@*` despliega la API a producción y un tag `mobile@*` construye el APK firmado y lo adjunta al release. Los despliegues a producción esperan aprobación manual en el entorno `production`.
+4. Un release de `@lukas/mobile` dispara el workflow **EAS**, que compila el APK firmado y lo adjunta al GitHub Release. La API y la web pasan a producción a mano (ver Entornos).
 
 ## Previews por PR
 
@@ -49,6 +49,12 @@ Las cuotas de cada servicio están en [cuotas-gratuitas.md](cuotas-gratuitas.md)
 
 - `version` de `apps/mobile/package.json` es la versión visible (`versionName` en Android, `CFBundleShortVersionString` en iOS).
 - El número de build (`versionCode` / `buildNumber`) lo incrementa EAS de forma remota en cada build de producción.
+- El APK se compila en EAS Build (perfil `production` de `apps/mobile/eas.json`, apuntando a la API de producción).
+  El keystore lo genera y guarda EAS en la cuenta de Expo; nunca está en el repo. Para un APK suelto:
+  **Actions → EAS → Run workflow** (queda como artefacto del run por 14 días). El plan gratuito de EAS
+  da 15 builds de Android al mes.
+- `eas-cli` no va en el lockfile: los workflows lo ejecutan con `pnpm dlx eas-cli@<versión fija>`, porque
+  arrastra dependencias viejas con avisos de seguridad y solo se usa en CI.
 - `runtimeVersion` usa la política `fingerprint`: una actualización OTA solo llega a binarios con el mismo código nativo.
 - La API publica la versión mínima soportada; la app pide actualizar si está por debajo.
 
