@@ -25,6 +25,9 @@ const KNOWN = new Set([
   "invalid_date",
   "ends_before_start",
   "budget_exists",
+  "goal_name_required",
+  "goal_date_past",
+  "goal_has_account",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

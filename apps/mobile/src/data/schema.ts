@@ -240,6 +240,26 @@ CREATE TABLE budget_alerts (
 ) STRICT, WITHOUT ROWID;
 `;
 
+/**
+ * Metas de ahorro. Si están ligadas a una cuenta, lo ahorrado es el saldo de esa cuenta; si no,
+ * `saved_minor` lleva los abonos que la persona anota.
+ */
+const v10 = `
+CREATE TABLE goals (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+  icon TEXT,
+  target_minor INTEGER NOT NULL CHECK (target_minor > 0),
+  currency TEXT NOT NULL CHECK (length(currency) = 3),
+  target_date TEXT NOT NULL,
+  account_id TEXT REFERENCES accounts (id) ON DELETE SET NULL,
+  saved_minor INTEGER NOT NULL DEFAULT 0 CHECK (saved_minor >= 0),
+  archived_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+) STRICT;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -250,4 +270,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 7, name: "reglas de categorías", sql: v7 },
   { version: 8, name: "recurrentes", sql: v8 },
   { version: 9, name: "presupuestos", sql: v9 },
+  { version: 10, name: "metas de ahorro", sql: v10 },
 ];

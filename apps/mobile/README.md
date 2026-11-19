@@ -143,6 +143,13 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Avisos al 80 % y al 100 %, una vez por periodo (`budget_alerts`): al registrar, al generar
   recurrentes y al abrir la app. Muestran el porcentaje, nunca montos.
 
+## Metas de ahorro
+
+- Meta con monto, fecha e ícono (`packages/domain`, `ledger/goal.ts`; `src/goals`, migración 10).
+- Ligada a una cuenta, lo ahorrado es su saldo; sin cuenta, la persona anota abonos y retiros.
+- Muestra cuánto apartar por mes: lo que falta entre los aportes mensuales que quedan (incluido
+  el de hoy), redondeado hacia arriba a pesos enteros.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

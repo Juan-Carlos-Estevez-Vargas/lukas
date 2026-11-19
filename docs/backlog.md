@@ -272,9 +272,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-113 · Metas de ahorro
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Meta con monto y fecha
-- [ ] Aporte sugerido
-- [ ] Progreso visual
+- [x] Meta con monto y fecha
+- [x] Aporte sugerido
+- [x] Progreso visual
 
 **Hecho cuando:** La meta muestra cuánto apartar por mes.
 
