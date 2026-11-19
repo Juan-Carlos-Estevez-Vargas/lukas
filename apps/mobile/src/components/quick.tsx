@@ -53,6 +53,8 @@ export function ChipRow({
     <ScrollView
       testID={testID}
       horizontal
+      // En la web un ScrollView crece a todo el alto disponible; la fila solo mide lo que sus chips.
+      style={{ flexGrow: 0 }}
       showsHorizontalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ gap: space.sm }}
