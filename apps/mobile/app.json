@@ -37,6 +37,14 @@
         {
           "defaultChannel": "payments"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Lukas usa la cámara para tomar la foto de tus recibos.",
+          "photosPermission": "Lukas usa tus fotos para adjuntar recibos a tus gastos.",
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

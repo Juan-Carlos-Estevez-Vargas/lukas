@@ -225,9 +225,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-108 · Split, etiquetas y adjuntos
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Transacciones divididas en varias categorías
-- [ ] Etiquetas
-- [ ] Foto de recibo guardada localmente
+- [x] Transacciones divididas en varias categorías
+- [x] Etiquetas
+- [x] Foto de recibo guardada localmente
 
 **Hecho cuando:** Un mercado se divide entre comida y aseo.
 

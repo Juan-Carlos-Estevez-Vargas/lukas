@@ -14,6 +14,8 @@ const KNOWN = new Set([
   "currency_mismatch",
   "account_not_found",
   "invalid_amount",
+  "split_mismatch",
+  "invalid_split",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

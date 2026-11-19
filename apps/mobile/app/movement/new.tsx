@@ -1,10 +1,10 @@
-import type { Account, MovementKind } from "@lukas/domain";
+import { type Account, type MovementKind, parseTags } from "@lukas/domain";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text } from "react-native";
 import { accountErrorKey } from "../../src/accounts/messages";
 import { Chip, ChipRow, Keypad } from "../../src/components/quick";
-import { Body, Button, Field, Screen } from "../../src/components/ui";
+import { Body, Button, Field, Screen, Toggle } from "../../src/components/ui";
 import { newId } from "../../src/data/ids";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
@@ -20,6 +20,10 @@ import {
   recordMovement,
   suggestCategory,
 } from "../../src/movements/movements";
+import { recentTags } from "../../src/movements/tags";
+import { pickReceipt, type ReceiptSource } from "../../src/receipts/pick";
+import { receiptStore } from "../../src/receipts/receipt-store";
+import type { StoredReceipt } from "../../src/receipts/store";
 import { useCardReminders } from "../../src/reminders/use-card-reminders";
 import { useTheme } from "../../src/theme/theme";
 
@@ -45,6 +49,11 @@ export default function NewMovement() {
   const [accountId, setAccountId] = useState<string | null>(null);
   const [daysAgo, setDaysAgo] = useState(0);
   const [note, setNote] = useState("");
+  const [split, setSplit] = useState(false);
+  const [parts, setParts] = useState<Record<string, string>>({});
+  const [tagsText, setTagsText] = useState("");
+  const [knownTags, setKnownTags] = useState<string[]>([]);
+  const [receipt, setReceipt] = useState<StoredReceipt | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -54,12 +63,14 @@ export default function NewMovement() {
     if (!db) return;
     void sqliteAccounts(db).list().then(setAccounts);
     void defaultAccountId(db).then(setAccountId);
+    void recentTags(db).then(setKnownTags);
   }, [db]);
 
   useEffect(() => {
     if (!db) return;
     setCategoryId(null);
     setCategoryTouched(false);
+    setParts({});
     void listCategories(db, kind, new Date()).then(setCategories);
   }, [db, kind]);
 
@@ -90,9 +101,35 @@ export default function NewMovement() {
   const amount = keypadAmount(digits);
   const account = accounts.find((a) => a.id === accountId);
 
+  const splitParts = Object.entries(parts).map(([id, text]) => ({
+    categoryId: id,
+    amount: keypadAmount(text.replace(/\D/g, "")),
+  }));
+  const assigned = splitParts.reduce((sum, p) => sum.add(p.amount), keypadAmount(""));
+  const remaining = amount.subtract(assigned);
+
+  const attach = async (source: ReceiptSource) => {
+    try {
+      const picked = await pickReceipt(source);
+      if (!picked) return;
+      if (receipt) await receiptStore.remove(receipt.fileName);
+      setReceipt(await receiptStore.save(picked.uri, picked.mimeType));
+    } catch {
+      setError(t("movement.error.receipt"));
+    }
+  };
+
+  const cancel = () => {
+    if (receipt) void receiptStore.remove(receipt.fileName);
+    router.back();
+  };
+
   const save = async () => {
     if (amount.isZero()) return setError(t("movement.error.amount"));
-    if (!categoryId) return setError(t("movement.error.category"));
+    if (split && (splitParts.length < 2 || !remaining.isZero())) {
+      return setError(t("movement.error.split"));
+    }
+    if (!split && !categoryId) return setError(t("movement.error.category"));
     if (!accountId) return setError(t("movement.error.account"));
     setBusy(true);
     setError(null);
@@ -102,8 +139,11 @@ export default function NewMovement() {
         {
           kind,
           accountId,
-          categoryId,
+          categoryId: categoryId ?? "",
+          splits: split ? splitParts : [],
           amount,
+          tags: parseTags(tagsText),
+          receipt,
           occurredAt: occurredAtFor(daysAgo, new Date()),
           merchant,
           note,
@@ -168,20 +208,42 @@ export default function NewMovement() {
           </ChipRow>
         ) : null}
 
+        <Toggle label={t("movement.split")} value={split} onChange={setSplit} />
         <Body muted>{t("movement.category")}</Body>
         <ChipRow>
           {categories.map((c) => (
             <Chip
               key={c.id}
               label={c.icon ? `${c.icon} ${c.name}` : c.name}
-              selected={c.id === categoryId}
+              selected={split ? c.id in parts : c.id === categoryId}
               onPress={() => {
                 setCategoryTouched(true);
-                setCategoryId(c.id);
+                if (!split) return setCategoryId(c.id);
+                setParts(({ [c.id]: current, ...rest }) =>
+                  current === undefined ? { ...rest, [c.id]: "" } : rest,
+                );
               }}
             />
           ))}
         </ChipRow>
+        {split
+          ? categories
+              .filter((c) => c.id in parts)
+              .map((c) => (
+                <Field
+                  key={c.id}
+                  label={c.name}
+                  value={parts[c.id] ?? ""}
+                  onChangeText={(v) => setParts((p) => ({ ...p, [c.id]: v }))}
+                  keyboardType="number-pad"
+                />
+              ))
+          : null}
+        {split ? (
+          <Body muted>
+            {t("movement.remaining", { amount: formatMoney(remaining, { locale }) })}
+          </Body>
+        ) : null}
 
         <Body muted>{t("movement.account")}</Body>
         {accounts.length === 0 ? <Body>{t("movement.noAccounts")}</Body> : null}
@@ -207,10 +269,49 @@ export default function NewMovement() {
           ))}
         </ChipRow>
         <Field label={t("movement.note")} value={note} onChangeText={setNote} />
+        <Field
+          label={t("movement.tags")}
+          value={tagsText}
+          onChangeText={setTagsText}
+          autoCapitalize="none"
+        />
+        {knownTags.length > 0 ? (
+          <ChipRow>
+            {knownTags.map((tag) => (
+              <Chip
+                key={tag}
+                label={`#${tag}`}
+                onPress={() =>
+                  setTagsText((text) => (text.trim() ? `${text.trim()}, ${tag}` : tag))
+                }
+              />
+            ))}
+          </ChipRow>
+        ) : null}
+        {receiptStore.available ? (
+          receipt ? (
+            <>
+              <Body>{t("movement.receipt.attached")}</Body>
+              <Button
+                label={t("movement.receipt.remove")}
+                variant="plain"
+                onPress={() => {
+                  void receiptStore.remove(receipt.fileName);
+                  setReceipt(null);
+                }}
+              />
+            </>
+          ) : (
+            <ChipRow>
+              <Chip label={t("movement.receipt.camera")} onPress={() => void attach("camera")} />
+              <Chip label={t("movement.receipt.library")} onPress={() => void attach("library")} />
+            </ChipRow>
+          )
+        ) : null}
 
         {error ? <Body tone="error">{error}</Body> : null}
         <Button label={t("movement.save")} busy={busy} onPress={() => void save()} />
-        <Button label={t("lock.cancel")} variant="plain" onPress={() => router.back()} />
+        <Button label={t("lock.cancel")} variant="plain" onPress={cancel} />
       </ScrollView>
     </Screen>
   );

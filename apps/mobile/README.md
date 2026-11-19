@@ -90,6 +90,14 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Categoría sugerida: la que más ha usado la persona con ese comercio; si es nuevo, reglas de
   comercios colombianos conocidos (`src/movements/merchant-rules.ts`).
 
+## Dividir, etiquetas y recibos
+
+- "Dividir en varias categorías" reparte el total; las partes deben sumar exacto
+  (`newSplitMovement`).
+- Etiquetas separadas por coma, sin distinguir mayúsculas; las recientes se tocan para agregarlas.
+- Recibos con `expo-image-picker` (cámara o galería, calidad 0,6 y sin EXIF). La foto se copia a
+  `documents/receipts/` de la app con un nombre propio y en la base solo queda ese nombre.
+
 ## Transferencias
 
 - Desde el registro rápido, "Transferencia" abre `app/movement/transfer.tsx`: pagar la tarjeta,
