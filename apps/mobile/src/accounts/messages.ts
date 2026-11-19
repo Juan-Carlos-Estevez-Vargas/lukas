@@ -19,6 +19,11 @@ const KNOWN = new Set([
   "category_name_required",
   "too_deep",
   "rule_pattern_required",
+  "recurring_name_required",
+  "invalid_interval",
+  "invalid_frequency",
+  "invalid_date",
+  "ends_before_start",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

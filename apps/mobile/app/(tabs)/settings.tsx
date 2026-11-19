@@ -63,6 +63,13 @@ export default function Settings() {
 
         {database.status === "ready" ? (
           <Button
+            label={t("recurring.manage")}
+            variant="plain"
+            onPress={() => router.push("/recurring")}
+          />
+        ) : null}
+        {database.status === "ready" ? (
+          <Button
             label={t("categories.manage")}
             variant="plain"
             onPress={() => router.push("/categories")}
