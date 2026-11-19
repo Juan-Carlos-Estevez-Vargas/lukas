@@ -131,10 +131,10 @@ Repo listo, CI con previews por PR y autenticación funcionando.
 #### FIN-012 · Staging, producción gratuita y tablero de cuotas
 
 - Tipo: `ci` · Tamaño: M
-- [ ] main → staging automático
-- [ ] Tag → producción con aprobación
-- [ ] APK firmado en GitHub Release
-- [ ] Documento de cuotas gratuitas y alertas de consumo
+- [x] main → staging automático
+- [x] Tag → producción con aprobación
+- [x] APK firmado en GitHub Release
+- [x] Documento de cuotas gratuitas y alertas de consumo
 
 **Hecho cuando:** Un tag publica API, web y un APK descargable.
 
