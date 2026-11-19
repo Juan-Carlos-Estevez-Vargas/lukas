@@ -7,4 +7,5 @@ export const notificationScheduler: ReminderScheduler = {
   pending: async () => [],
   cancel: async () => undefined,
   schedule: async () => undefined,
+  present: async () => undefined,
 };

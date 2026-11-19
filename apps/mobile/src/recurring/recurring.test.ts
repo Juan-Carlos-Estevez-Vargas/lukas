@@ -193,6 +193,7 @@ function fakeScheduler(available = true) {
     pending: async (prefix) => [...scheduled.keys()].filter((k) => k.startsWith(prefix)),
     cancel: async (id) => void scheduled.delete(id),
     schedule: async (r) => void scheduled.set(r.id, r),
+    present: async () => undefined,
   };
   return { scheduler, scheduled };
 }

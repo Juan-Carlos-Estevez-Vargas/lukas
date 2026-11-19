@@ -202,6 +202,44 @@ CREATE TABLE recurring_occurrences (
 ) STRICT, WITHOUT ROWID;
 `;
 
+/**
+ * Presupuestos por categoría (o de todos los gastos si `category_id` es NULL) y periodo. Solo uno
+ * activo por categoría y periodo. `budget_alerts` recuerda qué avisos ya se dieron en cada
+ * periodo para no repetirlos. `budget_group` clasifica las categorías para el 50/30/20.
+ */
+const v9 = `
+ALTER TABLE categories ADD COLUMN budget_group TEXT
+  CHECK (budget_group IS NULL OR budget_group IN ('needs', 'wants', 'savings'));
+UPDATE categories SET budget_group = 'needs' WHERE id IN ('default.mercado', 'default.transporte',
+  'default.servicios', 'default.celular', 'default.arriendo', 'default.salud', 'default.educacion');
+UPDATE categories SET budget_group = 'wants' WHERE id IN ('default.restaurantes',
+  'default.entretenimiento', 'default.compras', 'default.otros_gastos', 'default.comisiones');
+
+CREATE TABLE budgets (
+  id TEXT PRIMARY KEY NOT NULL,
+  category_id TEXT REFERENCES categories (id) ON DELETE CASCADE,
+  period TEXT NOT NULL CHECK (period IN ('weekly', 'monthly', 'yearly')),
+  amount_minor INTEGER NOT NULL CHECK (amount_minor > 0),
+  currency TEXT NOT NULL CHECK (length(currency) = 3),
+  rollover INTEGER NOT NULL CHECK (rollover IN (0, 1)),
+  starts_on TEXT NOT NULL,
+  archived_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+) STRICT;
+
+CREATE UNIQUE INDEX budgets_active_idx ON budgets (coalesce(category_id, ''), period)
+  WHERE archived_at IS NULL;
+
+CREATE TABLE budget_alerts (
+  budget_id TEXT NOT NULL REFERENCES budgets (id) ON DELETE CASCADE,
+  period_start TEXT NOT NULL,
+  level TEXT NOT NULL CHECK (level IN ('warning', 'over')),
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (budget_id, period_start, level)
+) STRICT, WITHOUT ROWID;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -211,4 +249,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 6, name: "texto de búsqueda", sql: v6 },
   { version: 7, name: "reglas de categorías", sql: v7 },
   { version: 8, name: "recurrentes", sql: v8 },
+  { version: 9, name: "presupuestos", sql: v9 },
 ];
