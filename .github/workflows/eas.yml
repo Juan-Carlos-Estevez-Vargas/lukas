@@ -21,13 +21,15 @@ on:
         description: Tag del GitHub Release al que se sube el APK (p. ej. @lukas/mobile@0.2.0)
         type: string
         required: true
+    secrets:
+      EXPO_TOKEN:
+        required: true
 
 permissions:
   contents: read
 
 env:
   EAS: pnpm dlx eas-cli@27.4.1
-  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
 jobs:
   project:
@@ -49,6 +51,8 @@ jobs:
 
       - name: Revisar vínculo
         working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           if [ -z "$EXPO_TOKEN" ]; then echo "::notice::Falta EXPO_TOKEN"; exit 0; fi
           $EAS whoami
@@ -81,10 +85,13 @@ jobs:
       - name: Compilar en EAS
         id: build
         working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          LABEL: ${{ inputs.release_tag || github.ref_name }}
         run: |
           if [ -z "$EXPO_TOKEN" ]; then echo "::error::Falta EXPO_TOKEN"; exit 1; fi
           $EAS build --platform android --profile production --non-interactive --wait --json \
-            --message "${GITHUB_SHA::7} ${{ inputs.release_tag || github.ref_name }}" > "$RUNNER_TEMP/build.json"
+            --message "${GITHUB_SHA::7} $LABEL" > "$RUNNER_TEMP/build.json"
           jq '.[0] | {id, status, appVersion, appBuildVersion}' "$RUNNER_TEMP/build.json"
           url=$(jq -r '.[0].artifacts.applicationArchiveUrl // .[0].artifacts.buildUrl // empty' "$RUNNER_TEMP/build.json")
           if [ -z "$url" ]; then echo "::error::EAS no devolvió el APK"; exit 1; fi

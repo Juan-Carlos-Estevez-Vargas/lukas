@@ -59,4 +59,5 @@ jobs:
     uses: ./.github/workflows/eas.yml
     with:
       release_tag: ${{ needs.release.outputs.mobile_tag }}
-    secrets: inherit
+    secrets:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
