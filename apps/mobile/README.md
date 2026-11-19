@@ -218,7 +218,7 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   mismo id y el servidor no duplica. Cada registro guarda la versión del servidor que conoce.
 - Las categorías por defecto (`default.*`) viajan con un UUID derivado del usuario; al bajar
   vuelven a su id local. Presupuestos, metas, recurrentes, etiquetas y recibos aún no se suben.
-- Conflictos: por ahora gana el servidor (FIN-203 resolverá campo por campo).
+- Conflictos: fusión de tres vías campo por campo contra la última versión conocida. Si ambos lados cambiaron el mismo campo, gana la edición más reciente y queda anotado en `sync_conflicts`. Un borrado contra una edición: gana la edición.
 
 ## Pruebas de extremo a extremo y rendimiento
 
