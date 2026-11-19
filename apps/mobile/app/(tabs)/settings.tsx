@@ -10,6 +10,7 @@ import { useAppLock } from "../../src/lock/app-lock";
 import { lockStore } from "../../src/lock/lock-store";
 import { PinSetup } from "../../src/lock/pin-setup";
 import { removeSampleData } from "../../src/onboarding/onboarding";
+import { useCardReminders } from "../../src/reminders/use-card-reminders";
 
 export default function Settings() {
   const { t } = useI18n();
@@ -19,12 +20,22 @@ export default function Settings() {
   const database = useLocalDatabase();
   const [busy, setBusy] = useState(false);
   const [settingPin, setSettingPin] = useState(false);
+  const reminders = useCardReminders();
+  const [reminderError, setReminderError] = useState(false);
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
         <Title>{t("tabs.settings")}</Title>
         <Toggle label={t("settings.discreet")} value={discreet} onChange={setDiscreet} />
+        {reminders.available ? (
+          <Toggle
+            label={t("card.reminders")}
+            value={reminders.enabled}
+            onChange={(on) => void reminders.setEnabled(on).then((ok) => setReminderError(!ok))}
+          />
+        ) : null}
+        {reminderError ? <Body tone="error">{t("card.reminders.denied")}</Body> : null}
 
         {lockStore.available ? (
           <>

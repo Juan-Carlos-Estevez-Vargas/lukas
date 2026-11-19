@@ -8,6 +8,7 @@ import { I18nProvider } from "../src/i18n/i18n";
 import { AppLockProvider } from "../src/lock/app-lock";
 import { LockGate } from "../src/lock/lock-screen";
 import { OnboardingProvider } from "../src/onboarding/use-onboarding";
+import { CardRemindersProvider } from "../src/reminders/use-card-reminders";
 import { ThemeProvider } from "../src/theme/theme";
 
 export default function RootLayout() {
@@ -19,11 +20,13 @@ export default function RootLayout() {
             <LocalDatabaseProvider>
               <OnboardingProvider>
                 <DiscreetProvider>
-                  <AppLockProvider>
-                    <StatusBar style="auto" />
-                    <Stack screenOptions={{ headerShown: false }} />
-                    <LockGate />
-                  </AppLockProvider>
+                  <CardRemindersProvider>
+                    <AppLockProvider>
+                      <StatusBar style="auto" />
+                      <Stack screenOptions={{ headerShown: false }} />
+                      <LockGate />
+                    </AppLockProvider>
+                  </CardRemindersProvider>
                 </DiscreetProvider>
               </OnboardingProvider>
             </LocalDatabaseProvider>

@@ -197,9 +197,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-105 · Tarjetas de crédito
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Cupo, día de corte y de pago
-- [ ] Saldo del periodo y pago mínimo
-- [ ] Recordatorio de pago
+- [x] Cupo, día de corte y de pago
+- [x] Saldo del periodo y pago mínimo
+- [x] Recordatorio de pago
 
 **Hecho cuando:** La tarjeta muestra cuánto pagar y cuándo.
 

@@ -31,6 +31,12 @@
         {
           "faceIDPermission": "Lukas usa Face ID para desbloquear la app."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "payments"
+        }
       ]
     ],
     "experiments": {
