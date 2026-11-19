@@ -1,8 +1,13 @@
+import { sql } from "drizzle-orm";
 import {
   bigserial,
+  char,
+  check,
+  date,
   index,
   integer,
   jsonb,
+  numeric,
   primaryKey,
   text,
   timestamp,
@@ -70,4 +75,25 @@ export const auditLog = app.table(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("audit_log_user_idx").on(t.userId, t.createdAt)],
+);
+
+/**
+ * Tasas de cambio oficiales por día (p. ej. la TRM USD→COP de la Superfinanciera, publicada en
+ * datos abiertos). Son datos públicos, no del usuario. `rate` es exacto: unidades de `quote` por
+ * una unidad de `base`.
+ */
+export const exchangeRates = app.table(
+  "exchange_rates",
+  {
+    base: char("base", { length: 3 }).notNull(),
+    quote: char("quote", { length: 3 }).notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    rate: numeric("rate", { precision: 18, scale: 6 }).notNull(),
+    source: text("source").notNull(),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.base, t.quote, t.day] }),
+    check("exchange_rates_positive", sql`${t.rate} > 0`),
+  ],
 );
