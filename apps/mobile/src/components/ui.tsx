@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
+  Switch,
   Text,
   TextInput,
   type TextInputProps,
@@ -135,5 +136,68 @@ export function Loading() {
     >
       <ActivityIndicator color={colors.primary} />
     </View>
+  );
+}
+
+/** Fila con interruptor: el texto completo es la etiqueta accesible. */
+export function Toggle({
+  label,
+  value,
+  onChange,
+}: {
+  readonly label: string;
+  readonly value: boolean;
+  readonly onChange: (value: boolean) => void;
+}) {
+  const { colors, space, fontSize } = useTheme();
+  return (
+    <View style={{ minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.md }}>
+      <Text style={{ flex: 1, color: colors.text, fontSize: fontSize.body }}>{label}</Text>
+      <Switch
+        accessibilityLabel={label}
+        value={value}
+        onValueChange={onChange}
+        trackColor={{ true: colors.primary, false: colors.border }}
+      />
+    </View>
+  );
+}
+
+/** Opción seleccionable (radio). */
+export function Choice({
+  label,
+  selected,
+  onPress,
+}: {
+  readonly label: string;
+  readonly selected: boolean;
+  readonly onPress: () => void;
+}) {
+  const { colors, space, radius, fontSize, fontWeight } = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked: selected }}
+      onPress={onPress}
+      style={{
+        minHeight: 48,
+        justifyContent: "center",
+        paddingHorizontal: space.md,
+        borderRadius: radius.md,
+        borderWidth: selected ? 2 : 1,
+        borderColor: selected ? colors.primary : colors.border,
+        backgroundColor: colors.surface,
+      }}
+    >
+      <Text
+        style={{
+          color: colors.text,
+          fontSize: fontSize.body,
+          fontWeight: selected ? fontWeight.medium : fontWeight.regular,
+        }}
+      >
+        {label}
+      </Text>
+    </Pressable>
   );
 }

@@ -31,7 +31,10 @@ describe("migraciones locales", () => {
       { version: LOCAL_MIGRATIONS.length + 1, name: "extra", sql: "CREATE TABLE extra (x TEXT)" },
     ];
     await migrate(db, LOCAL_MIGRATIONS);
-    expect(await migrate(db, extra)).toEqual({ from: 1, to: 2 });
+    expect(await migrate(db, extra)).toEqual({
+      from: LOCAL_MIGRATIONS.length,
+      to: LOCAL_MIGRATIONS.length + 1,
+    });
     expect(await db.get("SELECT name FROM sqlite_master WHERE name = 'extra'")).toEqual({
       name: "extra",
     });
