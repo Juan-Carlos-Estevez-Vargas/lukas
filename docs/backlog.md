@@ -263,9 +263,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-112 · Presupuestos con alertas
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Por categoría y periodo
-- [ ] Sobres y 50/30/20
-- [ ] Alertas al 80 % y 100 %
+- [x] Por categoría y periodo
+- [x] Sobres y 50/30/20
+- [x] Alertas al 80 % y 100 %
 
 **Hecho cuando:** Pasar el 80 % del presupuesto genera un aviso.
 
