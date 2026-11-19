@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { accountErrorKey } from "../../src/accounts/messages";
 import { parseAmount } from "../../src/accounts/parse";
+import { useBudgetAlerts } from "../../src/budgets/use-budget-alerts";
 import { Chip, ChipRow } from "../../src/components/quick";
 import { Body, Button, Field, Screen, Title } from "../../src/components/ui";
 import { newId } from "../../src/data/ids";
@@ -21,6 +22,7 @@ export default function NewTransfer() {
   const { t } = useI18n();
   const database = useLocalDatabase();
   const reminders = useCardReminders();
+  const budgets = useBudgetAlerts();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [fromId, setFromId] = useState<string | null>(null);
   const [toId, setToId] = useState<string | null>(null);
@@ -76,6 +78,7 @@ export default function NewTransfer() {
       );
       if (!res.ok) return setError(t(accountErrorKey(res.error)));
       if (from.type === "credit_card" || to.type === "credit_card") reminders.resync();
+      budgets.check();
       router.back();
     } catch {
       setError(t("movement.error.generic"));

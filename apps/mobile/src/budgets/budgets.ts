@@ -315,3 +315,21 @@ export async function fiftyThirtyTwenty(
   ) as Record<BudgetGroup, Money>;
   return { income, targets: split503020(income), actual, unassigned: of(null) };
 }
+
+export interface GroupedCategory {
+  readonly id: string;
+  readonly name: string;
+  readonly icon: string | null;
+  readonly parentId: string | null;
+  readonly group: BudgetGroup | null;
+}
+
+/** Categorías de gasto activas con su grupo del 50/30/20. */
+export async function categoryGroups(db: SqlConnection): Promise<GroupedCategory[]> {
+  return db.all<GroupedCategory>(
+    `SELECT id, name, icon, parent_id AS parentId, budget_group AS "group"
+     FROM categories
+     WHERE kind = 'expense' AND archived_at IS NULL AND is_system = 0
+     ORDER BY name COLLATE NOCASE`,
+  );
+}

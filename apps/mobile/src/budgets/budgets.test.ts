@@ -8,6 +8,7 @@ import {
   archiveBudget,
   type BudgetInput,
   budgetViews,
+  categoryGroups,
   checkBudgetAlerts,
   createBudget,
   fiftyThirtyTwenty,
@@ -170,6 +171,10 @@ describe("presupuestos", () => {
               ('mascota', 'Mascota', 'expense', '2026-01-01', '2026-01-01')`,
     );
     await setBudgetGroup(fx.db, "cdt", "savings");
+    const groups = await categoryGroups(fx.db);
+    expect(groups.find((c) => c.id === "cdt")?.group).toBe("savings");
+    expect(groups.find((c) => c.id === "default.arriendo")?.group).toBe("needs");
+    expect(groups.some((c) => c.id === "default.salario")).toBe(false);
     await fx.spend(300_000n, local(2026, 11, 4), "cdt");
     await fx.spend(100_000n, local(2026, 11, 5), "mascota");
     await fx.spend(999n, local(2026, 10, 5), "default.arriendo");

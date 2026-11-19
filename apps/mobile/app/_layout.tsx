@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "../src/auth/session";
+import { BudgetAlertsProvider } from "../src/budgets/use-budget-alerts";
 import { LocalDatabaseProvider } from "../src/data/provider";
 import { DiscreetProvider } from "../src/display/discreet";
 import { I18nProvider } from "../src/i18n/i18n";
@@ -22,13 +23,15 @@ export default function RootLayout() {
               <OnboardingProvider>
                 <DiscreetProvider>
                   <CardRemindersProvider>
-                    <RecurringProvider>
-                      <AppLockProvider>
-                        <StatusBar style="auto" />
-                        <Stack screenOptions={{ headerShown: false }} />
-                        <LockGate />
-                      </AppLockProvider>
-                    </RecurringProvider>
+                    <BudgetAlertsProvider>
+                      <RecurringProvider>
+                        <AppLockProvider>
+                          <StatusBar style="auto" />
+                          <Stack screenOptions={{ headerShown: false }} />
+                          <LockGate />
+                        </AppLockProvider>
+                      </RecurringProvider>
+                    </BudgetAlertsProvider>
                   </CardRemindersProvider>
                 </DiscreetProvider>
               </OnboardingProvider>
