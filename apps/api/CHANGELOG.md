@@ -1,5 +1,18 @@
 # @lukas/api
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [3013fa8]
+- Updated dependencies [c87ab7b]
+- Updated dependencies [c18e598]
+- Updated dependencies [0c79be7]
+- Updated dependencies [95d93d7]
+- Updated dependencies [78a41a0]
+- Updated dependencies [b5c8779]
+  - @lukas/domain@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
