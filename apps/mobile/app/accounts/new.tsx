@@ -20,6 +20,7 @@ export default function NewAccount() {
   const [error, setError] = useState<string | null>(null);
 
   const create = async (template: AccountTemplate) => {
+    if (template.type === "credit_card") return router.push("/accounts/new-card");
     if (database.status !== "ready" || busy) return;
     const openingBalance = parsePesos(balance);
     if (openingBalance === undefined) return setError(t("onboarding.account.invalidBalance"));
