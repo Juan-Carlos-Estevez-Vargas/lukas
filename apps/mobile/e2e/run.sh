@@ -19,6 +19,13 @@ if [ "$(adb shell getprop persist.sys.locale | tr -d '\r')" != "es-CO" ]; then
 fi
 echo "Idioma del emulador: $(adb shell getprop persist.sys.locale | tr -d '\r')"
 
+# Tras reiniciar el framework (cambio de idioma) `sys.boot_completed` puede decir 1 antes de que el
+# gestor de paquetes vuelva: sin esto, `adb install` falla con "Can't find service: package".
+for _ in $(seq 1 60); do
+  adb shell pm path android >/dev/null 2>&1 && break
+  sleep 2
+done
+
 adb install -r "$apk" || exit 1
 
 maestro test apps/mobile/.maestro \
