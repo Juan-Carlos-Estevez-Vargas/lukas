@@ -146,3 +146,18 @@ describe("amountQuery", () => {
     expect(amountQuery("1,234")).toBeNull();
   });
 });
+
+describe("periodRange", () => {
+  it("este mes, el pasado (cruzando el año) y todo", async () => {
+    const { periodRange } = await import("./periods");
+    expect(periodRange("thisMonth", local(2026, 1, 15))).toEqual({
+      from: local(2026, 1, 1, 0),
+      to: local(2026, 2, 1, 0),
+    });
+    expect(periodRange("lastMonth", local(2026, 1, 15))).toEqual({
+      from: local(2025, 12, 1, 0),
+      to: local(2026, 1, 1, 0),
+    });
+    expect(periodRange("all", local(2026, 1, 15))).toEqual({ from: null, to: null });
+  });
+});
