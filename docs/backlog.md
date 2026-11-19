@@ -369,9 +369,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-205 · Reportes básicos
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Paquete charts sobre Skia
-- [ ] Flujo de caja, por categoría, patrimonio
-- [ ] ECharts en web
+- [x] Paquete charts sobre Skia
+- [x] Flujo de caja, por categoría, patrimonio
+- [x] ECharts en web
 
 **Hecho cuando:** Tocar una barra filtra las transacciones.
 
