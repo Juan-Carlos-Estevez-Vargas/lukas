@@ -6,6 +6,9 @@ const KNOWN = new Set([
   "account_name_required",
   "invalid_day",
   "billing_days_missing",
+  "account_archived",
+  "invalid_category",
+  "not_found",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

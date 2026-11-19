@@ -192,3 +192,13 @@ describe("autocompletar y sugerir", () => {
     expect(await suggestCategory(db, "Carulla", "expense")).toBeNull();
   });
 });
+
+describe("occurredAtFor", () => {
+  it("hoy es ahora; días pasados a mediodía, sin futuro", async () => {
+    const { occurredAtFor } = await import("./dates");
+    const now = local(2026, 12, 1, 8);
+    expect(occurredAtFor(0, now)).toBe(now);
+    expect(occurredAtFor(-3, now)).toBe(now);
+    expect(occurredAtFor(1, now)).toEqual(local(2026, 11, 30, 12));
+  });
+});
