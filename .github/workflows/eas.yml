@@ -1,7 +1,13 @@
 name: EAS
 
-# Revisa que la app esté vinculada a su proyecto de Expo (EAS) y, a mano, compila el APK.
-# El APK de cada release lo compila release.yml.
+# Compila el APK firmado de Android con EAS Build.
+#   - En PRs que tocan la app: solo revisa que el proyecto de Expo esté vinculado (sin gastar builds).
+#   - A mano (Actions → EAS → Run workflow): compila el APK y deja el enlace en el resumen.
+#   - Desde release.yml: compila el APK de la versión publicada y lo sube a su GitHub Release.
+#
+# eas-cli se ejecuta con `pnpm dlx` y versión fija en vez de ir en el lockfile: fija dependencias
+# viejas (node-forge, joi, nanoid…) con avisos de OSV y solo hace falta aquí, nunca en la app.
+# La firma la guarda EAS: el keystore se generó en el primer build y vive en la cuenta de Expo.
 
 on:
   pull_request:
@@ -9,18 +15,26 @@ on:
       - "apps/mobile/**"
       - ".github/workflows/eas.yml"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Tag del GitHub Release al que se sube el APK (p. ej. @lukas/mobile@0.2.0)
+        type: string
+        required: true
 
 permissions:
   contents: read
 
+env:
+  EAS: pnpm dlx eas-cli@27.4.1
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
 jobs:
   project:
     name: Proyecto EAS
-    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -33,22 +47,70 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Vincular proyecto
+      - name: Revisar vínculo
         working-directory: apps/mobile
         run: |
           if [ -z "$EXPO_TOKEN" ]; then echo "::notice::Falta EXPO_TOKEN"; exit 0; fi
-          pnpm exec eas whoami
+          $EAS whoami
           id=$(CI=1 pnpm exec expo config --json | jq -r '.extra.eas.projectId // empty')
-          if [ -n "$id" ]; then
-            echo "Proyecto EAS vinculado: $id" | tee -a "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          # Crea el proyecto @<cuenta>/lukas si no existe. Como app.config.ts es dinámico, EAS no
-          # puede escribir el id: lo imprime y hay que copiarlo a app.json (extra.eas.projectId).
-          pnpm exec eas project:init --non-interactive --force 2>&1 | tee "$RUNNER_TEMP/init.log" || true
+          if [ -z "$id" ]; then echo "::error::Falta extra.eas.projectId en app.json"; exit 1; fi
+          $EAS project:info
+
+  apk:
+    name: APK Android
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    # El plan gratuito de EAS pone los builds en cola; puede tardar.
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.release_tag || github.ref }}
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Compilar en EAS
+        id: build
+        working-directory: apps/mobile
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then echo "::error::Falta EXPO_TOKEN"; exit 1; fi
+          $EAS build --platform android --profile production --non-interactive --wait --json \
+            --message "${GITHUB_SHA::7} ${{ inputs.release_tag || github.ref_name }}" > "$RUNNER_TEMP/build.json"
+          jq '.[0] | {id, status, appVersion, appBuildVersion}' "$RUNNER_TEMP/build.json"
+          url=$(jq -r '.[0].artifacts.applicationArchiveUrl // .[0].artifacts.buildUrl // empty' "$RUNNER_TEMP/build.json")
+          if [ -z "$url" ]; then echo "::error::EAS no devolvió el APK"; exit 1; fi
+          version=$(jq -r '.[0].appVersion' "$RUNNER_TEMP/build.json")
+          code=$(jq -r '.[0].appBuildVersion' "$RUNNER_TEMP/build.json")
+          curl -fsSL -o "$RUNNER_TEMP/lukas-$version.apk" "$url"
+          echo "file=$RUNNER_TEMP/lukas-$version.apk" >> "$GITHUB_OUTPUT"
           {
-            echo "### Proyecto EAS sin vincular"
-            echo '```'
-            grep -iE "project|id|@" "$RUNNER_TEMP/init.log" | head -20
-            echo '```'
+            echo "### APK Android"
+            echo "- Versión: $version (build $code)"
+            echo "- Descarga (EAS): $url"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Subir al GitHub Release
+        if: inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag }}
+          FILE: ${{ steps.build.outputs.file }}
+        run: |
+          gh release upload "$TAG" "$FILE" --clobber
+          echo "- Adjunto al release \`$TAG\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: inputs.release_tag == ''
+        with:
+          name: apk
+          path: ${{ steps.build.outputs.file }}
+          retention-days: 14

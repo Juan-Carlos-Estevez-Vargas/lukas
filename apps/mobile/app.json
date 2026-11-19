@@ -2,6 +2,7 @@
   "expo": {
     "name": "Lukas",
     "slug": "lukas",
+    "owner": "juancarlosestevezvargas",
     "scheme": "lukas",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -22,6 +23,11 @@
     "web": {
       "bundler": "metro",
       "output": "single"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "06505b4e-0280-49dc-837b-3afb58c5cd59"
+      }
     }
   }
 }

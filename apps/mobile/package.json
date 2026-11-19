@@ -34,7 +34,6 @@
     "@lukas/config": "workspace:*",
     "@types/react": "19.3.0",
     "@vitest/coverage-v8": "5.0.4",
-    "eas-cli": "27.4.1",
     "vitest": "5.0.4"
   }
 }
