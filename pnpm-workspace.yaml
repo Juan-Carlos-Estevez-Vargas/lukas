@@ -7,6 +7,11 @@ packages:
 minimumReleaseAge: 20160
 # Rechaza actualizaciones que pierdan la procedencia verificada de versiones anteriores.
 trustPolicy: no-downgrade
+# Excepción aprobada por el dueño el 19 de noviembre de 2026, solo para esta versión exacta:
+# react-native-web → fbjs trae ua-parser-js@1.0.41, publicada sin la procedencia que sí tenía
+# una versión anterior. Revisar al actualizar react-native-web y quitarla si deja de hacer falta.
+trustPolicyExclude:
+  - ua-parser-js@1.0.41
 # Las dependencias transitivas solo pueden venir del registro, no de git ni URLs.
 blockExoticSubdeps: true
 
