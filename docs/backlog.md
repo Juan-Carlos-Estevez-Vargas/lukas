@@ -299,9 +299,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-116 · Respaldo y exportación local
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Respaldo cifrado en archivo
-- [ ] Exportar CSV
-- [ ] Restaurar respaldo
+- [x] Respaldo cifrado en archivo
+- [x] Exportar CSV
+- [x] Restaurar respaldo
 
 **Hecho cuando:** Borrar y restaurar la app recupera todos los datos.
 
