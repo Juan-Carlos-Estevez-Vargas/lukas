@@ -9,6 +9,11 @@ const KNOWN = new Set([
   "account_archived",
   "invalid_category",
   "not_found",
+  "same_account",
+  "invalid_fee",
+  "currency_mismatch",
+  "account_not_found",
+  "invalid_amount",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

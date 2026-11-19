@@ -134,6 +134,10 @@ export default function NewMovement() {
             selected={kind === "income"}
             onPress={() => setKind("income")}
           />
+          <Chip
+            label={t("movement.transfer")}
+            onPress={() => router.replace("/movement/transfer")}
+          />
         </ChipRow>
         <Text
           accessibilityLiveRegion="polite"

@@ -2,6 +2,7 @@ import {
   type Account,
   type AccountChanges,
   archiveAccount,
+  type CurrencyCode,
   createAccount,
   type DomainError,
   type Entry,
@@ -85,14 +86,19 @@ export interface CardSettings {
 export async function createFromTemplate(
   db: SqlConnection,
   template: AccountTemplate,
-  options: { name?: string; openingBalance?: Money | null; card?: CardSettings },
+  options: {
+    name?: string;
+    openingBalance?: Money | null;
+    card?: CardSettings;
+    currency?: CurrencyCode;
+  },
   clock: Clock,
 ): Promise<Result<Account, DomainError>> {
   const res = createAccount(
     {
       name: options.name?.trim() || template.name,
       type: template.type,
-      currency: "COP",
+      currency: options.currency ?? "COP",
       institution: template.institution,
       ...(template.type === "credit_card" && options.card ? options.card : {}),
     },

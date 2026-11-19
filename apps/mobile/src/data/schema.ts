@@ -104,8 +104,18 @@ INSERT INTO categories (id, name, kind, icon, created_at, updated_at) VALUES
 CREATE INDEX transactions_merchant_idx ON transactions (merchant);
 `;
 
+/** Transferencias: comisiones como gasto y una categoría de sistema para el cambio de moneda. */
+const v4 = `
+INSERT INTO categories (id, name, kind, icon, is_system, created_at, updated_at) VALUES
+  ('default.comisiones', 'Comisiones e impuestos bancarios', 'expense', '🏦', 0,
+    '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z'),
+  ('system.cambio', 'Cambio de moneda', 'trading', '💱', 1,
+    '2026-11-19T00:00:00.000Z', '2026-11-19T00:00:00.000Z');
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
   { version: 3, name: "categorías por defecto", sql: v3 },
+  { version: 4, name: "comisiones y cambio de moneda", sql: v4 },
 ];

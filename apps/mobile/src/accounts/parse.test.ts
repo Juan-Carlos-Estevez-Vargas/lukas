@@ -1,7 +1,7 @@
 import { DomainError, Money } from "@lukas/domain";
 import { describe, expect, it } from "vitest";
 import { accountErrorKey } from "./messages";
-import { parsePesos } from "./parse";
+import { parseAmount, parsePesos } from "./parse";
 
 describe("parsePesos", () => {
   it.each([
@@ -17,6 +17,16 @@ describe("parsePesos", () => {
     expect(parsePesos("  ")).toBeNull();
     expect(parsePesos("12,5")).toBeUndefined();
     expect(parsePesos("abc")).toBeUndefined();
+  });
+});
+
+describe("parseAmount", () => {
+  it("en dólares acepta coma decimal y punto de miles", () => {
+    expect(parseAmount("1.234,56", "USD")).toEqual(Money.ofMinor(123_456n, "USD"));
+    expect(parseAmount("100", "USD")).toEqual(Money.ofMinor(10_000n, "USD"));
+    expect(parseAmount("1,234", "USD")).toBeUndefined();
+    expect(parseAmount("1,2,3", "EUR")).toBeUndefined();
+    expect(parseAmount("", "USD")).toBeNull();
   });
 });
 
