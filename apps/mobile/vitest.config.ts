@@ -29,6 +29,7 @@ export default defineConfig({
         "src/lock/lock-store*.ts",
         "src/reminders/notifications*.ts",
         "src/receipts/receipt-store*.ts",
+        "src/receipts/pick*.ts",
       ],
       reporter: ["text", "json-summary"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },
