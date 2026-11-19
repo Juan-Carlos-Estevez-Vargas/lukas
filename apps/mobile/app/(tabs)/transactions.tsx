@@ -2,7 +2,7 @@ import type { Account } from "@lukas/domain";
 import { FlashList } from "@shopify/flash-list";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { Chip, ChipRow, Fab } from "../../src/components/quick";
 import { Body, Field, Screen, Title } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
@@ -181,8 +181,9 @@ export default function Transactions() {
                 </Text>
               </View>
             ) : (
-              <View
-                accessible
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push(`/movement/${item.row.id}`)}
                 style={{
                   minHeight: 56,
                   flexDirection: "row",
@@ -230,7 +231,7 @@ export default function Transactions() {
                 >
                   {money(item.row)}
                 </Text>
-              </View>
+              </Pressable>
             )
           }
         />

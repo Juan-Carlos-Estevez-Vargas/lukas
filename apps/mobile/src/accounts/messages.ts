@@ -16,6 +16,9 @@ const KNOWN = new Set([
   "invalid_amount",
   "split_mismatch",
   "invalid_split",
+  "category_name_required",
+  "too_deep",
+  "rule_pattern_required",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

@@ -44,6 +44,7 @@ export default function NewMovement() {
   const [merchants, setMerchants] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [suggestedId, setSuggestedId] = useState<string | null>(null);
   const [categoryTouched, setCategoryTouched] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -83,6 +84,8 @@ export default function NewMovement() {
     ]).then(([names, suggested]) => {
       if (!active) return;
       setMerchants(names);
+      if (categoryTouched) return;
+      setSuggestedId(suggested);
       if (suggested) setCategoryId(suggested);
     });
     return () => {
@@ -143,6 +146,8 @@ export default function NewMovement() {
           splits: split ? splitParts : [],
           amount,
           tags: parseTags(tagsText),
+          // Solo hay corrección que aprender si hubo comercio y una sugerencia (o ninguna).
+          ...(merchant.trim() ? { suggestedCategoryId: suggestedId } : {}),
           receipt,
           occurredAt: occurredAtFor(daysAgo, new Date()),
           merchant,

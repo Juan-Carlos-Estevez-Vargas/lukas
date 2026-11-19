@@ -172,3 +172,7 @@ export function groupByDay(rows: readonly MovementRow[]): DaySection[] {
       .reduce((acc, r) => acc.add(r.amount), Money.zero("COP")),
   }));
 }
+
+export async function movementById(db: SqlConnection, id: string): Promise<MovementRow | null> {
+  return (await listMovements(db, { id }))[0] ?? null;
+}
