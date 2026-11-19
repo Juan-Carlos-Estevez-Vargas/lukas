@@ -281,9 +281,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-114 · Pantalla de inicio
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Disponible del mes
-- [ ] Top de categorías
-- [ ] Próximos pagos
+- [x] Disponible del mes
+- [x] Top de categorías
+- [x] Próximos pagos
 
 **Hecho cuando:** Las tres respuestas se ven sin desplazar.
 

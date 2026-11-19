@@ -150,6 +150,14 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Muestra cuánto apartar por mes: lo que falta entre los aportes mensuales que quedan (incluido
   el de hoy), redondeado hacia arriba a pesos enteros.
 
+## Inicio
+
+- Arriba, sin desplazar, tres respuestas (`src/home`): cuánto queda del mes (del presupuesto
+  general si existe; si no, ingresos menos gastos) y cuánto se puede gastar por día; las tres
+  categorías con más gasto (las subcategorías suman a su principal); y los próximos pagos de los
+  siguientes 30 días (recurrentes, pendientes vencidos y tarjetas con saldo).
+- Debajo, patrimonio y cuentas.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y
