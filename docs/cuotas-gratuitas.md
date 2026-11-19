@@ -11,6 +11,8 @@ los primeros usuarios externos.
 | Neon | Rama `main` (producción), `staging` y una por PR | 1 GiB por rama (lo reporta la API del proyecto) y horas de cómputo del plan Free | https://console.neon.tech → proyecto `lukas` → Usage | Borrar ramas huérfanas `preview/*`; revisar consultas lentas |
 | GitHub Actions | CI, previews y despliegues | 2 000 minutos al mes en repos privados del plan Free | Settings → Billing → Usage | Reducir jobs de PRs o hacer el repo público |
 | Expo EAS | APK de Android en cada release y actualizaciones OTA (pendiente) | Cupo mensual de builds y de usuarios de OTA del plan Free | https://expo.dev → Usage | Compilar APK solo en releases |
+| Cron Triggers | TRM diaria en staging y producción (13:00 UTC); las previews no tienen cron | 5 cron triggers por cuenta en el plan Free | Panel → Workers → `lukas-api` → Settings → Triggers | No agregar crons por entorno; juntar tareas en el mismo |
+| datos.gov.co (Socrata) | TRM histórica, una consulta al día más las de respaldo | Consultas anónimas con límite por IP | — | Agregar un app token gratuito de Socrata como secreto |
 | Turnstile | Captcha antes de enviar el código | Sin límite práctico en el plan Free | Panel → Turnstile | — |
 
 ## Alertas

@@ -41,6 +41,8 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | I | Logs con datos personales | ✓ Los logs solo llevan ids y nombres de error · ○ revisión con Semgrep de reglas propias (F1) |
 | D | Abuso o fuerza bruta | ✓ 120 solicitudes/min en `/v1` y 5/min en `/v1/auth` · Plan gratis: 10 ms de CPU por solicitud |
 | E | Leer o cambiar datos de otro usuario (IDOR) | ✓ `requireUser` en rutas privadas · ○ todo repositorio filtra por `user_id` y tiene prueba de aislamiento (F1, sincronización) |
+| T | Una TRM falsa o corrupta desde datos abiertos | ✓ Solo se acepta un decimal positivo de `datos.gov.co` por HTTPS; se guarda por día y la app valida el formato antes de usarla |
+| D | Datos abiertos caídos | ✓ Cron diario y respaldo en la última TRM guardada; `GET /v1/rates/usd-cop` es público, sin datos personales y con caché de 1 hora |
 
 ### Autenticación (Better Auth)
 

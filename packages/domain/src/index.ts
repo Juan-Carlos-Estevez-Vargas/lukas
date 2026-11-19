@@ -6,6 +6,7 @@ export {
   isCurrencyCode,
 } from "./currency";
 export { DomainError } from "./errors";
+export { type BaseTotal, type RateTable, sumInBase, toBase } from "./fx";
 export { isUuidV7, type RandomSource, uuidv7, uuidv7Timestamp } from "./id";
 export {
   ACCOUNT_TYPES,

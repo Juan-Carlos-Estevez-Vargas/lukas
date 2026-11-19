@@ -158,6 +158,15 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
   siguientes 30 días (recurrentes, pendientes vencidos y tarjetas con saldo).
 - Debajo, patrimonio y cuentas.
 
+## Varias monedas y TRM
+
+- Cuentas en USD o EUR. La API guarda la TRM del día con un cron diario desde datos abiertos
+  (`apps/api/src/modules/rates`, tabla `app.exchange_rates`) y la expone en
+  `GET /v1/rates/usd-cop?day=AAAA-MM-DD`.
+- El teléfono la pide una vez al día solo si hay cuentas en dólares y la guarda (migración 11),
+  así convierte sin conexión. Las cuentas en USD suman al patrimonio y los gastos en dólares
+  cuentan en el inicio, convertidos a pesos. Lo que no tiene tasa se informa y no se suma.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

@@ -260,6 +260,19 @@ CREATE TABLE goals (
 ) STRICT;
 `;
 
+/** Tasas de cambio descargadas (TRM). Se guardan para convertir sin conexión. */
+const v11 = `
+CREATE TABLE exchange_rates (
+  base TEXT NOT NULL CHECK (length(base) = 3),
+  quote TEXT NOT NULL CHECK (length(quote) = 3),
+  day TEXT NOT NULL,
+  rate TEXT NOT NULL CHECK (rate GLOB '[0-9]*' AND CAST(rate AS REAL) > 0),
+  source TEXT NOT NULL,
+  fetched_at TEXT NOT NULL,
+  PRIMARY KEY (base, quote, day)
+) STRICT, WITHOUT ROWID;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -271,4 +284,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 8, name: "recurrentes", sql: v8 },
   { version: 9, name: "presupuestos", sql: v9 },
   { version: 10, name: "metas de ahorro", sql: v10 },
+  { version: 11, name: "tasas de cambio", sql: v11 },
 ];

@@ -22,6 +22,13 @@
       "when": 1793151871746,
       "tag": "0002_autenticacion",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795117312959,
+      "tag": "0003_tasas_de_cambio",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { type Account, Money } from "@lukas/domain";
+import { type Account, Money, type RateTable } from "@lukas/domain";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
@@ -9,11 +9,14 @@ import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
+import { formatCivilDate } from "../../src/format/date";
 import { formatMoney } from "../../src/format/money";
 import {
   type CategorySpend,
   type MonthAvailable,
   monthAvailable,
+  type NetWorth,
+  netWorthOf,
   topCategories,
   type UpcomingPayment,
   upcomingPayments,
@@ -21,6 +24,9 @@ import {
 import { AvailableCard, TopCategoriesCard, UpcomingCard } from "../../src/home/home-cards";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { ratesClient } from "../../src/rates/client";
+import { copRates, refreshRates, type StoredRate } from "../../src/rates/rates";
+import { parseCivil } from "../../src/recurring/recurring";
 import { useRecurring } from "../../src/recurring/use-recurring";
 
 interface Row {
@@ -37,6 +43,8 @@ export default function Summary() {
   const [available, setAvailable] = useState<MonthAvailable | null>(null);
   const [top, setTop] = useState<CategorySpend[]>([]);
   const [upcoming, setUpcoming] = useState<UpcomingPayment[]>([]);
+  const [worth, setWorth] = useState<NetWorth | null>(null);
+  const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
 
   useFocusEffect(
@@ -45,17 +53,41 @@ export default function Summary() {
       if (database.status !== "ready" || version < 0) return;
       const repo = sqliteAccounts(database.db);
       const today = civilDate(new Date());
-      void (async () => {
-        setAvailable(await monthAvailable(database.db, today, "COP"));
-        setTop(await topCategories(database.db, today, "COP"));
-        setUpcoming(await upcomingPayments(database.db, today));
+      let active = true;
+      const load = async () => {
+        const rates = await copRates(database.db);
+        const table: RateTable = rates.table;
+        const available = await monthAvailable(database.db, today, "COP", table);
+        const top = await topCategories(database.db, today, "COP", 3, table);
+        const upcoming = await upcomingPayments(database.db, today);
         const accounts = await repo.list({ includeArchived: showArchived });
-        setRows(
-          await Promise.all(
-            accounts.map(async (a) => ({ account: a, balance: await repo.balance(a) })),
+        const rows = await Promise.all(
+          accounts.map(async (a) => ({ account: a, balance: await repo.balance(a) })),
+        );
+        if (!active) return;
+        setAvailable(available);
+        setTop(top);
+        setUpcoming(upcoming);
+        setRows(rows);
+        setUsd(rates.usd);
+        setWorth(
+          netWorthOf(
+            rows.map((r) => ({ balance: r.balance, archived: r.account.archivedAt !== null })),
+            "COP",
+            table,
           ),
         );
-      })();
+      };
+      void (async () => {
+        await load();
+        // La TRM se pide en segundo plano; si llega una nueva, se recalcula con ella.
+        const before = (await copRates(database.db)).usd?.day;
+        await refreshRates(database.db, ratesClient, today, new Date());
+        if ((await copRates(database.db)).usd?.day !== before) await load();
+      })().catch(() => undefined);
+      return () => {
+        active = false;
+      };
     }, [database, showArchived, version]),
   );
 
@@ -69,10 +101,13 @@ export default function Summary() {
   }
 
   const fmt = (m: Money) => formatMoney(m, { locale, discreet });
-  // El patrimonio suma solo cuentas activas en pesos; otras monedas llegan con FIN-107.
-  const netWorth = rows
-    .filter((r) => r.account.currency === "COP" && !r.account.archivedAt)
-    .reduce((sum, r) => sum.add(r.balance), Money.zero("COP"));
+  const hasUsd = rows.some((r) => r.account.currency === "USD" && !r.account.archivedAt);
+  const usdDay = usd ? parseCivil(usd.day) : null;
+  // La TRM es un dato público: se muestra aunque el modo discreto esté activo.
+  const trmText = (rate: string) => {
+    const parsed = Money.parse(rate, "COP");
+    return parsed.ok ? formatMoney(parsed.value, { locale, alwaysShowCents: true }) : rate;
+  };
 
   return (
     <Screen>
@@ -81,7 +116,18 @@ export default function Summary() {
         <TopCategoriesCard data={top} />
         <UpcomingCard data={upcoming} />
         <Body muted>{t("summary.netWorth")}</Body>
-        <Title>{fmt(netWorth)}</Title>
+        {worth ? <Title>{fmt(worth.total)}</Title> : null}
+        {hasUsd && usd && usdDay ? (
+          <Body muted>
+            {t("summary.trm", {
+              rate: trmText(usd.rate),
+              date: formatCivilDate(usdDay, locale),
+            })}
+          </Body>
+        ) : null}
+        {worth && worth.missing.length > 0 ? (
+          <Body muted>{t("summary.noRate", { currencies: worth.missing.join(", ") })}</Body>
+        ) : null}
         {rows.length === 0 ? <Body muted>{t("summary.empty")}</Body> : null}
         {groupAccounts(rows).map(({ group, rows: items }) => (
           <View key={group} style={{ gap: 4 }}>
