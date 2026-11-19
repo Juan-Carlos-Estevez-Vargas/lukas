@@ -348,6 +348,10 @@ export const es = {
   "sync.done": "Sincronizado: {when}.",
   "sync.donePending": "Sincronizado: {when}. {pending} pendientes.",
   "sync.failed": "Sin conexión con Lukas. {pending} cambios esperan en el teléfono.",
+  "web.offlineTitle": "Sin conexión",
+  "web.offlineBody":
+    "Lukas en la web no guarda tus datos en este equipo: los trae de tu cuenta cada vez que entras. Revisa tu conexión e intenta de nuevo.",
+  "web.retry": "Reintentar",
 } as const;
 
 export type MessageKey = keyof typeof es;

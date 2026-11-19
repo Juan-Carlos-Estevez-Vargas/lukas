@@ -8,11 +8,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { AppState } from "react-native";
+import { AppState, Platform } from "react-native";
 import { useSession } from "../auth/session";
 import { apiUrl, e2eMode } from "../config";
 import { useLocalDatabase } from "../data/provider";
 import { createSyncApi } from "./client";
+import { startWebFlush, WEB_FLUSH_MS } from "./flush";
 import { type SyncStatus, syncNow, syncStatus } from "./sync";
 
 interface SyncState {
@@ -35,7 +36,7 @@ const SyncContext = createContext<SyncState>({
 
 /**
  * Sincroniza al abrir la app, al volver a ella y a pedido (Ajustes). Sin red no pasa nada: la
- * cola espera en SQLite hasta la próxima vez.
+ * cola espera en SQLite hasta la próxima vez. En la web, además, sube los cambios en segundos.
  */
 export function SyncProvider({ children }: { readonly children: ReactNode }) {
   const database = useLocalDatabase();
@@ -80,6 +81,18 @@ export function SyncProvider({ children }: { readonly children: ReactNode }) {
     });
     return () => sub.remove();
   }, [sync]);
+
+  // En la web la base está en memoria: se sube en cuanto hay algo para no perderlo al cerrar.
+  useEffect(() => {
+    if (Platform.OS !== "web" || database.status !== "ready" || database.persistent) return;
+    const db = database.db;
+    return startWebFlush({
+      pending: async () => (await syncStatus(db)).pending,
+      sync,
+      target: window,
+      every: WEB_FLUSH_MS,
+    });
+  }, [database, sync]);
 
   const value = useMemo(
     () => ({ status, syncing, failed, version, sync }),

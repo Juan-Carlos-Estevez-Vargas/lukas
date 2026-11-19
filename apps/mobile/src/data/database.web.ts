@@ -1,15 +1,11 @@
-import type { LocalDatabase } from "./open";
+import { openExpoDatabase } from "./expo-raw";
+import { type LocalDatabase, openMemoryDatabase } from "./open";
+import { LOCAL_MIGRATIONS } from "./schema";
 
 /**
  * En la web no hay Keystore/Keychain ni SQLCipher: guardar las finanzas en el navegador las
- * dejaría en claro. La versión web trabajará contra la API cuando llegue el sync (fase 2).
+ * dejaría en claro. Por eso la base vive solo en memoria (wa-sqlite) y se llena con el sync al
+ * entrar; al cerrar la pestaña no queda nada en el equipo.
  */
-export class LocalDatabaseUnavailableError extends Error {
-  constructor() {
-    super("La base local cifrada solo existe en la app de Android e iOS");
-    this.name = "LocalDatabaseUnavailableError";
-  }
-}
-
 export const openDeviceDatabase = (): Promise<LocalDatabase> =>
-  Promise.reject(new LocalDatabaseUnavailableError());
+  openMemoryDatabase(openExpoDatabase, LOCAL_MIGRATIONS);

@@ -4,8 +4,10 @@ import { describe, expect, it } from "vitest";
 import type { KeyStore } from "./key";
 import {
   DATABASE_NAME,
+  MEMORY_DATABASE,
   type OpenDeps,
   openLocalDatabase,
+  openMemoryDatabase,
   type RawDatabase,
   SqlCipherMissingError,
   WrongDatabaseKeyError,
@@ -114,5 +116,16 @@ describe("abrir la base local", () => {
   it("se niega a abrir la base sin SQLCipher", async () => {
     const device = fakeDevice({ cipher: false });
     await expect(openLocalDatabase(device.deps)).rejects.toBeInstanceOf(SqlCipherMissingError);
+  });
+
+  it("en la web abre una base en memoria, sin clave, migrada y no persistente", async () => {
+    const device = fakeDevice();
+    const local = await openMemoryDatabase(device.deps.open, LOCAL_MIGRATIONS);
+    expect(local.persistent).toBe(false);
+    expect(local.migrated).toEqual({ from: 0, to: LOCAL_MIGRATIONS.length });
+    expect(await local.db.get("PRAGMA foreign_keys")).toEqual({ foreign_keys: 1 });
+    expect([...device.files.keys()]).toEqual([MEMORY_DATABASE]);
+    expect(await device.deps.keyStore.read()).toBeNull();
+    await local.close();
   });
 });

@@ -4,7 +4,7 @@ import type { SqlConnection } from "./sql";
 
 export type LocalDatabaseState =
   | { status: "opening" }
-  | { status: "ready"; db: SqlConnection }
+  | { status: "ready"; db: SqlConnection; persistent: boolean }
   | { status: "error"; error: Error };
 
 const LocalDatabaseContext = createContext<LocalDatabaseState>({ status: "opening" });
@@ -19,7 +19,7 @@ export function LocalDatabaseProvider({ children }: { children: ReactNode }) {
     openDeviceDatabase().then(
       (local) => {
         close = local.close;
-        if (active) setState({ status: "ready", db: local.db });
+        if (active) setState({ status: "ready", db: local.db, persistent: local.persistent });
         else void local.close();
       },
       (error: unknown) => {

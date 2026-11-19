@@ -7,6 +7,7 @@ import { nodeSqlite } from "../data/node-sqlite.test-helper";
 import { LOCAL_MIGRATIONS } from "../data/schema";
 import {
   completeOnboarding,
+  hasAccounts,
   isOnboarded,
   ONBOARDING_TEMPLATES,
   removeSampleData,
@@ -39,6 +40,7 @@ describe("onboarding", () => {
   it("crea la cuenta con su saldo inicial y marca el onboarding como hecho", async () => {
     const { db, deps } = await setup();
     expect(await isOnboarded(db)).toBe(false);
+    expect(await hasAccounts(db)).toBe(false);
     const account = await completeOnboarding(
       db,
       { template: nequi, openingBalance: Money.ofMinor(150_000_00n, "COP"), sampleData: false },
@@ -47,6 +49,7 @@ describe("onboarding", () => {
     expect(account).toMatchObject({ name: "Nequi", type: "digital_wallet", institution: "Nequi" });
     expect(await sqliteAccounts(db).balance(account)).toEqual(Money.ofMinor(150_000_00n, "COP"));
     expect(await isOnboarded(db)).toBe(true);
+    expect(await hasAccounts(db)).toBe(true);
   });
 
   it("sin saldo inicial no crea movimientos", async () => {

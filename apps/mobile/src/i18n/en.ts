@@ -348,4 +348,8 @@ export const en: Messages = {
   "sync.done": "Synced: {when}.",
   "sync.donePending": "Synced: {when}. {pending} pending.",
   "sync.failed": "Can't reach Lukas. {pending} changes are waiting on this phone.",
+  "web.offlineTitle": "You're offline",
+  "web.offlineBody":
+    "Lukas on the web doesn't store your data on this computer: it loads it from your account every time you sign in. Check your connection and try again.",
+  "web.retry": "Try again",
 };
