@@ -215,7 +215,9 @@ describe("bitácora de auditoría", () => {
     expect(await failure(db.update(auditLog).set({ action: "x" }))).toMatch(/solo inserción/);
     expect(await failure(db.delete(auditLog))).toMatch(/solo inserción/);
     const [{ count } = { count: 0 }] = await db
-      .execute<{ count: number }>(sql`select count(*)::int as count from app.audit_log`)
+      .execute<{ count: number }>(
+        sql`select count(*)::int as count from app.audit_log where action = 'login'`,
+      )
       .then((r) => r.rows);
     expect(count).toBe(1);
   });
@@ -255,6 +257,11 @@ describe("supresión de cuenta (Ley 1581)", () => {
       0,
     );
     expect(await db.select().from(entries).where(eq(entries.userId, carol))).toHaveLength(0);
-    expect(await db.select().from(auditLog).where(eq(auditLog.userId, carol))).toHaveLength(1);
+    // Se conserva lo que ella hizo y queda registro de que el sistema borró sus datos.
+    const kept = await db.select().from(auditLog).where(eq(auditLog.userId, carol));
+    expect(kept.filter((r) => r.action === "account.delete")).toHaveLength(1);
+    expect(
+      kept.filter((r) => r.action === "delete" && r.actor === "system").map((r) => r.entity),
+    ).toEqual(expect.arrayContaining(["accounts", "categories", "transactions"]));
   });
 });
