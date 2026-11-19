@@ -3,6 +3,7 @@ import {
   type Money,
   type MovementKind,
   type MovementSplit,
+  matchRule,
   merchantKey,
   newSplitMovement,
   type Result,
@@ -13,6 +14,7 @@ import type { Clock } from "../accounts/accounts";
 import { sqliteAccounts, sqliteRepositories } from "../data/ledger-sqlite";
 import { sqlitePreferences } from "../data/preferences";
 import type { SqlConnection } from "../data/sql";
+import { learnCorrection, listRules } from "./categories";
 import { ruleCategoryFor } from "./merchant-rules";
 import { tagTransaction } from "./tags";
 
@@ -56,6 +58,8 @@ export interface NewMovement {
   readonly merchant?: string | null;
   readonly note?: string | null;
   readonly tags?: readonly string[];
+  /** Categoría que la app sugirió; si la persona eligió otra, se aprende. */
+  readonly suggestedCategoryId?: string | null;
   /** Foto del recibo ya guardada por el `ReceiptStore`. */
   readonly receipt?: { readonly fileName: string; readonly mimeType: string } | null;
 }
@@ -118,6 +122,15 @@ export async function recordMovement(
         clock.now().toISOString(),
       );
     }
+    if (input.suggestedCategoryId !== undefined && splits.length === 1) {
+      await learnCorrection(
+        tx,
+        transaction.merchant,
+        input.suggestedCategoryId,
+        input.categoryId,
+        clock,
+      );
+    }
     await sqlitePreferences(tx).set("movements.lastAccount", account.id);
   });
   if (!result) throw new Error("El registro no produjo resultado");
@@ -174,6 +187,10 @@ export async function suggestCategory(
 ): Promise<string | null> {
   const key = merchantKey(merchant);
   if (key.length === 0) return null;
+  // 1. Reglas: las de la persona y las aprendidas de sus correcciones.
+  const rule = matchRule(await listRules(db, kind), { merchant });
+  if (rule) return rule.categoryId;
+  // 2. Historial con ese comercio.
   const rows = await db.all<{ merchant: string; category_id: string; occurred_at: string }>(
     `SELECT t.merchant, e.category_id, t.occurred_at
      FROM transactions t
@@ -190,12 +207,56 @@ export async function suggestCategory(
       .map((r) => ({ categoryId: r.category_id, occurredAt: new Date(r.occurred_at) })),
   );
   if (fromHistory) return fromHistory;
-  const rule = ruleCategoryFor(merchant);
-  if (!rule) return null;
+  // 3. Comercios colombianos conocidos.
+  const known = ruleCategoryFor(merchant);
+  if (!known) return null;
   const active = await db.get<{ id: string }>(
     "SELECT id FROM categories WHERE id = ? AND kind = ? AND archived_at IS NULL",
-    rule,
+    known,
     kind,
   );
   return active?.id ?? null;
+}
+
+/**
+ * Cambia la categoría de un gasto o ingreso de una sola categoría y aprende de la corrección para
+ * ese comercio. Los divididos y las transferencias no se tocan aquí.
+ */
+export async function recategorize(
+  db: SqlConnection,
+  transactionId: string,
+  categoryId: string,
+  clock: Clock,
+): Promise<Result<true, DomainError>> {
+  let result: Result<true, DomainError> = { ok: false, error: notFound() };
+  await db.transaction(async (tx) => {
+    const entries = await tx.all<{ id: string; category_id: string; kind: string }>(
+      `SELECT e.id, e.category_id, c.kind FROM entries e JOIN categories c ON c.id = e.category_id
+       WHERE e.transaction_id = ?`,
+      transactionId,
+    );
+    const target = await tx.get<{ kind: string }>(
+      "SELECT kind FROM categories WHERE id = ? AND archived_at IS NULL AND is_system = 0",
+      categoryId,
+    );
+    const only = entries.length === 1 ? entries[0] : undefined;
+    if (!only || !target) return;
+    if (only.kind !== target.kind) {
+      result = { ok: false, error: new DomainError("invalid_category", "Otro tipo de categoría") };
+      return;
+    }
+    const t = await tx.get<{ merchant: string | null }>(
+      "SELECT merchant FROM transactions WHERE id = ?",
+      transactionId,
+    );
+    await tx.run("UPDATE entries SET category_id = ? WHERE id = ?", categoryId, only.id);
+    await tx.run(
+      "UPDATE transactions SET updated_at = ?, version = version + 1 WHERE id = ?",
+      clock.now().toISOString(),
+      transactionId,
+    );
+    await learnCorrection(tx, t?.merchant ?? null, only.category_id, categoryId, clock);
+    result = { ok: true, value: true };
+  });
+  return result;
 }

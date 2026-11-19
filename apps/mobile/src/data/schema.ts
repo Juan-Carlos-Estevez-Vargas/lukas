@@ -150,6 +150,24 @@ UPDATE transactions SET search_text = lower(coalesce(merchant, '') || ' | ' || d
   coalesce(notes, ''));
 `;
 
+/**
+ * Reglas de categorización: las escribe la persona (`user`) o salen de sus correcciones
+ * (`learned`). Una regla aprendida por comercio es única: la última corrección la reemplaza.
+ */
+const v7 = `
+CREATE TABLE category_rules (
+  id TEXT PRIMARY KEY NOT NULL,
+  match TEXT NOT NULL CHECK (match IN ('merchant', 'keyword')),
+  pattern TEXT NOT NULL CHECK (length(trim(pattern)) > 0),
+  category_id TEXT NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
+  source TEXT NOT NULL CHECK (source IN ('user', 'learned')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+) STRICT;
+
+CREATE UNIQUE INDEX category_rules_unique_idx ON category_rules (source, match, pattern);
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -157,4 +175,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 4, name: "comisiones y cambio de moneda", sql: v4 },
   { version: 5, name: "etiquetas y recibos", sql: v5 },
   { version: 6, name: "texto de búsqueda", sql: v6 },
+  { version: 7, name: "reglas de categorías", sql: v7 },
 ];
