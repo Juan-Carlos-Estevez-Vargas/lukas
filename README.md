@@ -29,6 +29,10 @@ pnpm test        # pruebas
 pnpm format      # formatea y ordena imports
 ```
 
+## Seguridad
+
+Modelo de amenazas en [docs/security/modelo-de-amenazas.md](docs/security/modelo-de-amenazas.md). Para reportar una vulnerabilidad, ver [SECURITY.md](SECURITY.md).
+
 ## Estructura
 
 ```

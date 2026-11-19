@@ -9,6 +9,7 @@ import { type AuthFactory, neonAuthFactory } from "./modules/auth/factory";
 import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
 import { healthRoutes } from "./modules/health/routes";
+import { securityTxtRoutes } from "./modules/security/routes";
 
 export interface AppDeps {
   /** Permite inyectar la autenticación (p. ej. con PGlite en pruebas). */
@@ -36,6 +37,7 @@ export const createApp = ({ auth = neonAuthFactory }: AppDeps = {}) => {
     .use("/v1/auth/*", rateLimit("AUTH_LIMITER", 60))
     .on(["GET", "POST"], "/v1/auth/*", authHandler(auth))
     .route("/", healthRoutes)
+    .route("/", securityTxtRoutes)
     .route("/v1", v1);
 
   app.notFound(notFound);
