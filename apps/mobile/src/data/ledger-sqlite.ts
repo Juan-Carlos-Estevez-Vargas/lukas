@@ -8,6 +8,7 @@ import {
   isCurrencyCode,
   type LedgerRepositories,
   Money,
+  merchantKey,
   type Transaction,
   type TransactionRepository,
   type TransactionSource,
@@ -152,6 +153,16 @@ const toEntry = (r: EntryRow): Entry => ({
   amount: fromDbAmount(r.amount_minor, r.currency),
 });
 
+/**
+ * Texto de búsqueda sin tildes ni mayúsculas: SQLite solo ignora mayúsculas en ASCII, así que
+ * "exito" no encontraría "Éxito" sin esta columna.
+ */
+export const searchText = (t: Pick<Transaction, "description" | "merchant" | "notes">): string =>
+  [t.merchant, t.description, t.notes]
+    .filter((v): v is string => Boolean(v))
+    .map(merchantKey)
+    .join(" | ");
+
 export function sqliteTransactions(db: SqlConnection): TransactionRepository {
   return {
     async get(id) {
@@ -183,18 +194,19 @@ export function sqliteTransactions(db: SqlConnection): TransactionRepository {
       const balanced = checkBalanced(t.entries);
       if (!balanced.ok) throw balanced.error;
       await db.run(
-        `INSERT INTO transactions (id, occurred_at, description, merchant, notes, status, source,
-           created_at, updated_at, version)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO transactions (id, occurred_at, description, merchant, notes, search_text,
+           status, source, created_at, updated_at, version)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT (id) DO UPDATE SET occurred_at = excluded.occurred_at,
            description = excluded.description, merchant = excluded.merchant,
-           notes = excluded.notes, status = excluded.status, source = excluded.source,
-           updated_at = excluded.updated_at, version = excluded.version`,
+           notes = excluded.notes, search_text = excluded.search_text, status = excluded.status,
+           source = excluded.source, updated_at = excluded.updated_at, version = excluded.version`,
         t.id,
         iso(t.occurredAt),
         t.description,
         t.merchant,
         t.notes,
+        searchText(t),
         t.status,
         t.source,
         iso(t.createdAt),

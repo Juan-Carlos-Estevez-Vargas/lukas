@@ -16,6 +16,7 @@
     "@expo/metro-runtime": "58.0.17",
     "@lukas/domain": "workspace:*",
     "@lukas/ui": "workspace:*",
+    "@shopify/flash-list": "2.3.3",
     "expo": "58.0.23",
     "expo-constants": "58.0.15",
     "expo-crypto": "58.0.7",

@@ -143,10 +143,18 @@ CREATE TABLE attachments (
 CREATE INDEX attachments_transaction_idx ON attachments (transaction_id);
 `;
 
+/** Búsqueda: texto normalizado (sin tildes ni mayúsculas) que se llena al guardar. */
+const v6 = `
+ALTER TABLE transactions ADD COLUMN search_text TEXT NOT NULL DEFAULT '';
+UPDATE transactions SET search_text = lower(coalesce(merchant, '') || ' | ' || description || ' | ' ||
+  coalesce(notes, ''));
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
   { version: 3, name: "categorías por defecto", sql: v3 },
   { version: 4, name: "comisiones y cambio de moneda", sql: v4 },
   { version: 5, name: "etiquetas y recibos", sql: v5 },
+  { version: 6, name: "texto de búsqueda", sql: v6 },
 ];
