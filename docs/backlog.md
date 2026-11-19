@@ -188,9 +188,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-104 · Cuentas con plantillas colombianas
 
 - Tipo: `feat` · Tamaño: M
-- [ ] CRUD de cuentas y grupos
-- [ ] Plantillas Nequi, Daviplata, Bancolombia, Nu, Lulo
-- [ ] Saldo inicial y archivado
+- [x] CRUD de cuentas y grupos
+- [x] Plantillas Nequi, Daviplata, Bancolombia, Nu, Lulo
+- [x] Saldo inicial y archivado
 
 **Hecho cuando:** Crear una cuenta Nequi toma un toque.
 

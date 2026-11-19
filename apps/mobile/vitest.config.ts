@@ -14,6 +14,7 @@ export default defineConfig({
         "src/format/**/*.ts",
         "src/lock/**/*.ts",
         "src/onboarding/**/*.ts",
+        "src/accounts/**/*.ts",
         "app.config.ts",
       ],
       // database*.ts y lock-store*.ts envuelven módulos nativos; su lógica vive en open.ts, pin.ts y

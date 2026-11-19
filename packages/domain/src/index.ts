@@ -10,9 +10,13 @@ export { isUuidV7, type RandomSource, uuidv7, uuidv7Timestamp } from "./id";
 export {
   ACCOUNT_TYPES,
   type Account,
+  type AccountChanges,
   type AccountType,
+  archiveAccount,
   createAccount,
   type NewAccount,
+  unarchiveAccount,
+  updateAccount,
 } from "./ledger/account";
 export type {
   AccountRepository,
