@@ -167,6 +167,17 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
   así convierte sin conexión. Las cuentas en USD suman al patrimonio y los gastos en dólares
   cuentan en el inicio, convertidos a pesos. Lo que no tiene tasa se informa y no se suma.
 
+## Respaldo y exportación
+
+- Ajustes → Respaldo y exportación (`src/backup`). El respaldo lleva todas las tablas de datos en
+  JSON, cifrado con una contraseña (scrypt + XChaCha20-Poly1305), y se comparte con el menú del
+  sistema. Las fotos de recibos no viajan en el respaldo.
+- Restaurar reemplaza todo en una transacción: valida tablas y columnas, revisa llaves foráneas y,
+  si algo falla, deja la base como estaba. Acepta respaldos de versiones anteriores, no de más
+  nuevas. Al terminar, la app se recarga.
+- Exportar CSV: una fila por cuenta de cada movimiento, separado por `;`, con coma decimal y BOM
+  para Excel. Las celdas que parecen fórmulas se neutralizan.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

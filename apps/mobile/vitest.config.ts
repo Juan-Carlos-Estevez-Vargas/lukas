@@ -23,6 +23,7 @@ export default defineConfig({
         "src/goals/**/*.ts",
         "src/home/**/*.ts",
         "src/rates/**/*.ts",
+        "src/backup/**/*.ts",
         "app.config.ts",
       ],
       // database*.ts, lock-store*.ts, notifications*.ts y receipt-store*.ts envuelven módulos nativos; su lógica vive
@@ -35,6 +36,7 @@ export default defineConfig({
         "src/reminders/notifications*.ts",
         "src/receipts/receipt-store*.ts",
         "src/receipts/pick*.ts",
+        "src/backup/files*.ts",
       ],
       reporter: ["text", "json-summary"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },

@@ -77,9 +77,13 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | I | Finanzas guardadas en claro en el navegador | ✓ La web no tiene base local; usará la API (fase 2) |
 | I | Alguien con el teléfono desbloqueado abre la app | ✓ Bloqueo con PIN (hash con sal en Keystore) o biometría; espera progresiva tras 5 fallos (FIN-103) |
 | I | Datos visibles en el selector de apps o mirando la pantalla | ✓ Pantalla tapada en segundo plano y modo discreto (FIN-103) · ○ `FLAG_SECURE` contra capturas |
-| I | Montos visibles en notificaciones con el teléfono bloqueado | ✓ Los avisos de pago de tarjetas no incluyen montos y son locales, sin push ni servidor (FIN-105) |
+| I | Montos visibles en notificaciones con el teléfono bloqueado | ✓ Los avisos de pago de tarjetas, recurrentes y presupuestos no incluyen montos y son locales, sin push ni servidor (FIN-105, FIN-111, FIN-112) |
 | I | Fotos de recibos expuestas | ✓ Carpeta privada de la app, sin respaldo (`allowBackup` apagado), sin EXIF ni ubicación; nunca salen del teléfono (FIN-108) · ○ cifrarlas como la base |
 | I | Copias de seguridad del teléfono con datos | ✓ `allowBackup: false` |
+| I | Archivo de respaldo filtrado (Drive, correo) | ✓ Cifrado con contraseña: scrypt (N=2^15, r=8) y XChaCha20-Poly1305 de `@noble`; sin la contraseña no se abre ni se puede alterar sin que se note (FIN-116) |
+| T | Respaldo manipulado para inyectar SQL o datos inválidos | ✓ Solo tablas conocidas y columnas que existen (`PRAGMA table_info`); valores escalares; restauración en una transacción con revisión de llaves foráneas; si algo falla no cambia nada (FIN-116) |
+| I | CSV exportado abierto en Excel ejecuta fórmulas | ✓ Celdas que empiezan con `=`, `+`, `-`, `@` se anteponen con `'`; el CSV no va cifrado y la pantalla lo advierte (FIN-116) |
+| I | Copias del respaldo o CSV quedan en el teléfono | ✓ Se escriben en la caché privada solo para compartirlos y se borran al terminar (FIN-116) |
 | D | Actualización OTA maliciosa | ○ Firma de código de EAS Update (FIN-011) |
 | E | Permisos de notificaciones usados para leer más de lo necesario | ○ Filtro por paquete de banco/billetera y procesamiento solo local (F2) |
 
