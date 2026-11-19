@@ -1,5 +1,6 @@
 import { DomainError } from "@lukas/domain";
 import type { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 /** Cuerpo de error según RFC 9457 (Problem Details for HTTP APIs). */
@@ -64,6 +65,18 @@ const toProblem = (
         status: 422,
         code: error.code,
         detail: error.message,
+      },
+    };
+  }
+  // Errores de Hono con estado 4xx (p. ej. JSON mal formado): se respetan sin exponer detalles.
+  if (error instanceof HTTPException && error.status >= 400 && error.status < 500) {
+    return {
+      status: error.status,
+      body: {
+        type: `${TYPE_BASE}bad_request`,
+        title: "La solicitud no es válida",
+        status: error.status,
+        code: "bad_request",
       },
     };
   }

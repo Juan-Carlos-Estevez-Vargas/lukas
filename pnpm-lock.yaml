@@ -51,6 +51,9 @@ importers:
       '@lukas/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@lukas/sync':
+        specifier: workspace:*
+        version: link:../../packages/sync
       '@neondatabase/serverless':
         specifier: 1.2.0
         version: 1.2.0

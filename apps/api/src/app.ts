@@ -12,22 +12,28 @@ import { healthRoutes } from "./modules/health/routes";
 import { defaultRatesFactory, type RatesFactory } from "./modules/rates/factory";
 import { ratesRoutes } from "./modules/rates/routes";
 import { securityTxtRoutes } from "./modules/security/routes";
+import { neonSyncFactory, type SyncFactory } from "./modules/sync/factory";
+import { syncRoutes } from "./modules/sync/routes";
 
 export interface AppDeps {
   /** Permite inyectar la autenticación (p. ej. con PGlite en pruebas). */
   readonly auth?: AuthFactory;
   /** Fuente y almacenamiento de la TRM (en pruebas, falsos en memoria). */
   readonly rates?: RatesFactory;
+  /** Almacén del sync (en pruebas, PGlite). */
+  readonly sync?: SyncFactory;
 }
 
 export const createApp = ({
   auth = neonAuthFactory,
   rates = defaultRatesFactory,
+  sync = neonSyncFactory,
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
     .route("/", meRoutes)
-    .route("/", ratesRoutes(rates));
+    .route("/", ratesRoutes(rates))
+    .route("/", syncRoutes(sync));
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {
