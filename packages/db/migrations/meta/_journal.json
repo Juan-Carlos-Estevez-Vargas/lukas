@@ -29,6 +29,13 @@
       "when": 1795117312959,
       "tag": "0003_tasas_de_cambio",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795118674382,
+      "tag": "0004_hogares_y_rls",
+      "breakpoints": true
     }
   ]
 }
