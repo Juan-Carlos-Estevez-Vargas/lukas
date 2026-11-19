@@ -107,6 +107,14 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
   hace que cada moneda cuadre por su lado. Las cuentas pueden crearse en COP, USD o EUR.
 - Montos con coma decimal y punto de miles ("1.234,56"); en pesos, solo enteros.
 
+## Lista y búsqueda
+
+- La pestaña Movimientos usa FlashList con un encabezado fijo por día y el neto del día en pesos.
+- Filtros combinables (`src/movements/filters.ts`): cada uno es una especificación que se
+  traduce a SQL y también se evalúa en memoria; las pruebas comparan ambas.
+- La búsqueda ignora tildes y mayúsculas gracias a `transactions.search_text` (migración 6) y
+  entiende montos ("85.400", "12,50"), incluidas las comisiones.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

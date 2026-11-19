@@ -234,9 +234,9 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-109 · Lista, búsqueda y filtros
 
 - Tipo: `feat` · Tamaño: M
-- [ ] FlashList agrupada por día
-- [ ] Búsqueda por texto y monto
-- [ ] Filtros combinables (Specification)
+- [x] FlashList agrupada por día
+- [x] Búsqueda por texto y monto
+- [x] Filtros combinables (Specification)
 
 **Hecho cuando:** Filtrar 10 mil transacciones responde en menos de 100 ms.
 
