@@ -1,0 +1,24 @@
+# El flujo más usado: un gasto de $25.000 en Mercado baja el saldo y aparece en Movimientos.
+appId: co.lukas.app
+name: Registrar un gasto
+---
+- runFlow: subflows/primer-uso.yaml
+- tapOn: "Registrar movimiento"
+- tapOn: "2"
+- tapOn: "5"
+- tapOn: "000"
+- assertVisible: ".*25\\.000.*"
+- tapOn:
+    id: "movement-merchant"
+- inputText: "Tienda E2E"
+- hideKeyboard
+- tapOn: ".*Mercado"
+- scrollUntilVisible:
+    element: "Guardar"
+- tapOn: "Guardar"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 10000
+- assertVisible: ".*125\\.000.*"
+- tapOn: "Movimientos"
+- assertVisible: "Tienda E2E"

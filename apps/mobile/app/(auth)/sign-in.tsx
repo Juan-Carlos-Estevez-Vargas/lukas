@@ -62,6 +62,7 @@ export default function SignIn() {
           <>
             <Body muted>{t("signIn.subtitle")}</Body>
             <Field
+              testID="signin-email"
               label={t("signIn.email")}
               value={email}
               onChangeText={setEmail}
@@ -79,6 +80,7 @@ export default function SignIn() {
           <>
             <Body muted>{t("signIn.codeSentTo", { email })}</Body>
             <Field
+              testID="signin-code"
               label={t("signIn.code")}
               value={code}
               onChangeText={(v) => setCode(v.replace(/\D/g, "").slice(0, 6))}

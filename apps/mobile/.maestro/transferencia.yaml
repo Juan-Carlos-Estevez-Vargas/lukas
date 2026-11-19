@@ -1,0 +1,35 @@
+# Mover plata entre cuentas propias no cambia el patrimonio: Nequi → Efectivo por $50.000.
+appId: co.lukas.app
+name: Transferencia entre cuentas
+---
+- runFlow: subflows/primer-uso.yaml
+- scrollUntilVisible:
+    element: "Agregar cuenta"
+- tapOn: "Agregar cuenta"
+- assertVisible: "Nueva cuenta"
+- tapOn: "Efectivo"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 10000
+- tapOn: "Registrar movimiento"
+- tapOn: "Transferencia"
+- assertVisible: "Transferencia entre cuentas"
+- tapOn:
+    text: "Nequi"
+    index: 0
+- tapOn:
+    text: "Efectivo"
+    index: 1
+- tapOn:
+    id: "transfer-amount"
+- inputText: "50000"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "Guardar"
+- tapOn: "Guardar"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 10000
+- assertVisible: ".*150\\.000.*"
+- assertVisible: ".*100\\.000.*"
+- assertVisible: ".*50\\.000.*"

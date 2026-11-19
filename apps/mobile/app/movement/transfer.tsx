@@ -109,6 +109,7 @@ export default function NewTransfer() {
         <Body muted>{t("transfer.to")}</Body>
         {accountChips(toId, setToId)}
         <Field
+          testID="transfer-amount"
           label={t("transfer.amount", { currency: from?.currency ?? "COP" })}
           value={amount}
           onChangeText={setAmount}

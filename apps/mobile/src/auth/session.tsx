@@ -8,7 +8,8 @@ import {
   useState,
 } from "react";
 import { type AuthClient, createAuthClient } from "../api/auth-client";
-import { apiUrl } from "../config";
+import { e2eAuthClient } from "../api/e2e-auth-client";
+import { apiUrl, e2eMode } from "../config";
 import { tokenStore } from "./token-store";
 
 export type SessionState =
@@ -26,7 +27,7 @@ interface Session {
 const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({ children }: { readonly children: ReactNode }) {
-  const client = useMemo(() => createAuthClient(apiUrl), []);
+  const client = useMemo(() => (e2eMode ? e2eAuthClient() : createAuthClient(apiUrl)), []);
   const [state, setState] = useState<SessionState>({ status: "loading" });
 
   // Al abrir la app se valida el token guardado; si la API lo rechaza, se borra.

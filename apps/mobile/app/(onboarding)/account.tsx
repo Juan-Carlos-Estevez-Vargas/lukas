@@ -34,6 +34,7 @@ export default function FirstAccount() {
         />
       ))}
       <Field
+        testID="onboarding-balance"
         label={t("onboarding.account.balance")}
         value={balance}
         onChangeText={setBalance}
