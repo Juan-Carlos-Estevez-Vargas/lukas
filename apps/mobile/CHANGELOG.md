@@ -1,5 +1,11 @@
 # @lukas/mobile
 
+## 0.2.0
+
+### Minor Changes
+
+- 8fc7899: Versión web de la app (Expo para web) con la misma pantalla de acceso y pestañas, sesión guardada solo durante la pestaña y cabeceras de seguridad estrictas en Cloudflare Pages.
+
 ## 0.1.0
 
 ### Minor Changes
