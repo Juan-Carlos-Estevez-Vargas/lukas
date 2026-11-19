@@ -66,6 +66,12 @@ export {
   summarizeCard,
 } from "./ledger/credit-card";
 export {
+  type GoalProgress,
+  goalProgress,
+  monthlyContributionsLeft,
+  validateGoal,
+} from "./ledger/goal";
+export {
   type CategoryUse,
   type MovementCategory,
   type MovementDeps,
