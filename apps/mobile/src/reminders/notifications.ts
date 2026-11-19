@@ -44,4 +44,10 @@ export const notificationScheduler: ReminderScheduler = {
       },
     });
   },
+  async present(notice) {
+    await Notifications.scheduleNotificationAsync({
+      content: { title: notice.title, body: notice.body },
+      trigger: { channelId: CHANNEL },
+    });
+  },
 };

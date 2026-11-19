@@ -24,6 +24,7 @@ const KNOWN = new Set([
   "invalid_frequency",
   "invalid_date",
   "ends_before_start",
+  "budget_exists",
 ]);
 
 /** Mensaje para un error de dominio de cuentas; los desconocidos caen en uno genérico. */

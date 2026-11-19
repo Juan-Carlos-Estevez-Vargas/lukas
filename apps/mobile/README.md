@@ -134,6 +134,15 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Si empieza en el pasado no se rellena la historia. El aviso local sale a las 9 a. m. del día y
   no muestra montos.
 
+## Presupuestos
+
+- Por categoría (incluye sus subcategorías) o de todos los gastos, semanal, mensual o anual
+  (`packages/domain`, `ledger/budget.ts`; `src/budgets`, migración 9). Los reembolsos restan.
+- Sobres: lo que sobra o falta de periodos anteriores pasa al actual.
+- Regla 50/30/20 del mes con las categorías clasificadas en necesidades, gustos o ahorro.
+- Avisos al 80 % y al 100 %, una vez por periodo (`budget_alerts`): al registrar, al generar
+  recurrentes y al abrir la app. Muestran el porcentaje, nunca montos.
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

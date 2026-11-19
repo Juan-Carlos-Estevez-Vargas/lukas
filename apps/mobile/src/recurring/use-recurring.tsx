@@ -9,6 +9,7 @@ import {
 } from "react";
 import { AppState } from "react-native";
 import { civilDate } from "../accounts/credit-card";
+import { useBudgetAlerts } from "../budgets/use-budget-alerts";
 import { newId } from "../data/ids";
 import { useLocalDatabase } from "../data/provider";
 import { useI18n } from "../i18n/i18n";
@@ -35,6 +36,7 @@ const RecurringContext = createContext<RecurringState>({
 export function RecurringProvider({ children }: { readonly children: ReactNode }) {
   const database = useLocalDatabase();
   const { t } = useI18n();
+  const budgets = useBudgetAlerts();
   const [version, setVersion] = useState(0);
   const [failed, setFailed] = useState<readonly string[]>([]);
 
@@ -52,10 +54,13 @@ export function RecurringProvider({ children }: { readonly children: ReactNode }
     void (async () => {
       const run = await postDueRecurring(database.db, civilDate(now), { newId, now: () => now });
       setFailed(run.failed);
-      if (run.posted > 0) setVersion((v) => v + 1);
+      if (run.posted > 0) {
+        setVersion((v) => v + 1);
+        budgets.check();
+      }
       await syncRecurringReminders(database.db, notificationScheduler, now, texts);
     })().catch(() => undefined);
-  }, [database, texts]);
+  }, [database, texts, budgets]);
 
   useEffect(() => {
     refresh();

@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text } from "react-native";
 import { accountErrorKey } from "../../src/accounts/messages";
+import { useBudgetAlerts } from "../../src/budgets/use-budget-alerts";
 import { Chip, ChipRow, Keypad } from "../../src/components/quick";
 import { Body, Button, Field, Screen, Toggle } from "../../src/components/ui";
 import { newId } from "../../src/data/ids";
@@ -38,6 +39,7 @@ export default function NewMovement() {
   const { colors, fontSize, fontWeight } = useTheme();
   const database = useLocalDatabase();
   const reminders = useCardReminders();
+  const budgets = useBudgetAlerts();
   const [kind, setKind] = useState<MovementKind>("expense");
   const [digits, setDigits] = useState("");
   const [merchant, setMerchant] = useState("");
@@ -157,6 +159,7 @@ export default function NewMovement() {
       );
       if (!res.ok) return setError(t(accountErrorKey(res.error)));
       if (account?.type === "credit_card") reminders.resync();
+      budgets.check();
       router.back();
     } catch {
       setError(t("movement.error.generic"));

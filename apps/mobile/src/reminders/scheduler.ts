@@ -19,4 +19,6 @@ export interface ReminderScheduler {
   pending(prefix: string): Promise<string[]>;
   cancel(id: string): Promise<void>;
   schedule(reminder: LocalReminder): Promise<void>;
+  /** Muestra un aviso ya (p. ej. al pasar el 80 % de un presupuesto). */
+  present(notice: { readonly title: string; readonly body: string }): Promise<void>;
 }
