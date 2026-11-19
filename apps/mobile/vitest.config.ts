@@ -23,6 +23,7 @@ export default defineConfig({
         "src/goals/**/*.ts",
         "src/home/**/*.ts",
         "src/display/**/*.ts",
+        "src/reports/**/*.ts",
         "src/rates/**/*.ts",
         "src/backup/**/*.ts",
         "src/widgets/**/*.ts",

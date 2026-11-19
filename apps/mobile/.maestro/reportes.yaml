@@ -1,0 +1,36 @@
+# Reportes: tocar la barra de gastos del mes abre Movimientos filtrado por ese mes y tipo.
+appId: co.lukas.app
+name: Reportes
+---
+- runFlow: subflows/primer-uso.yaml
+- tapOn: "Registrar movimiento"
+- tapOn: "4"
+- tapOn: "0"
+- tapOn: "000"
+- tapOn:
+    id: "movement-merchant"
+- inputText: "Almuerzo E2E"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "movement-categories"
+    centerElement: true
+- scrollUntilVisible:
+    element: ".*Mercado"
+    direction: RIGHT
+- tapOn: ".*Mercado"
+- scrollUntilVisible:
+    element: "Guardar"
+- tapOn: "Guardar"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 10000
+- tapOn: "Reportes"
+- assertVisible: "Flujo de caja"
+# Mes actual: el último grupo, a la derecha. La barra de gastos es la segunda del grupo y, como es
+# lo único del mes, llega hasta arriba.
+- tapOn:
+    id: "cashflow"
+    point: "95%,80%"
+- assertVisible: "Almuerzo E2E"
+- assertVisible: ".*✕"

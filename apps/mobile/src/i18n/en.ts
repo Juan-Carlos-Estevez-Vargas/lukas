@@ -66,7 +66,7 @@ export const en: Messages = {
   "summary.netWorth": "Net worth",
   "summary.accounts": "Accounts",
   "summary.unavailable":
-    "The web version doesn't store transactions yet. Use the Android app to track your money.",
+    "Your data couldn't be opened on this device. Close Lukas and open it again.",
   "accounts.add": "Add account",
   "accounts.new.title": "New account",
   "accounts.new.body": "Tap one to create it. Optionally type a name or balance first.",
@@ -352,4 +352,16 @@ export const en: Messages = {
   "web.offlineBody":
     "Lukas on the web doesn't store your data on this computer: it loads it from your account every time you sign in. Check your connection and try again.",
   "web.retry": "Try again",
+  "tabs.reports": "Reports",
+  "reports.cashflow": "Cash flow",
+  "reports.income": "Income",
+  "reports.expenses": "Expenses",
+  "reports.tapHint": "Tap a bar to see its transactions.",
+  "reports.cashflowA11y": "Income and expenses for the last {count} months. {detail}",
+  "reports.monthA11y": "{month}: {income} in, {expenses} out",
+  "reports.byCategory": "Where it goes",
+  "reports.noSpending": "No spending in {month}.",
+  "reports.netWorth": "Net worth",
+  "reports.netWorthA11y": "Net worth at the end of each month. {detail}",
+  "reports.netWorthNow": "Today: {amount}",
 };

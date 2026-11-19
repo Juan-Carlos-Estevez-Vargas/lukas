@@ -65,7 +65,7 @@ export const es = {
   "summary.netWorth": "Patrimonio",
   "summary.accounts": "Cuentas",
   "summary.unavailable":
-    "En la web aún no guardamos movimientos. Usa la app de Android para registrar tus finanzas.",
+    "No se pudo abrir tu información en este dispositivo. Cierra Lukas y vuelve a abrirla.",
   "accounts.add": "Agregar cuenta",
   "accounts.new.title": "Nueva cuenta",
   "accounts.new.body": "Toca una para crearla. Si quieres, primero escribe un nombre o el saldo.",
@@ -352,6 +352,18 @@ export const es = {
   "web.offlineBody":
     "Lukas en la web no guarda tus datos en este equipo: los trae de tu cuenta cada vez que entras. Revisa tu conexión e intenta de nuevo.",
   "web.retry": "Reintentar",
+  "tabs.reports": "Reportes",
+  "reports.cashflow": "Flujo de caja",
+  "reports.income": "Ingresos",
+  "reports.expenses": "Gastos",
+  "reports.tapHint": "Toca una barra para ver sus movimientos.",
+  "reports.cashflowA11y": "Ingresos y gastos de los últimos {count} meses. {detail}",
+  "reports.monthA11y": "{month}: entró {income} y salió {expenses}",
+  "reports.byCategory": "En qué se va",
+  "reports.noSpending": "No hay gastos en {month}.",
+  "reports.netWorth": "Patrimonio",
+  "reports.netWorthA11y": "Patrimonio al cierre de cada mes. {detail}",
+  "reports.netWorthNow": "Hoy: {amount}",
 } as const;
 
 export type MessageKey = keyof typeof es;
