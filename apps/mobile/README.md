@@ -1,6 +1,6 @@
 # @lukas/mobile
 
-App de Lukas para Android (y luego iOS) con Expo SDK 58 y Expo Router.
+App de Lukas para Android y web (luego iOS) con Expo SDK 58 y Expo Router.
 
 ## Desarrollo
 
@@ -25,6 +25,12 @@ src/i18n/       textos en español (fuente de verdad) e inglés
 src/theme/      tema claro u oscuro según el sistema, con tokens de @lukas/ui
 ```
 
+## Web
+
+`pnpm --filter @lukas/mobile web` abre la versión web. En la web el token vive en `sessionStorage`
+(se borra al cerrar la pestaña), porque la API y la web están en dominios distintos y una cookie
+sería de terceros. `public/_headers` aplica CSP estricta y demás cabeceras en Cloudflare Pages.
+
 ## Seguridad
 
 - El token de sesión se guarda en Keystore/Keychain (`WHEN_UNLOCKED_THIS_DEVICE_ONLY`), nunca en
@@ -39,4 +45,3 @@ Ver [docs/releases.md](../../docs/releases.md).
 ## Pendiente
 
 - Passkeys en el móvil (requiere módulo nativo) y Turnstile en la app.
-- Versión web: espera la decisión sobre `react-native-web` (política de confianza de pnpm).

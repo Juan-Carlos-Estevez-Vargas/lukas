@@ -24,11 +24,13 @@ El workflow `preview.yml` crea, para cada PR del propio repo:
   suspende a los 5 minutos);
 - un Worker `lukas-api-pr-<N>` en workers.dev con esa base, un `BETTER_AUTH_SECRET` propio y
   `ENVIRONMENT=preview`;
+- la web (Expo para web) en Cloudflare Pages, rama `pr-<N>` del proyecto `lukas-web`, compilada
+  contra la API de la preview y con su origen agregado a `CORS_ORIGINS`;
 - un comentario en el PR con los enlaces, que se actualiza en cada push.
 
-Al cerrar o fusionar el PR se borran el Worker y la rama. Necesita los secretos
+Al cerrar o fusionar el PR se borran el Worker, los despliegues web de esa rama y la rama de Neon. Necesita los secretos
 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` y `NEON_API_KEY`; sin ellos el workflow se salta
-sin fallar. La web en Pages y el QR de EAS Update se suman cuando existan la web y `EXPO_TOKEN`.
+sin fallar. El QR de EAS Update se suma en un PR aparte.
 
 ## App móvil
 
