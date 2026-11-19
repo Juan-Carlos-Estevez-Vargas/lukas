@@ -87,3 +87,59 @@ export function createAccount(
     version: 1,
   });
 }
+
+export type AccountChanges = Partial<
+  Pick<NewAccount, "name" | "institution" | "last4" | "closingDay" | "dueDay" | "creditLimit">
+>;
+
+/**
+ * Edita una cuenta. El tipo y la moneda no cambian: los asientos ya registrados dependen de
+ * ellos. Sube `version` para el control de concurrencia del sync.
+ */
+export function updateAccount(
+  account: Account,
+  changes: AccountChanges,
+  now: Date,
+): Result<Account, DomainError> {
+  const merged = createAccount(
+    {
+      name: changes.name ?? account.name,
+      type: account.type,
+      currency: account.currency,
+      institution: "institution" in changes ? changes.institution : account.institution,
+      last4: "last4" in changes ? changes.last4 : account.last4,
+      closingDay: "closingDay" in changes ? changes.closingDay : account.closingDay,
+      dueDay: "dueDay" in changes ? changes.dueDay : account.dueDay,
+      creditLimit: "creditLimit" in changes ? changes.creditLimit : account.creditLimit,
+    },
+    account.id,
+    now,
+  );
+  if (!merged.ok) return merged;
+  return ok({
+    ...merged.value,
+    archivedAt: account.archivedAt,
+    createdAt: account.createdAt,
+    version: account.version + 1,
+  });
+}
+
+/** Archivar oculta la cuenta sin borrar su historia. Solo se puede con saldo en cero. */
+export function archiveAccount(
+  account: Account,
+  balance: Money,
+  now: Date,
+): Result<Account, DomainError> {
+  if (account.archivedAt) return ok(account);
+  if (!balance.isZero()) {
+    return err(
+      new DomainError("balance_not_zero", "Lleva el saldo a cero antes de archivar la cuenta"),
+    );
+  }
+  return ok({ ...account, archivedAt: now, updatedAt: now, version: account.version + 1 });
+}
+
+export function unarchiveAccount(account: Account, now: Date): Account {
+  if (!account.archivedAt) return account;
+  return { ...account, archivedAt: null, updatedAt: now, version: account.version + 1 };
+}
