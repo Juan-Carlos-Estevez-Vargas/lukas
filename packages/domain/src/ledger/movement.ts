@@ -2,7 +2,7 @@ import { DomainError } from "../errors";
 import { Money } from "../money";
 import { err, ok, type Result } from "../result";
 import type { Account } from "./account";
-import { checkBalanced, type Transaction } from "./transaction";
+import { checkBalanced, type Transaction, type TransactionSource } from "./transaction";
 
 export type MovementKind = "expense" | "income";
 
@@ -20,6 +20,8 @@ export interface MovementInput {
   readonly occurredAt: Date;
   readonly merchant?: string | null;
   readonly note?: string | null;
+  /** De dónde viene; por defecto, registro manual. */
+  readonly source?: TransactionSource;
 }
 
 export interface MovementDeps {
@@ -100,7 +102,7 @@ export function newSplitMovement(
     merchant,
     notes: clean(input.note),
     status: "cleared",
-    source: "manual",
+    source: input.source ?? "manual",
     entries: [
       { id: deps.newId(), target: { accountId: account.id }, amount: sign(input.amount) },
       ...splits.map((s) => ({

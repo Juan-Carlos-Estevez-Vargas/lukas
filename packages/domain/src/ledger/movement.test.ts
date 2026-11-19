@@ -52,6 +52,16 @@ describe("newMovement", () => {
     expect(toCategory?.amount.equals(cop(45_900n))).toBe(true);
   });
 
+  it("conserva el origen cuando no es manual", () => {
+    const res = newMovement(
+      account(),
+      groceries,
+      { kind: "expense", amount: cop(1n), occurredAt: now, source: "recurring" },
+      deps(),
+    );
+    expect(res.ok && res.value.source).toBe("recurring");
+  });
+
   it("un ingreso entra a la cuenta", () => {
     const res = newMovement(
       account(),
