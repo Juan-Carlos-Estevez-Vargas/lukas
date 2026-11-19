@@ -4,6 +4,8 @@ import type { SqlConnection, SqlValue } from "./sql";
 export interface RawSql {
   exec(sql: string): Promise<void>;
   get<T>(sql: string, params: SqlValue[]): Promise<T | null>;
+  all<T>(sql: string, params: SqlValue[]): Promise<T[]>;
+  run(sql: string, params: SqlValue[]): Promise<void>;
 }
 
 export class NestedTransactionError extends Error {
@@ -30,12 +32,16 @@ export function createConnection(raw: RawSql): SqlConnection {
   const inside: SqlConnection = {
     exec: (sql) => raw.exec(sql),
     get: <T>(sql: string, ...params: SqlValue[]) => raw.get<T>(sql, params),
+    all: <T>(sql: string, ...params: SqlValue[]) => raw.all<T>(sql, params),
+    run: (sql: string, ...params: SqlValue[]) => raw.run(sql, params),
     transaction: () => Promise.reject(new NestedTransactionError()),
   };
 
   return {
     exec: (sql) => serial(() => raw.exec(sql)),
     get: <T>(sql: string, ...params: SqlValue[]) => serial(() => raw.get<T>(sql, params)),
+    all: <T>(sql: string, ...params: SqlValue[]) => serial(() => raw.all<T>(sql, params)),
+    run: (sql: string, ...params: SqlValue[]) => serial(() => raw.run(sql, params)),
     transaction: (work) =>
       serial(async () => {
         await raw.exec("BEGIN IMMEDIATE");

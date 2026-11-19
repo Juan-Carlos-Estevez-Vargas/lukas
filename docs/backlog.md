@@ -166,10 +166,10 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-102 · Repositorios locales y Unit of Work
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Puertos del dominio para cuentas y transacciones
-- [ ] Adaptadores SQLite
-- [ ] Unit of Work transaccional
-- [ ] Tests de integración
+- [x] Puertos del dominio para cuentas y transacciones
+- [x] Adaptadores SQLite
+- [x] Unit of Work transaccional
+- [x] Tests de integración
 
 **Hecho cuando:** Una transferencia fallida a mitad no deja saldos descuadrados.
 

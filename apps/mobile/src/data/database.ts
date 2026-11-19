@@ -16,6 +16,10 @@ async function open(name: string): Promise<RawDatabase> {
   return {
     exec: (sql) => db.execAsync(sql),
     get: <T>(sql: string, params: SQLiteBindValue[]) => db.getFirstAsync<T>(sql, params),
+    all: <T>(sql: string, params: SQLiteBindValue[]) => db.getAllAsync<T>(sql, params),
+    run: async (sql: string, params: SQLiteBindValue[]) => {
+      await db.runAsync(sql, params);
+    },
     close: () => db.closeAsync(),
   };
 }

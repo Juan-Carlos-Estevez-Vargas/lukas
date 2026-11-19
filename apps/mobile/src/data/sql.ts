@@ -14,6 +14,10 @@ export interface SqlConnection {
   exec(sql: string): Promise<void>;
   /** Primera fila del resultado, o `null` si no hay filas. */
   get<T>(sql: string, ...params: SqlValue[]): Promise<T | null>;
+  /** Todas las filas del resultado. */
+  all<T>(sql: string, ...params: SqlValue[]): Promise<T[]>;
+  /** Un statement con parámetros que no devuelve filas (INSERT, UPDATE, DELETE). */
+  run(sql: string, ...params: SqlValue[]): Promise<void>;
   /** Ejecuta `work` en una transacción: si lanza, se revierte todo. */
   transaction(work: (tx: SqlConnection) => Promise<void>): Promise<void>;
 }
