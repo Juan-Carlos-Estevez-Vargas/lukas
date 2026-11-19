@@ -158,6 +158,9 @@ importers:
       '@lukas/config':
         specifier: workspace:*
         version: link:../config
+      '@neondatabase/serverless':
+        specifier: 1.2.0
+        version: 1.2.0
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5

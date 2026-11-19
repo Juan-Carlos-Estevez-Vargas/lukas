@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "node src/migrate.ts"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4"
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.9",
     "@lukas/config": "workspace:*",
+    "@neondatabase/serverless": "1.2.0",
     "@types/node": "26.6.5",
     "@vitest/coverage-v8": "5.0.4",
     "drizzle-kit": "0.31.11",
