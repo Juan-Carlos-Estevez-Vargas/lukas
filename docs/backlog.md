@@ -156,10 +156,10 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-101 · SQLite cifrado en el dispositivo
 
 - Tipo: `feat` · Tamaño: M
-- [ ] op-sqlite con SQLCipher
-- [ ] Clave en Keystore / Keychain
-- [ ] Migraciones locales versionadas
-- [ ] Build de desarrollo Android
+- [x] SQLCipher con expo-sqlite (oficial de Expo; reemplaza a op-sqlite)
+- [x] Clave en Keystore / Keychain
+- [x] Migraciones locales versionadas
+- [x] Build de desarrollo Android
 
 **Hecho cuando:** El archivo de base local no se puede abrir sin la clave.
 

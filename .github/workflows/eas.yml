@@ -2,7 +2,8 @@ name: EAS
 
 # Compila el APK firmado de Android con EAS Build.
 #   - En PRs que tocan la app: solo revisa que el proyecto de Expo esté vinculado (sin gastar builds).
-#   - A mano (Actions → EAS → Run workflow): compila el APK y deja el enlace en el resumen.
+#   - A mano (Actions → EAS → Run workflow): compila el APK (production o development) y deja el
+#     enlace en el resumen.
 #   - Desde release.yml: compila el APK de la versión publicada y lo sube a su GitHub Release.
 #
 # eas-cli se ejecuta con `pnpm dlx` y versión fija en vez de ir en el lockfile: fija dependencias
@@ -15,6 +16,12 @@ on:
       - "apps/mobile/**"
       - ".github/workflows/eas.yml"
   workflow_dispatch:
+    inputs:
+      profile:
+        description: Perfil de eas.json (development es el build de desarrollo con expo-dev-client)
+        type: choice
+        options: [production, development]
+        default: production
   workflow_call:
     inputs:
       release_tag:
@@ -88,10 +95,11 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           LABEL: ${{ inputs.release_tag || github.ref_name }}
+          PROFILE: ${{ inputs.profile || 'production' }}
         run: |
           if [ -z "$EXPO_TOKEN" ]; then echo "::error::Falta EXPO_TOKEN"; exit 1; fi
-          $EAS build --platform android --profile production --non-interactive --wait --json \
-            --message "${GITHUB_SHA::7} $LABEL" > "$RUNNER_TEMP/build.json"
+          $EAS build --platform android --profile "$PROFILE" --non-interactive --wait --json \
+            --message "${GITHUB_SHA::7} $LABEL ($PROFILE)" > "$RUNNER_TEMP/build.json"
           jq '.[0] | {id, status, appVersion, appBuildVersion}' "$RUNNER_TEMP/build.json"
           url=$(jq -r '.[0].artifacts.applicationArchiveUrl // .[0].artifacts.buildUrl // empty' "$RUNNER_TEMP/build.json")
           if [ -z "$url" ]; then echo "::error::EAS no devolvió el APK"; exit 1; fi
