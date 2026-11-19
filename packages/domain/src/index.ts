@@ -65,6 +65,17 @@ export type {
   UnitOfWork,
 } from "./ledger/ports";
 export {
+  addDays,
+  FREQUENCIES,
+  type Frequency,
+  isValidCivil,
+  nextOccurrence,
+  nthOccurrence,
+  occurrencesBetween,
+  type Recurrence,
+  validateRecurrence,
+} from "./ledger/recurrence";
+export {
   accountIdOf,
   checkBalanced,
   type Entry,
