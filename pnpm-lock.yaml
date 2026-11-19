@@ -97,6 +97,9 @@ importers:
       '@lukas/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@lukas/sync':
+        specifier: workspace:*
+        version: link:../../packages/sync
       '@lukas/ui':
         specifier: workspace:*
         version: link:../../packages/ui

@@ -342,4 +342,10 @@ export const en: Messages = {
   "widget.hint": "Tap to open",
   "widget.hidden": "Open Lukas to see it",
   "widget.quick": "+ Expense",
+  "sync.now": "Sync now",
+  "sync.running": "Syncing…",
+  "sync.never": "Not synced with your account yet.",
+  "sync.done": "Synced: {when}.",
+  "sync.donePending": "Synced: {when}. {pending} pending.",
+  "sync.failed": "Can't reach Lukas. {pending} changes are waiting on this phone.",
 };

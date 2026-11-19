@@ -11,6 +11,7 @@ import { LockGate } from "../src/lock/lock-screen";
 import { OnboardingProvider } from "../src/onboarding/use-onboarding";
 import { RecurringProvider } from "../src/recurring/use-recurring";
 import { CardRemindersProvider } from "../src/reminders/use-card-reminders";
+import { SyncProvider } from "../src/sync/use-sync";
 import { ThemeProvider } from "../src/theme/theme";
 
 export default function RootLayout() {
@@ -25,11 +26,13 @@ export default function RootLayout() {
                   <CardRemindersProvider>
                     <BudgetAlertsProvider>
                       <RecurringProvider>
-                        <AppLockProvider>
-                          <StatusBar style="auto" />
-                          <Stack screenOptions={{ headerShown: false }} />
-                          <LockGate />
-                        </AppLockProvider>
+                        <SyncProvider>
+                          <AppLockProvider>
+                            <StatusBar style="auto" />
+                            <Stack screenOptions={{ headerShown: false }} />
+                            <LockGate />
+                          </AppLockProvider>
+                        </SyncProvider>
                       </RecurringProvider>
                     </BudgetAlertsProvider>
                   </CardRemindersProvider>

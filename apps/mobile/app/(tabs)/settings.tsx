@@ -12,10 +12,14 @@ import { lockStore } from "../../src/lock/lock-store";
 import { PinSetup } from "../../src/lock/pin-setup";
 import { removeSampleData } from "../../src/onboarding/onboarding";
 import { useCardReminders } from "../../src/reminders/use-card-reminders";
+import { syncLine as describeSync } from "../../src/sync/text";
+import { useSync } from "../../src/sync/use-sync";
 
 export default function Settings() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { signOut } = useSession();
+  const sync = useSync();
+  const syncLine = describeSync(t, locale, sync);
   const { discreet, setDiscreet } = useDiscreet();
   const lock = useAppLock();
   const database = useLocalDatabase();
@@ -61,6 +65,12 @@ export default function Settings() {
           </>
         ) : null}
 
+        {database.status === "ready" ? (
+          <>
+            <Body muted>{syncLine}</Body>
+            <Button label={t("sync.now")} variant="plain" busy={sync.syncing} onPress={sync.sync} />
+          </>
+        ) : null}
         {database.status === "ready" ? (
           <Button
             label={t("backup.manage")}

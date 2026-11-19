@@ -273,6 +273,86 @@ CREATE TABLE exchange_rates (
 ) STRICT, WITHOUT ROWID;
 `;
 
+/**
+ * Sincronización (FIN-202). Triggers anotan en `sync_outbox` cada cambio a cuentas, categorías y
+ * transacciones (también los de sus asientos), venga de la pantalla que venga. Al sincronizar se
+ * agrupa por registro y se sube su estado actual. Mientras se aplican cambios del servidor
+ * (`sync_state.applying = 1`) los triggers no anotan nada, para no devolverlos.
+ */
+const v12 = `
+CREATE TABLE sync_state (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  applying INTEGER NOT NULL DEFAULT 0 CHECK (applying IN (0, 1)),
+  cursor TEXT NOT NULL DEFAULT '0',
+  last_synced_at TEXT,
+  last_error TEXT
+) STRICT;
+INSERT INTO sync_state (id) VALUES (1);
+
+CREATE TABLE sync_outbox (
+  seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  entity TEXT NOT NULL CHECK (entity IN ('accounts', 'categories', 'transactions')),
+  entity_id TEXT NOT NULL,
+  queued_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+) STRICT;
+CREATE INDEX sync_outbox_entity_idx ON sync_outbox (entity, entity_id);
+
+-- Versión del servidor que conoce el teléfono para cada registro.
+CREATE TABLE sync_versions (
+  entity TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  PRIMARY KEY (entity, entity_id)
+) STRICT, WITHOUT ROWID;
+
+CREATE TRIGGER accounts_sync_ins AFTER INSERT ON accounts
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('accounts', NEW.id); END;
+CREATE TRIGGER accounts_sync_upd AFTER UPDATE ON accounts
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('accounts', NEW.id); END;
+CREATE TRIGGER accounts_sync_del AFTER DELETE ON accounts
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('accounts', OLD.id); END;
+
+CREATE TRIGGER categories_sync_ins AFTER INSERT ON categories
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('categories', NEW.id); END;
+CREATE TRIGGER categories_sync_upd AFTER UPDATE ON categories
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('categories', NEW.id); END;
+CREATE TRIGGER categories_sync_del AFTER DELETE ON categories
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('categories', OLD.id); END;
+
+CREATE TRIGGER transactions_sync_ins AFTER INSERT ON transactions
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('transactions', NEW.id); END;
+CREATE TRIGGER transactions_sync_upd AFTER UPDATE ON transactions
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('transactions', NEW.id); END;
+CREATE TRIGGER transactions_sync_del AFTER DELETE ON transactions
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('transactions', OLD.id); END;
+
+CREATE TRIGGER entries_sync_ins AFTER INSERT ON entries
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('transactions', NEW.transaction_id); END;
+CREATE TRIGGER entries_sync_upd AFTER UPDATE ON entries
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('transactions', NEW.transaction_id); END;
+CREATE TRIGGER entries_sync_del AFTER DELETE ON entries
+WHEN (SELECT applying FROM sync_state) = 0
+BEGIN INSERT INTO sync_outbox (entity, entity_id) VALUES ('transactions', OLD.transaction_id); END;
+
+-- Lo que ya existe se sube en la primera sincronización (padres antes que hijas).
+INSERT INTO sync_outbox (entity, entity_id) SELECT 'accounts', id FROM accounts ORDER BY created_at;
+INSERT INTO sync_outbox (entity, entity_id)
+  SELECT 'categories', id FROM categories ORDER BY parent_id IS NOT NULL, created_at;
+INSERT INTO sync_outbox (entity, entity_id)
+  SELECT 'transactions', id FROM transactions ORDER BY created_at;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -285,4 +365,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 9, name: "presupuestos", sql: v9 },
   { version: 10, name: "metas de ahorro", sql: v10 },
   { version: 11, name: "tasas de cambio", sql: v11 },
+  { version: 12, name: "sincronización", sql: v12 },
 ];
