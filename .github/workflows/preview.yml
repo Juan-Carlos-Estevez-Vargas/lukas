@@ -110,11 +110,20 @@ jobs:
             echo "DATABASE_URL=$DATABASE_URL"
             echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)"
           } > "$secrets"
-          pnpm exec wrangler deploy --env preview --name "$WORKER" \
-            --var "AUTH_URL:https://$HOST" \
-            --var "PASSKEY_RP_ID:$HOST" \
-            --var "APP_VERSION:pr-$PR-${GITHUB_SHA::7}" \
-            --secrets-file "$secrets"
+          # Al crear un Worker nuevo, la API de Cloudflare a veces aún no lo ve en el paso siguiente
+          # al upload (código 10007). Reintentar el deploy completo es idempotente y lo resuelve.
+          for attempt in 1 2 3; do
+            if pnpm exec wrangler deploy --env preview --name "$WORKER" \
+              --var "AUTH_URL:https://$HOST" \
+              --var "PASSKEY_RP_ID:$HOST" \
+              --var "APP_VERSION:pr-$PR-${GITHUB_SHA::7}" \
+              --secrets-file "$secrets"; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then rm -f "$secrets"; exit 1; fi
+            echo "::warning::Deploy falló (intento $attempt); reintento en 10 s"
+            sleep 10
+          done
           rm -f "$secrets"
           echo "url=https://$HOST" >> "$GITHUB_OUTPUT"
 
