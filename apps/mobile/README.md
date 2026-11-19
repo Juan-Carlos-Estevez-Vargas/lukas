@@ -81,6 +81,15 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 - Recordatorio: notificación local 3 días antes y el día límite, a las 9 a. m., sin montos en el
   texto. Está apagado por defecto y se recalcula al abrir la app y al cambiar una tarjeta.
 
+## Registro rápido
+
+- Botón `+` en Resumen y Movimientos abre `app/movement/new.tsx`. Cuenta (la última usada) y fecha
+  (hoy) ya vienen puestas: monto, categoría y Guardar.
+- Teclado propio en pesos enteros (`src/movements/keypad.ts`); los centavos no se usan en COP.
+- La migración 3 crea categorías por defecto con ids `default.*`.
+- Categoría sugerida: la que más ha usado la persona con ese comercio; si es nuevo, reglas de
+  comercios colombianos conocidos (`src/movements/merchant-rules.ts`).
+
 ## Primer uso y bloqueo
 
 - Onboarding de 3 pasos (`app/(onboarding)`): bienvenida, primera cuenta con saldo inicial y

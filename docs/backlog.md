@@ -206,10 +206,10 @@ La app sirve para llevar las finanzas del día a día, sin internet.
 #### FIN-106 · Registro rápido de gastos e ingresos
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Botón flotante y teclado numérico propio
-- [ ] Autocompletar por comercio
-- [ ] Categoría sugerida
-- [ ] Fecha, nota y cuenta
+- [x] Botón flotante y teclado numérico propio
+- [x] Autocompletar por comercio
+- [x] Categoría sugerida
+- [x] Fecha, nota y cuenta
 
 **Hecho cuando:** Registrar un gasto toma menos de 5 segundos.
 
