@@ -531,9 +531,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-401 · Módulo Billing y entitlements
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Planes y entitlements
-- [ ] Saga de suscripción
-- [ ] Feature gates en app y API
+- [x] Planes y entitlements
+- [x] Saga de suscripción
+- [x] Feature gates en app y API
 
 **Hecho cuando:** Activar premium en la base habilita funciones en todas las plataformas.
 
