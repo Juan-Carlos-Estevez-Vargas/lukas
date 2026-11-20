@@ -54,7 +54,8 @@ const optStr = (v: unknown, max: number): string | null | undefined =>
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const DECIMAL = /^-?\d{1,15}(\.\d{1,4})?$/;
 
-const money = (v: unknown): WireMoney | null => {
+/** Valida un monto recibido de la API. */
+export const toWireMoney = (v: unknown): WireMoney | null => {
   if (!isObj(v)) return null;
   const amount = str(v.amount, 24);
   const currency = str(v.currency, 3);
@@ -71,7 +72,7 @@ export function toProposal(output: unknown): Proposal | null {
   const p = output.payload;
   switch (output.type) {
     case "movement": {
-      const amount = money(p.amount);
+      const amount = toWireMoney(p.amount);
       const accountId = str(p.accountId, 64);
       const categoryId = str(p.categoryId, 64);
       const date = str(p.date, 10);
@@ -95,7 +96,7 @@ export function toProposal(output: unknown): Proposal | null {
         : null;
     }
     case "budget": {
-      const amount = money(p.amount);
+      const amount = toWireMoney(p.amount);
       const categoryId = p.categoryId === null ? null : str(p.categoryId, 64);
       if (!amount || categoryId === undefined) return null;
       if (p.categoryId !== null && categoryId === null) return null;
