@@ -45,6 +45,7 @@ export default defineConfig({
         "src/lock/lock-store*.ts",
         "src/import/files*.ts",
         "src/export/files*.ts",
+        "src/capture/reader.ts",
         "src/reminders/notifications*.ts",
         "src/receipts/receipt-store*.ts",
         "src/receipts/pick*.ts",
