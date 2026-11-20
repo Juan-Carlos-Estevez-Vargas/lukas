@@ -516,9 +516,9 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-310 · Búsqueda semántica
 
 - Tipo: `feat` · Tamaño: M
-- [ ] pgvector y embeddings
-- [ ] Búsqueda por significado
-- [ ] Pruebas de prompt injection
+- [x] pgvector y embeddings
+- [x] Búsqueda por significado
+- [x] Pruebas de prompt injection
 
 **Hecho cuando:** Buscar 'salidas a comer' encuentra restaurantes y domicilios.
 
