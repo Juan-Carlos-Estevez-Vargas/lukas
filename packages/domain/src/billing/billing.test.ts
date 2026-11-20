@@ -1,12 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { entitlementsOf, FEATURES, hasFeature, isFeature, isPlan, PLANS } from "./plans";
+import {
+  entitlementsOf,
+  FEATURES,
+  hasFeature,
+  isFeature,
+  isPlan,
+  PLANS,
+  PRICES,
+  TRIAL_DAYS,
+} from "./plans";
 import {
   applyBillingEvent,
   type BillingEvent,
+  canStartTrial,
   currentEntitlements,
   GRACE_DAYS,
   isEntitled,
+  normalizeCouponCode,
   type Subscription,
+  trialEndsAt,
 } from "./subscription";
 
 const at = (iso: string) => new Date(iso);
@@ -133,5 +145,47 @@ describe("saga de la suscripción", () => {
     expect(currentEntitlements(undefined, at("2026-11-01T00:00:00Z"))).toEqual(
       entitlementsOf("free"),
     );
+  });
+});
+
+describe("prueba gratis, cupones y precios", () => {
+  it("la prueba dura 14 días y vence sola", () => {
+    const start = at("2026-11-20T12:00:00Z");
+    const endsAt = trialEndsAt(start);
+    expect(endsAt).toEqual(at("2026-12-04T12:00:00Z"));
+    const trial = changed(undefined, { type: "trial_started", at: start, endsAt });
+    expect(currentEntitlements(trial, at("2026-12-04T11:59:59Z")).plan).toBe("premium");
+    expect(currentEntitlements(trial, at("2026-12-04T12:00:00Z")).plan).toBe("free");
+    expect(canStartTrial(undefined)).toBe(true);
+    expect(canStartTrial(trial)).toBe(false);
+  });
+
+  it("los días regalados se suman a lo vigente o empiezan hoy", () => {
+    const extra = changed(paid, { type: "granted", at: at("2026-11-10T00:00:00Z"), days: 30 });
+    expect(extra.periodEnd).toEqual(at("2026-12-31T00:00:00Z"));
+    expect(extra.status).toBe("active");
+    const fresh = changed(undefined, { type: "granted", at: at("2026-11-10T00:00:00Z"), days: 7 });
+    expect(fresh.periodEnd).toEqual(at("2026-11-17T00:00:00Z"));
+    const lapsed = changed(paid, { type: "granted", at: at("2027-01-01T00:00:00Z"), days: 1 });
+    expect(lapsed.periodEnd).toEqual(at("2027-01-02T00:00:00Z"));
+    for (const days of [0, 1.5, 367]) {
+      expect(run(paid, { type: "granted", at: at("2026-11-10T00:00:00Z"), days }).ok).toBe(false);
+    }
+  });
+
+  it("normaliza códigos de cupón y rechaza lo que no lo es", () => {
+    expect(normalizeCouponCode("  beta-2026 ")).toBe("BETA-2026");
+    expect(normalizeCouponCode("ami gos")).toBe("AMIGOS");
+    for (const bad of ["", "ab", "-ABC", "ABC-", "CUPÓN", "X".repeat(33)]) {
+      expect(normalizeCouponCode(bad)).toBeNull();
+    }
+  });
+
+  it("los precios están en pesos enteros y el anual es más barato que doce meses", () => {
+    const month = PRICES.find((p) => p.period === "month");
+    const year = PRICES.find((p) => p.period === "year");
+    expect(month?.amount.currencyCode).toBe("COP");
+    expect(month && year && year.amount.amountMinor < month.amount.amountMinor * 12n).toBe(true);
+    expect(TRIAL_DAYS).toBe(14);
   });
 });

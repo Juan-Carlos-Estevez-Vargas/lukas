@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, index, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { check, index, integer, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { app, userId } from "./common";
 
 export const plan = app.enum("plan", ["free", "premium"]);
@@ -15,6 +15,7 @@ export const billingProvider = app.enum("billing_provider", [
   "revenuecat",
   "manual",
   "trial",
+  "coupon",
 ]);
 
 /**
@@ -58,4 +59,41 @@ export const billingEvents = app.table(
     index("billing_events_user_idx").on(t.userId, t.receivedAt),
     check("billing_events_id_shape", sql`length(${t.eventId}) BETWEEN 1 AND 200`),
   ],
+);
+
+/**
+ * Cupones de días de premium (FIN-404). Los crea soporte en la base; la app solo manda el código
+ * y el servidor lo canjea. Un cupón sirve una vez por persona y, si tiene tope, hasta `max_redemptions`.
+ */
+export const coupons = app.table(
+  "coupons",
+  {
+    code: text("code").primaryKey(),
+    days: integer("days").notNull(),
+    maxRedemptions: integer("max_redemptions"),
+    redemptions: integer("redemptions").notNull().default(0),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check("coupons_code_shape", sql`${t.code} ~ '^[A-Z0-9][A-Z0-9-]{2,30}[A-Z0-9]$'`),
+    check("coupons_days", sql`${t.days} BETWEEN 1 AND 366`),
+    check(
+      "coupons_redemptions",
+      sql`${t.redemptions} >= 0 AND (${t.maxRedemptions} IS NULL OR ${t.redemptions} <= ${t.maxRedemptions})`,
+    ),
+  ],
+);
+
+/** Quién canjeó cada cupón: evita que la misma persona lo use dos veces. */
+export const couponRedemptions = app.table(
+  "coupon_redemptions",
+  {
+    code: text("code")
+      .notNull()
+      .references(() => coupons.code, { onDelete: "cascade" }),
+    userId: userId(),
+    redeemedAt: timestamp("redeemed_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.code, t.userId] })],
 );

@@ -1,4 +1,6 @@
 export {
+  BILLING_PERIODS,
+  type BillingPeriod,
   type Entitlements,
   entitlementsOf,
   FEATURES,
@@ -8,20 +10,26 @@ export {
   isPlan,
   PLANS,
   type Plan,
+  PRICES,
+  type Price,
+  TRIAL_DAYS,
 } from "./billing/plans";
 export {
   applyBillingEvent,
   BILLING_PROVIDERS,
   type BillingEvent,
   type BillingProvider,
+  canStartTrial,
   currentEntitlements,
   GRACE_DAYS,
   isEntitled,
+  normalizeCouponCode,
   SUBSCRIPTION_STATUSES,
   type Subscription,
   type SubscriptionCommand,
   type SubscriptionStatus,
   type Transition,
+  trialEndsAt,
 } from "./billing/subscription";
 export {
   CURRENCIES,

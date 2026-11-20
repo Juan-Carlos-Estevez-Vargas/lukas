@@ -1,9 +1,9 @@
 import { DomainError } from "../errors";
 import { err, ok, type Result } from "../result";
-import { type Entitlements, entitlementsOf, type Plan } from "./plans";
+import { type Entitlements, entitlementsOf, type Plan, TRIAL_DAYS } from "./plans";
 
 /** Quién cobra. `manual` es para soporte y pruebas: activar premium a mano en la base. */
-export const BILLING_PROVIDERS = ["wompi", "revenuecat", "manual", "trial"] as const;
+export const BILLING_PROVIDERS = ["wompi", "revenuecat", "manual", "trial", "coupon"] as const;
 export type BillingProvider = (typeof BILLING_PROVIDERS)[number];
 
 export const SUBSCRIPTION_STATUSES = [
@@ -37,6 +37,8 @@ export interface Subscription {
 export type BillingEvent =
   | { readonly type: "trial_started"; readonly at: Date; readonly endsAt: Date }
   | { readonly type: "payment_succeeded"; readonly at: Date; readonly periodEnd: Date }
+  /** Días de premium regalados (cupón o soporte): se suman a lo que ya tenga vigente. */
+  | { readonly type: "granted"; readonly at: Date; readonly days: number }
   | { readonly type: "payment_failed"; readonly at: Date }
   | { readonly type: "renewal_canceled"; readonly at: Date }
   | { readonly type: "expired"; readonly at: Date }
@@ -65,6 +67,7 @@ const invalid = (message: string) => err(new DomainError("billing_invalid_event"
  * | ----------------- | ----------------------------------------------------- |
  * | trial_started     | trialing hasta `endsAt` (solo si nunca hubo suscripción) |
  * | payment_succeeded | active hasta `periodEnd`                              |
+ * | granted           | active `days` días más, desde el fin vigente o desde ya |
  * | payment_failed    | past_due; premium sigue `GRACE_DAYS` días             |
  * | renewal_canceled  | canceled; premium sigue hasta el fin del periodo      |
  * | expired, refunded | expired desde ya                                      |
@@ -97,6 +100,13 @@ export function applyBillingEvent(
       if (event.periodEnd.getTime() <= event.at.getTime())
         return invalid("El periodo pagado debe terminar después del pago");
       return ok(next("active", event.periodEnd));
+    case "granted": {
+      if (!Number.isInteger(event.days) || event.days < 1 || event.days > 366)
+        return invalid("Los días regalados van de 1 a 366");
+      const from =
+        current && isEntitled(current, event.at) ? current.periodEnd.getTime() : event.at.getTime();
+      return ok(next("active", new Date(from + event.days * DAY_MS)));
+    }
     case "payment_failed":
       if (!current) return invalid("No hay suscripción para marcar en mora");
       return ok(next("past_due", new Date(event.at.getTime() + GRACE_DAYS * DAY_MS)));
@@ -124,3 +134,18 @@ export const currentEntitlements = (
   subscription && isEntitled(subscription, now)
     ? entitlementsOf(subscription.plan)
     : entitlementsOf("free");
+
+/** Fin de la prueba gratis si empieza en `now`. */
+export const trialEndsAt = (now: Date): Date => new Date(now.getTime() + TRIAL_DAYS * DAY_MS);
+
+/** La prueba es solo para quien nunca tuvo suscripción (ni prueba, ni pago, ni cupón). */
+export const canStartTrial = (subscription: Subscription | undefined): boolean =>
+  subscription === undefined;
+
+const COUPON = /^[A-Z0-9][A-Z0-9-]{2,30}[A-Z0-9]$/;
+
+/** Código de cupón en mayúsculas y sin espacios; `null` si no tiene la forma de un cupón. */
+export function normalizeCouponCode(raw: string): string | null {
+  const code = raw.trim().toUpperCase().replace(/\s+/g, "");
+  return COUPON.test(code) ? code : null;
+}
