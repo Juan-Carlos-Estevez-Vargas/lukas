@@ -342,6 +342,12 @@ export const es = {
   "widget.hint": "Toca para abrir",
   "widget.hidden": "Abre Lukas para verlo",
   "widget.quick": "+ Gasto",
+  "sync.now": "Sincronizar ahora",
+  "sync.running": "Sincronizando…",
+  "sync.never": "Aún no se ha sincronizado con tu cuenta.",
+  "sync.done": "Sincronizado: {when}.",
+  "sync.donePending": "Sincronizado: {when}. {pending} pendientes.",
+  "sync.failed": "Sin conexión con Lukas. {pending} cambios esperan en el teléfono.",
 } as const;
 
 export type MessageKey = keyof typeof es;

@@ -29,6 +29,7 @@ import { ratesClient } from "../../src/rates/client";
 import { copRates, refreshRates, type StoredRate } from "../../src/rates/rates";
 import { parseCivil } from "../../src/recurring/recurring";
 import { useRecurring } from "../../src/recurring/use-recurring";
+import { useSync } from "../../src/sync/use-sync";
 import { updateWidgets } from "../../src/widgets/bridge";
 import { availableSnapshot } from "../../src/widgets/snapshot";
 
@@ -49,6 +50,7 @@ export default function Summary() {
   const [worth, setWorth] = useState<NetWorth | null>(null);
   const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
+  const { version: synced } = useSync();
   const lock = useAppLock();
   // Los widgets se ven sin desbloquear: con PIN o modo discreto no muestran el monto.
   const hiddenOnWidget = discreet || lock.status !== "off";
@@ -66,8 +68,8 @@ export default function Summary() {
 
   useFocusEffect(
     useCallback(() => {
-      // `version` cambia cuando se registran recurrentes con la pantalla abierta.
-      if (database.status !== "ready" || version < 0) return;
+      // `version` y `synced` cambian si llegan recurrentes o datos de otro dispositivo.
+      if (database.status !== "ready" || version < 0 || synced < 0) return;
       const repo = sqliteAccounts(database.db);
       const today = civilDate(new Date());
       let active = true;
@@ -105,7 +107,7 @@ export default function Summary() {
       return () => {
         active = false;
       };
-    }, [database, showArchived, version]),
+    }, [database, showArchived, version, synced]),
   );
 
   if (database.status === "error") {

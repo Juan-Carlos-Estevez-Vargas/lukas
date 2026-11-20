@@ -206,6 +206,20 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 Las pruebas corren la lógica sobre `node:sqlite`. Que el archivo no se abra sin la clave lo
 garantiza SQLCipher y se comprueba en el dispositivo.
 
+## Sincronización
+
+- Local-first: todo se guarda en SQLite y la sincronización es un extra. Triggers (migración 12)
+  anotan en `sync_outbox` cada cambio a cuentas, categorías y transacciones, venga de la pantalla
+  que venga (también recurrentes, onboarding o restaurar una copia).
+- `src/sync/sync.ts` sube la cola agrupada por registro (`POST /v1/sync/push`, protocolo en
+  `@lukas/sync`) y baja lo nuevo desde un cursor (`GET /v1/sync/pull`). Corre al abrir la app, al
+  volver a ella y con "Sincronizar ahora" en Ajustes. Sin red, la cola espera.
+- El `opId` sale del registro y del último cambio anotado: un reintento tras un corte manda el
+  mismo id y el servidor no duplica. Cada registro guarda la versión del servidor que conoce.
+- Las categorías por defecto (`default.*`) viajan con un UUID derivado del usuario; al bajar
+  vuelven a su id local. Presupuestos, metas, recurrentes, etiquetas y recibos aún no se suben.
+- Conflictos: por ahora gana el servidor (FIN-203 resolverá campo por campo).
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto y

@@ -25,6 +25,7 @@ export default defineConfig({
         "src/rates/**/*.ts",
         "src/backup/**/*.ts",
         "src/widgets/**/*.ts",
+        "src/sync/**/*.ts",
         "app.config.ts",
         "e2e/perf.ts",
       ],
