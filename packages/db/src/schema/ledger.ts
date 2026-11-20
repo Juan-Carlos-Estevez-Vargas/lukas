@@ -12,6 +12,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { app, currency, id, timestamps, userId } from "./common";
+import { householdId } from "./households";
 
 export const accountType = app.enum("account_type", [
   "cash",
@@ -30,6 +31,7 @@ export const accounts = app.table(
   {
     id: id(),
     userId: userId(),
+    householdId: householdId(),
     name: text("name").notNull(),
     type: accountType("type").notNull(),
     currency: currency(),
@@ -61,6 +63,7 @@ export const categories = app.table(
   {
     id: id(),
     userId: userId(),
+    householdId: householdId(),
     parentId: uuid("parent_id").references((): AnyPgColumn => categories.id, {
       onDelete: "restrict",
     }),
@@ -96,6 +99,7 @@ export const transactions = app.table(
   {
     id: id(),
     userId: userId(),
+    householdId: householdId(),
     occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
     description: text("description").notNull().default(""),
     merchant: text("merchant"),

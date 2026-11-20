@@ -330,9 +330,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-201 · Esquema servidor con RLS
 
 - Tipo: `security` · Tamaño: M
-- [ ] Políticas RLS por usuario y hogar
-- [ ] Tests de aislamiento entre usuarios
-- [ ] Auditoría de accesos
+- [x] Políticas RLS por usuario y hogar
+- [x] Tests de aislamiento entre usuarios
+- [x] Auditoría de accesos
 
 **Hecho cuando:** Ningún test logra leer datos de otro usuario.
 
