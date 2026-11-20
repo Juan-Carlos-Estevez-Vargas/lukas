@@ -1,5 +1,19 @@
 # @lukas/domain
 
+## 0.3.0
+
+### Minor Changes
+
+- aac5ebf: Planes y entitlements: plan gratis y premium, una saga de suscripción que aplica cada evento de pago una sola vez y `GET /v1/billing/entitlements`. Leer recibos y buscar por significado pasan a ser premium, y premium tiene más cuota diaria del asistente. Activar premium en la base lo habilita en la API, el teléfono y la web.
+- 3706acb: Subcategorías con ícono, reglas por comercio o palabra clave y aprendizaje al corregir una categoría.
+- a24c811: Comentarios de la beta: en Ajustes → Enviar comentarios se puede reportar una falla, proponer una idea o escribir otra cosa. Los números de tarjeta se tapan antes de enviar y antes de guardar.
+- 03d2585: Política de tratamiento de datos y términos y condiciones dentro de la app. Al registrarse se pide la autorización (Ley 1581) y queda registrada con la versión aceptada; si un documento cambia, se pide de nuevo.
+- 416fae6: Metas de ahorro con fecha, progreso y cuánto apartar por mes.
+- 4510aa5: Multimoneda con TRM: cron diario desde datos abiertos, endpoint público y cuentas en USD que suman al patrimonio en pesos.
+- 38d7976: Pantalla de planes con precios en pesos, prueba gratis de premium por 14 días (vence sola, una vez por persona) y cupones de días de premium que se suman a lo vigente.
+- 3ba18b3: Presupuestos por categoría y periodo, sobres, regla 50/30/20 y avisos al 80 % y 100 %.
+- dc44ef2: Movimientos recurrentes que se registran solos al vencer o avisan para confirmarlos.
+
 ## 0.2.0
 
 ### Minor Changes
