@@ -21,6 +21,9 @@ export const en: Messages = {
   "summary.empty": "No transactions yet. Your balance and monthly spending will show up here.",
   "transactions.empty": "Your income and expenses will show up here.",
   "budgets.empty": "Create your first budget to keep your spending in check.",
+  "security.screenshots": "Allow screenshots",
+  "security.rooted":
+    "Your phone is rooted. Other apps could read your Lukas data: don't keep anything here you wouldn't want exposed.",
   "settings.signOut": "Sign out",
   "settings.version": "Version {version}",
   "onboarding.step": "Step {step} of 3",
