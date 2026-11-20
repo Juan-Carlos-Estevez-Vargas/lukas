@@ -1,0 +1,26 @@
+# Asistente: arranca apagado, se activa tras leer qué datos usa y lo que propone solo se guarda al
+# tocar "Aceptar". En el build de e2e responde un cliente falso con una propuesta de presupuesto.
+appId: co.lukas.app
+name: Asistente
+---
+- runFlow: subflows/primer-uso.yaml
+- openLink: "lukas://assistant"
+- extendedWaitUntil:
+    visible: "Activar el asistente"
+    timeout: 10000
+- tapOn: "Activar el asistente"
+- tapOn: "Escribe aquí"
+- inputText: "Como voy este mes"
+- hideKeyboard
+- tapOn: "Enviar"
+- extendedWaitUntil:
+    visible: "Propuesta de presupuesto"
+    timeout: 10000
+- tapOn: "Aceptar"
+- extendedWaitUntil:
+    visible: "✓ Guardado"
+    timeout: 10000
+- openLink: "lukas://budgets"
+- extendedWaitUntil:
+    visible: "Todos los gastos.*"
+    timeout: 10000
