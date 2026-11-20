@@ -420,6 +420,24 @@ export const es = {
   "export.summary": "Resumen",
   "export.empty": "Sin movimientos este mes.",
   "export.page": "Página {n} de {total}",
+  "capture.manage": "Leer avisos del banco",
+  "capture.title": "Leer avisos del banco",
+  "capture.intro":
+    'Lukas puede leer las notificaciones de las apps de tu banco para que tus compras y pagos lleguen solos a "Por revisar".',
+  "capture.point.apps":
+    "Solo lee las apps que actives aquí. Las demás notificaciones las descarta sin mirarlas.",
+  "capture.point.device":
+    "Todo pasa en tu teléfono: el texto del aviso no se guarda ni se envía a ningún lado. Solo queda el monto, el comercio, la hora y los últimos 4 dígitos.",
+  "capture.point.review": "Nada se registra solo: cada aviso espera a que lo revises y lo aceptes.",
+  "capture.point.revoke": "Puedes quitar el permiso cuando quieras en los ajustes de Android.",
+  "capture.access.on": "Permiso activo: Lukas puede leer los avisos de las apps que elijas.",
+  "capture.access.off":
+    'Falta el permiso. Android te pedirá activar a Lukas en "Acceso a notificaciones".',
+  "capture.access.grant": "Dar permiso en Android",
+  "capture.access.manage": "Abrir ajustes de Android",
+  "capture.apps": "Apps que Lukas puede leer",
+  "capture.unsupported":
+    "Esto solo funciona en Android. En iPhone y en la web puedes importar el extracto de tu banco.",
   "inbox.title": "Por revisar",
   "inbox.intro": "Movimientos que llegaron solos. Revisa cuenta y monto antes de aceptarlos.",
   "inbox.empty": "No hay nada por revisar.",

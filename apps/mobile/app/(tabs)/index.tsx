@@ -5,6 +5,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import { civilDate } from "../../src/accounts/credit-card";
 import { groupAccounts } from "../../src/accounts/templates";
 import { pendingCount } from "../../src/capture/ingest";
+import { useCaptureVersion } from "../../src/capture/use-capture";
 import { Fab } from "../../src/components/quick";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
@@ -61,6 +62,7 @@ export default function Summary() {
   const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
   const { version: synced } = useSync();
+  const captured = useCaptureVersion();
   const lock = useAppLock();
   // Los widgets se ven sin desbloquear: con PIN o modo discreto no muestran el monto.
   const hiddenOnWidget = discreet || lock.status !== "off";
@@ -78,8 +80,9 @@ export default function Summary() {
 
   useFocusEffect(
     useCallback(() => {
-      // `version` y `synced` cambian si llegan recurrentes o datos de otro dispositivo.
-      if (database.status !== "ready" || version < 0 || synced < 0) return;
+      // `version`, `synced` y `captured` cambian si llegan recurrentes, datos de otro dispositivo o
+      // avisos del banco.
+      if (database.status !== "ready" || version < 0 || synced < 0 || captured < 0) return;
       const repo = sqliteAccounts(database.db);
       const today = civilDate(new Date());
       let active = true;
@@ -121,7 +124,7 @@ export default function Summary() {
       return () => {
         active = false;
       };
-    }, [database, showArchived, version, synced]),
+    }, [database, showArchived, version, synced, captured]),
   );
 
   if (database.status === "error") {

@@ -420,6 +420,25 @@ export const en: Messages = {
   "export.summary": "Summary",
   "export.empty": "No transactions this month.",
   "export.page": "Page {n} of {total}",
+  "capture.manage": "Read bank alerts",
+  "capture.title": "Read bank alerts",
+  "capture.intro":
+    'Lukas can read notifications from your bank apps so your purchases and payments land in "To review" on their own.',
+  "capture.point.apps":
+    "It only reads the apps you turn on here. Other notifications are dropped unread.",
+  "capture.point.device":
+    "Everything happens on your phone: the alert text is never stored or sent anywhere. Only the amount, merchant, time and last 4 digits are kept.",
+  "capture.point.review":
+    "Nothing is recorded on its own: each alert waits for you to review and accept it.",
+  "capture.point.revoke": "You can revoke access anytime in Android settings.",
+  "capture.access.on": "Access granted: Lukas can read alerts from the apps you choose.",
+  "capture.access.off":
+    'Access missing. Android will ask you to enable Lukas under "Notification access".',
+  "capture.access.grant": "Grant access in Android",
+  "capture.access.manage": "Open Android settings",
+  "capture.apps": "Apps Lukas can read",
+  "capture.unsupported":
+    "This only works on Android. On iPhone and the web you can import your bank statement.",
   "inbox.title": "To review",
   "inbox.intro":
     "Transactions that came in on their own. Check the account and amount before accepting them.",

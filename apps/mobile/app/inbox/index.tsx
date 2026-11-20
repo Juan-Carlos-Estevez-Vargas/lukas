@@ -1,7 +1,8 @@
 import type { Account } from "@lukas/domain";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { ingestNotifications } from "../../src/capture/from-notifications";
 import {
   acceptCapture,
   dismissCapture,
@@ -10,6 +11,8 @@ import {
   ingestCapture,
   linkCapture,
 } from "../../src/capture/ingest";
+import { notificationReader } from "../../src/capture/reader";
+import { useCaptureVersion } from "../../src/capture/use-capture";
 import { Chip, ChipRow } from "../../src/components/quick";
 import { Body, Button, Screen, Title } from "../../src/components/ui";
 import { e2eMode } from "../../src/config";
@@ -36,12 +39,14 @@ export default function Inbox() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [chosen, setChosen] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const captured = useCaptureVersion();
 
   const load = useCallback(async () => {
-    if (!db) return;
+    // `captured` cambia cuando el lector de notificaciones deja algo nuevo.
+    if (!db || captured < 0) return;
     setItems(await inbox(db));
     setAccounts((await sqliteAccounts(db).list()).filter((a) => !a.archivedAt));
-  }, [db]);
+  }, [db, captured]);
 
   useFocusEffect(
     useCallback(() => {
@@ -81,6 +86,13 @@ export default function Inbox() {
       <Title>{t("inbox.title")}</Title>
       <ScrollView contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
         <Body muted>{t(items.length === 0 ? "inbox.empty" : "inbox.intro")}</Body>
+        {notificationReader && !notificationReader.hasAccess() ? (
+          <Button
+            label={t("capture.manage")}
+            variant="plain"
+            onPress={() => router.push("/capture")}
+          />
+        ) : null}
         {items.map((item) => {
           const accountId = chosen[item.id] ?? item.accountId;
           const signed = item.kind === "expense" ? item.amount.negate() : item.amount;
@@ -185,15 +197,17 @@ export default function Inbox() {
             onPress={() =>
               void act("demo", async () => {
                 const now = new Date();
-                await ingestCapture(
+                await ingestNotifications(
                   db,
-                  {
-                    source: "notification",
-                    app: "com.nequi.MobileApp",
-                    receivedAt: now,
-                    amount: "$ 23.450",
-                    merchant: "Pago en Tiendas Ara",
-                  },
+                  [
+                    {
+                      id: "demo",
+                      app: "com.nequi.MobileApp",
+                      title: "Nequi",
+                      text: "Pagaste $23.450 en TIENDAS ARA",
+                      postedAt: now.getTime(),
+                    },
+                  ],
                   clock,
                 );
                 await ingestCapture(
