@@ -2,7 +2,7 @@
   "name": "@lukas/charts",
   "version": "0.1.0",
   "private": true,
-  "description": "Geometría de gráficos (barras, líneas, escalas y toques) que dibujan Skia en el teléfono y ECharts en la web",
+  "description": "Geometría de gráficos (barras, líneas, escalas y toques) que dibujan react-native-svg en el teléfono y ECharts en la web",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
