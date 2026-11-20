@@ -1,0 +1,5 @@
+# Hallazgos altos de MobSF aceptados, con su razón. Una línea por hallazgo: el comienzo exacto
+# del título, un tabulador y la razón. Revisar cada vez que cambie algo de esto.
+Application signed with debug certificate	El APK de CI se firma con la llave de depuración de React Native; los de release los firma EAS (FIN-012).
+Certificate algorithm vulnerable to hash collision	Es el certificado de depuración del APK de CI (SHA1withRSA); el de EAS usa SHA-256.
+App can be installed on a vulnerable unpatched Android version	minSdk 24 (Android 7) es el mínimo de Expo SDK 58; subirlo deja por fuera teléfonos que aún se usan en Colombia. Decisión pendiente del dueño.

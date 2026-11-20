@@ -24,18 +24,27 @@ hash="$(curl -fsS -H "Authorization: $KEY" -F "file=@$APK" "$URL/api/v1/upload" 
 curl -fsS -H "Authorization: $KEY" --data-urlencode "hash=$hash" "$URL/api/v1/scan" -o "$OUT/mobsf-report.json"
 curl -fsS -H "Authorization: $KEY" --data-urlencode "hash=$hash" "$URL/api/v1/scorecard" -o "$OUT/mobsf-scorecard.json"
 
+ACCEPTED="$(dirname "$0")/mobsf-accepted.tsv"
+accepted_json="$(grep -v '^#' "$ACCEPTED" | cut -f1 | jq -R . | jq -s .)"
 score="$(jq -r '.security_score // "?"' "$OUT/mobsf-scorecard.json")"
-high="$(jq '.high // [] | length' "$OUT/mobsf-scorecard.json")"
+# Altos que no están en la lista de aceptados (por el comienzo del título).
+jq --argjson ok "$accepted_json" \
+  '[.high // [] | .[] | select(.title as $t | ($ok | any(. as $p | $t | startswith($p))) | not)]' \
+  "$OUT/mobsf-scorecard.json" > "$OUT/mobsf-high.json"
+high="$(jq 'length' "$OUT/mobsf-high.json")"
 warning="$(jq '.warning // [] | length' "$OUT/mobsf-scorecard.json")"
 {
   echo "### MobSF"
   echo "- Puntaje de seguridad: $score/100"
-  echo "- Altos: $high · Advertencias: $warning"
-  jq -r '.high // [] | .[] | "  - 🔴 \(.title)"' "$OUT/mobsf-scorecard.json"
+  echo "- Altos sin aceptar: $high · Advertencias: $warning"
+  jq -r '.[] | "  - 🔴 \(.title)"' "$OUT/mobsf-high.json"
+  jq -r --argjson ok "$accepted_json" '.high // [] | .[] | select(.title as $t | ($ok | any(. as $p | $t | startswith($p)))) | "  - ⚪ \(.title) (aceptado, ver mobsf-accepted.tsv)"' "$OUT/mobsf-scorecard.json"
+  # Dónde está cada hallazgo alto del código, para revisarlo.
+  jq -r '.code_analysis.findings // {} | to_entries[] | select(.value.metadata.severity == "high") | "  - 📄 \(.key): \((.value.files // {}) | keys | .[0:8] | join(", "))"' "$OUT/mobsf-report.json"
   jq -r '.warning // [] | .[] | "  - 🟡 \(.title)"' "$OUT/mobsf-scorecard.json"
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/stdout}"
 
 if [ "$high" -gt 0 ]; then
-  echo "::error::MobSF encontró $high hallazgos altos en el APK"
+  echo "::error::MobSF encontró $high hallazgos altos sin aceptar en el APK"
   exit 1
 fi
