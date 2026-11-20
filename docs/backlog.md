@@ -489,9 +489,9 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-307 · Chat y aprobación de propuestas
 
 - Tipo: `feat` · Tamaño: M
-- [ ] UI de chat
-- [ ] Tarjeta de propuesta con Aceptar / Editar
-- [ ] Interruptor para apagar la IA
+- [x] UI de chat
+- [x] Tarjeta de propuesta con Aceptar / Editar
+- [x] Interruptor para apagar la IA
 
 **Hecho cuando:** Nada se escribe sin aprobación.
 

@@ -515,6 +515,38 @@ export const es = {
   "import.pdf.balanced": "✓ Cuadra: saldo inicial más movimientos da el saldo final.",
   "import.pdf.unbalanced": "Ojo: el saldo no cuadra. Revisa los movimientos antes de importar.",
   "import.pdf.skipped": "{count} líneas no se pudieron leer (se leyó el {rate} %).",
+  "assistant.title": "Asistente",
+  "assistant.open": "Pregúntale a Lukas",
+  "assistant.setting": "Asistente con IA",
+  "assistant.intro":
+    "Pregúntale por tus gastos, tus presupuestos o pídele que registre algo. Responde con tus números.",
+  "assistant.point.data":
+    "Para responder, tus preguntas y cifras resumidas (cuentas, categorías, comercios y montos) pasan por un proveedor de IA. Nunca números de tarjeta ni claves.",
+  "assistant.point.approve":
+    "No guarda nada solo: lo que propone llega en una tarjeta y tú decides si lo aceptas, lo editas o lo ignoras.",
+  "assistant.point.quota": "Tiene un límite diario de mensajes para mantenerlo gratis.",
+  "assistant.point.off": "Lo apagas cuando quieras aquí o en Ajustes.",
+  "assistant.enable": "Activar el asistente",
+  "assistant.disable": "Apagar el asistente",
+  "assistant.empty": "Prueba con: ¿Cuánto gasté este mes en mercado?",
+  "assistant.ask": "Tu pregunta",
+  "assistant.placeholder": "Escribe aquí",
+  "assistant.send": "Enviar",
+  "assistant.thinking": "Pensando…",
+  "assistant.proposalsOnly": "Revisa esta propuesta:",
+  "assistant.proposal.movement": "Propuesta de movimiento",
+  "assistant.proposal.recategorize": "Propuesta de categoría",
+  "assistant.proposal.budget": "Propuesta de presupuesto",
+  "assistant.proposal.accept": "Aceptar",
+  "assistant.proposal.edit": "Editar",
+  "assistant.proposal.accepted": "✓ Guardado",
+  "assistant.proposal.failed":
+    "No se pudo guardar. Puede que ya exista o que los datos hayan cambiado; ábrelo con Editar.",
+  "assistant.error.signedOut": "Tu sesión venció. Vuelve a entrar para usar el asistente.",
+  "assistant.error.quota": "Llegaste al límite de hoy. Mañana puedes seguir preguntando.",
+  "assistant.error.unavailable": "El asistente no está disponible en este momento.",
+  "assistant.error.network": "No pudimos conectar con Lukas. Revisa tu conexión.",
+  "assistant.error.unexpected": "Algo salió mal con la respuesta. Intenta de nuevo.",
 } as const;
 
 export type MessageKey = keyof typeof es;

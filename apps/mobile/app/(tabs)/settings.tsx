@@ -1,7 +1,8 @@
 import Constants from "expo-constants";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { ScrollView } from "react-native";
+import { assistantEnabled, setAssistantEnabled } from "../../src/assistant/settings";
 import { useSession } from "../../src/auth/session";
 import { notificationReader } from "../../src/capture/reader";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
@@ -28,12 +29,42 @@ export default function Settings() {
   const [settingPin, setSettingPin] = useState(false);
   const reminders = useCardReminders();
   const [reminderError, setReminderError] = useState(false);
+  const [assistant, setAssistant] = useState(false);
+  const db = database.status === "ready" ? database.db : null;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (db) void assistantEnabled(db).then(setAssistant);
+    }, [db]),
+  );
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
         <Title>{t("tabs.settings")}</Title>
         <Toggle label={t("settings.discreet")} value={discreet} onChange={setDiscreet} />
+        {db ? (
+          <Toggle
+            label={t("assistant.setting")}
+            value={assistant}
+            onChange={(on) => {
+              // Encenderlo pasa por la explicación de qué datos usa; apagarlo es inmediato.
+              if (on) {
+                router.push("/assistant");
+                return;
+              }
+              setAssistant(false);
+              void setAssistantEnabled(db, false);
+            }}
+          />
+        ) : null}
+        {db && assistant ? (
+          <Button
+            label={t("assistant.open")}
+            variant="plain"
+            onPress={() => router.push("/assistant")}
+          />
+        ) : null}
         {reminders.available ? (
           <Toggle
             label={t("card.reminders")}

@@ -8,7 +8,8 @@ export type PreferenceKey =
   | "reminders.cardPayments"
   | "movements.lastAccount"
   | "reports.views"
-  | "insights.dismissed";
+  | "insights.dismissed"
+  | "assistant.enabled";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;

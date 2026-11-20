@@ -153,6 +153,11 @@ export default function Summary() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
         <InboxCard count={pending} onOpen={() => router.push("/inbox")} />
+        <Button
+          label={t("assistant.open")}
+          variant="plain"
+          onPress={() => router.push("/assistant")}
+        />
         {database.status === "ready" ? (
           <InsightsCard db={database.db} reload={version + synced + captured + loads} />
         ) : null}
