@@ -439,6 +439,21 @@ export const en: Messages = {
   "capture.apps": "Apps Lukas can read",
   "capture.unsupported":
     "This only works on Android. On iPhone and the web you can import your bank statement.",
+  "insights.duplicate.title": "Double charge?",
+  "insights.duplicate.body":
+    "{merchant} charged you {amount} twice on {date}. Check whether it is a mistake.",
+  "insights.duplicate.open": "See the second one",
+  "insights.duplicate.fine": "It's fine",
+  "insights.subscription.title": "Looks like a subscription",
+  "insights.subscription.weekly":
+    "{merchant} charges you {amount} every week. The next one would be on {date}.",
+  "insights.subscription.monthly":
+    "{merchant} charges you {amount} every month. The next one would be on {date}.",
+  "insights.subscription.yearly":
+    "{merchant} charges you {amount} every year. The next one would be on {date}.",
+  "insights.subscription.daily": "{merchant} charges you {amount} every day.",
+  "insights.subscription.accept": "Create recurring",
+  "insights.subscription.dismiss": "Not a subscription",
   "inbox.title": "To review",
   "inbox.intro":
     "Transactions that came in on their own. Check the account and amount before accepting them.",
