@@ -101,7 +101,7 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -change-locale es-CO
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash apps/mobile/e2e/run.sh apps/mobile/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/e2e"
 
       - name: Resultados
