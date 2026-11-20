@@ -7,7 +7,9 @@ import { log, requestContext } from "./http/request-context";
 import { corsPolicy, securityHeaders } from "./http/security";
 import { type AgentFactory, neonAgentFactory } from "./modules/agent/factory";
 import {
+  type EmbedderFactory,
   type ModelFactory,
+  openAiCompatibleEmbedder,
   openAiCompatibleModel,
   openAiCompatibleVisionModel,
 } from "./modules/agent/model";
@@ -40,6 +42,8 @@ export interface AppDeps {
   readonly model?: ModelFactory;
   /** Modelo de visión para recibos (en pruebas, uno simulado). */
   readonly vision?: ModelFactory;
+  /** Embeddings para la búsqueda por significado (en pruebas, uno simulado). */
+  readonly embedder?: EmbedderFactory;
   /** Teléfonos para avisos push (en pruebas, PGlite). */
   readonly notifications?: NotificationsFactory;
 }
@@ -52,13 +56,14 @@ export const createApp = ({
   model = openAiCompatibleModel,
   vision = openAiCompatibleVisionModel,
   notifications = neonNotificationsFactory,
+  embedder = openAiCompatibleEmbedder,
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
     .route("/", meRoutes)
     .route("/", ratesRoutes(rates))
     .route("/", syncRoutes(sync))
-    .route("/", agentRoutes(agent, model, vision))
+    .route("/", agentRoutes(agent, model, vision, embedder))
     .route("/", notificationRoutes(notifications));
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",

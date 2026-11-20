@@ -4,9 +4,10 @@ import { HttpProblem } from "../../http/problem";
 import { requireUser } from "../auth/session";
 import { runAgent } from "./agent";
 import type { AgentBackend, AgentFactory } from "./factory";
-import type { ModelFactory } from "./model";
+import type { EmbedderFactory, ModelFactory } from "./model";
 import { colombiaDay, DAILY_REQUESTS, DAILY_TOKENS, exceeded } from "./quota";
 import { readReceipt } from "./receipt";
+import type { SearchHit as Hit } from "./search";
 
 const Message = z.object({
   role: z.enum(["user", "assistant"]),
@@ -85,6 +86,39 @@ const receiptRoute = createRoute({
   },
 });
 
+const SearchRequest = z.object({ query: z.string().trim().min(2).max(200) }).openapi("AgentSearch");
+
+const SearchHit = z.object({
+  id: z.string(),
+  date: z.string(),
+  merchant: z.string().nullable(),
+  description: z.string(),
+  category: z.string().nullable(),
+  amount: WireMoney.nullable(),
+  score: z.number(),
+});
+
+const searchRoute = createRoute({
+  method: "post",
+  path: "/agent/search",
+  tags: ["Agente"],
+  summary: "Busca movimientos por significado",
+  description:
+    "Embeddings de los movimientos de la persona (se calculan al vuelo, hasta 100 por petición) y búsqueda por similitud con pgvector. La consulta es solo un dato: no da órdenes a nadie. Cuenta en la cuota diaria del asistente.",
+  middleware: [requireUser] as const,
+  request: { body: { content: { "application/json": { schema: SearchRequest } } } },
+  responses: {
+    200: {
+      description: "Movimientos parecidos, del más al menos parecido",
+      content: { "application/json": { schema: z.object({ results: z.array(SearchHit) }) } },
+    },
+    400: { description: "Cuerpo inválido", content: problemContent },
+    401: { description: "Sin sesión", content: problemContent },
+    429: { description: "Cuota diaria agotada", content: problemContent },
+    503: { description: "Búsqueda no disponible", content: problemContent },
+  },
+});
+
 /** Revisa la cuota del día y cuenta la petición. */
 async function chargeRequest(backend: AgentBackend, userId: string, day: string) {
   if (exceeded(await backend.quota.usage(userId, day))) {
@@ -103,8 +137,37 @@ export const agentRoutes = (
   backends: AgentFactory,
   models: ModelFactory,
   visionModels: ModelFactory,
+  embedders: EmbedderFactory,
 ) =>
   createRouter()
+    .openapi(searchRoute, async (c) => {
+      const { query } = c.req.valid("json");
+      const model = embedders(c.env);
+      const backend = model ? backends(c.env) : undefined;
+      const search = backend?.search;
+      if (!model || !backend || !search) {
+        await backend?.close().catch(() => undefined);
+        throw new HttpProblem(503, "agent_unavailable", "La búsqueda no está disponible");
+      }
+      const userId = c.get("userId") ?? "";
+      const day = colombiaDay(new Date());
+      try {
+        await chargeRequest(backend, userId, day);
+        let found: { hits: Hit[]; tokens: number };
+        let indexedTokens = 0;
+        try {
+          indexedTokens = (await search.index(userId, model)).tokens;
+          found = await search.find(userId, model, query);
+        } catch {
+          throw new HttpProblem(503, "agent_unavailable", "No pudimos buscar ahora");
+        }
+        await backend.quota.add(userId, day, { tokens: indexedTokens + found.tokens, requests: 0 });
+        c.header("Cache-Control", "no-store");
+        return c.json({ results: found.hits }, 200);
+      } finally {
+        await backend.close().catch(() => undefined);
+      }
+    })
     .openapi(receiptRoute, async (c) => {
       const { image, mediaType } = c.req.valid("json");
       const model = visionModels(c.env);

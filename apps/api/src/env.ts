@@ -27,6 +27,8 @@ export interface Env {
   readonly AI_MODEL?: string;
   /** Modelo de visión para leer recibos (opcional). */
   readonly AI_VISION_MODEL?: string;
+  /** Modelo de embeddings para la búsqueda por significado (opcional). Debe dar 1024 dimensiones. */
+  readonly AI_EMBEDDING_MODEL?: string;
   /** Token de acceso de Expo para enviar push (opcional; solo si el proyecto lo exige). */
   readonly EXPO_ACCESS_TOKEN?: string;
 }
