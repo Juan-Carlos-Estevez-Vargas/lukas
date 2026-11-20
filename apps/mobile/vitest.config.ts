@@ -25,6 +25,7 @@ export default defineConfig({
         "src/display/**/*.ts",
         "src/reports/**/*.ts",
         "src/projection/**/*.ts",
+        "src/import/**/*.ts",
         "src/rates/**/*.ts",
         "src/backup/**/*.ts",
         "src/widgets/**/*.ts",
