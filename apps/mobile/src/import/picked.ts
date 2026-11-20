@@ -4,8 +4,9 @@ export interface PickedFile {
   readonly data: Uint8Array;
 }
 
-/** Tipos que se ofrecen al elegir: CSV, texto y Excel. */
+/** Tipos que se ofrecen al elegir: extractos en PDF, CSV, texto y Excel. */
 export const TABLE_TYPES = [
+  "application/pdf",
   "text/csv",
   "text/comma-separated-values",
   "text/plain",

@@ -2,7 +2,7 @@ import type { Account } from "@lukas/domain";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Chip, ChipRow } from "../../src/components/quick";
-import { Body, Button, Screen, Title } from "../../src/components/ui";
+import { Body, Button, Field, Screen, Title } from "../../src/components/ui";
 import { newId } from "../../src/data/ids";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { sqlitePreferences } from "../../src/data/preferences";
@@ -21,17 +21,37 @@ import {
   planImport,
   type RowStatus,
 } from "../../src/import/import";
+import { BANK_NAMES } from "../../src/import/statements/parse";
+import { looksLikePdf, readRate, readStatement } from "../../src/import/statements/statement";
 import { readTable, type Table } from "../../src/import/table";
+import { todayCivil } from "../../src/projection/projection";
 import { useSync } from "../../src/sync/use-sync";
 import { useTheme } from "../../src/theme/theme";
 
-type Field = Exclude<keyof ColumnMap, "headerRow">;
-const FIELDS: readonly Field[] = ["date", "description", "amount", "debit", "credit", "category"];
+type MapField = Exclude<keyof ColumnMap, "headerRow">;
+const FIELDS: readonly MapField[] = [
+  "date",
+  "description",
+  "amount",
+  "debit",
+  "credit",
+  "category",
+];
 /** Filas que se muestran en la vista previa; el resto se resume. */
 const PREVIEW = 30;
 const clock = { newId, now: () => new Date() };
 
-/** Importar un CSV o Excel del banco: elegir, revisar columnas, ver qué es nuevo e importar. */
+/** Extracto en PDF elegido; la clave vive solo aquí, en memoria, y se descarta al terminar. */
+interface PdfFile {
+  readonly name: string;
+  readonly data: Uint8Array;
+  readonly password: string;
+}
+
+/**
+ * Importar un extracto del banco (PDF, CSV o Excel): elegir, revisar, ver qué ya estaba
+ * registrado (conciliación) e importar lo nuevo.
+ */
 export default function Import() {
   const { t, locale } = useI18n();
   const { discreet } = useDiscreet();
@@ -42,6 +62,8 @@ export default function Import() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [file, setFile] = useState<{ name: string; table: Table } | null>(null);
+  const [pdf, setPdf] = useState<PdfFile | null>(null);
+  const [password, setPassword] = useState("");
   const [map, setMap] = useState<ColumnMap | null>(null);
   const [order, setOrder] = useState<DateOrder>("dmy");
   const [plan, setPlan] = useState<ImportPlan | null>(null);
@@ -62,10 +84,15 @@ export default function Import() {
   }, [db]);
 
   const account = accounts.find((a) => a.id === accountId) ?? null;
-  const read = useMemo(
-    () => (file && map && account ? readRows(file.table, map, account.currency, order) : null),
-    [file, map, account, order],
+  const statement = useMemo(
+    () =>
+      pdf && account ? readStatement(pdf.data, pdf.password, account.currency, todayCivil()) : null,
+    [pdf, account],
   );
+  const read = useMemo(() => {
+    if (statement?.ok) return { rows: statement.statement.rows, errors: [] };
+    return file && map && account ? readRows(file.table, map, account.currency, order) : null;
+  }, [statement, file, map, account, order]);
 
   useEffect(() => {
     if (!db || !read || !accountId) {
@@ -96,6 +123,14 @@ export default function Import() {
     try {
       const picked = await pickTableFile();
       if (!picked) return;
+      setPassword("");
+      if (looksLikePdf(picked.data)) {
+        setFile(null);
+        setMap(null);
+        setPdf({ name: picked.name, data: picked.data, password: "" });
+        return;
+      }
+      setPdf(null);
       const table = readTable(picked.data);
       setFile({ name: picked.name, table });
       setMap(guessColumns(table));
@@ -112,6 +147,8 @@ export default function Import() {
       const count = await applyImport(db, plan, selected, clock);
       setFile(null);
       setMap(null);
+      setPdf(null);
+      setPassword("");
       setMessage({ text: t("import.done", { count }), error: false });
       void sync();
     } catch (error) {
@@ -137,6 +174,9 @@ export default function Import() {
       else next.add(line);
       return next;
     });
+  const failure = statement && !statement.ok ? statement.reason : null;
+  const parsed = statement?.ok ? statement.statement : null;
+  const ready = (file !== null && map !== null) || parsed !== null;
   const statusColor: Record<RowStatus, string> = {
     new: colors.income,
     duplicate: colors.textMuted,
@@ -149,8 +189,8 @@ export default function Import() {
       <ScrollView contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
         <Body muted>{t("import.intro")}</Body>
         <Button
-          label={t(file ? "import.another" : "import.pick")}
-          variant={file ? "plain" : "primary"}
+          label={t(file || pdf ? "import.another" : "import.pick")}
+          variant={file || pdf ? "plain" : "primary"}
           onPress={() => void pick()}
         />
         {message ? (
@@ -161,9 +201,60 @@ export default function Import() {
           </Text>
         ) : null}
 
-        {file && map ? (
+        {pdf && failure === "password" ? (
           <>
-            <Body>{t("import.file", { name: file.name, rows: file.table.length })}</Body>
+            <Body>{t(pdf.password ? "import.pdf.wrongPassword" : "import.pdf.password")}</Body>
+            <Field
+              label={t("import.pdf.passwordLabel")}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="off"
+              testID="import-pdf-password"
+            />
+            <Button label={t("import.pdf.open")} onPress={() => setPdf({ ...pdf, password })} />
+          </>
+        ) : null}
+        {pdf && failure && failure !== "password" ? (
+          <Text style={{ color: colors.expense, fontSize: fontSize.body }}>
+            {t(failure === "empty" ? "import.pdf.empty" : "import.pdf.unreadable")}
+          </Text>
+        ) : null}
+
+        {ready ? (
+          <>
+            {file ? (
+              <Body>{t("import.file", { name: file.name, rows: file.table.length })}</Body>
+            ) : null}
+            {pdf && parsed ? (
+              <>
+                <Body>
+                  {t("import.pdf.read", {
+                    bank: parsed.bank ? BANK_NAMES[parsed.bank] : t("import.pdf.bank"),
+                    count: parsed.rows.length,
+                  })}
+                </Body>
+                {parsed.balanced !== null ? (
+                  <Text
+                    style={{
+                      color: parsed.balanced ? colors.income : colors.warning,
+                      fontSize: fontSize.body,
+                    }}
+                  >
+                    {t(parsed.balanced ? "import.pdf.balanced" : "import.pdf.unbalanced")}
+                  </Text>
+                ) : null}
+                {parsed.skipped > 0 ? (
+                  <Text style={{ color: colors.warning, fontSize: fontSize.body }}>
+                    {t("import.pdf.skipped", {
+                      count: parsed.skipped,
+                      rate: Math.round(readRate(parsed) * 100),
+                    })}
+                  </Text>
+                ) : null}
+              </>
+            ) : null}
 
             <Body muted>{t("import.account")}</Body>
             <ChipRow testID="import-accounts">
@@ -177,43 +268,47 @@ export default function Import() {
               ))}
             </ChipRow>
 
-            <Body muted>{t("import.columns")}</Body>
-            {FIELDS.map((field) => (
-              <View key={field} style={{ gap: space.xs }}>
+            {file && map ? (
+              <>
+                <Body muted>{t("import.columns")}</Body>
+                {FIELDS.map((field) => (
+                  <View key={field} style={{ gap: space.xs }}>
+                    <Text style={{ color: colors.text, fontSize: fontSize.caption }}>
+                      {t(`import.field.${field}` as MessageKey)}
+                    </Text>
+                    <ChipRow testID={`import-field-${field}`}>
+                      <Chip
+                        label={t("import.none")}
+                        selected={map[field] === null}
+                        onPress={() => setMap({ ...map, [field]: null })}
+                      />
+                      {Array.from({ length: width }, (_, i) => (
+                        <Chip
+                          // biome-ignore lint/suspicious/noArrayIndexKey: las columnas son posiciones.
+                          key={i}
+                          label={columnLabel(i)}
+                          selected={map[field] === i}
+                          onPress={() => setMap({ ...map, [field]: i })}
+                        />
+                      ))}
+                    </ChipRow>
+                  </View>
+                ))}
                 <Text style={{ color: colors.text, fontSize: fontSize.caption }}>
-                  {t(`import.field.${field}` as MessageKey)}
+                  {t("import.order")}
                 </Text>
-                <ChipRow testID={`import-field-${field}`}>
-                  <Chip
-                    label={t("import.none")}
-                    selected={map[field] === null}
-                    onPress={() => setMap({ ...map, [field]: null })}
-                  />
-                  {Array.from({ length: width }, (_, i) => (
+                <ChipRow>
+                  {(["dmy", "mdy"] as const).map((o) => (
                     <Chip
-                      // biome-ignore lint/suspicious/noArrayIndexKey: las columnas son posiciones.
-                      key={i}
-                      label={columnLabel(i)}
-                      selected={map[field] === i}
-                      onPress={() => setMap({ ...map, [field]: i })}
+                      key={o}
+                      label={t(`import.order.${o}`)}
+                      selected={o === order}
+                      onPress={() => setOrder(o)}
                     />
                   ))}
                 </ChipRow>
-              </View>
-            ))}
-            <Text style={{ color: colors.text, fontSize: fontSize.caption }}>
-              {t("import.order")}
-            </Text>
-            <ChipRow>
-              {(["dmy", "mdy"] as const).map((o) => (
-                <Chip
-                  key={o}
-                  label={t(`import.order.${o}`)}
-                  selected={o === order}
-                  onPress={() => setOrder(o)}
-                />
-              ))}
-            </ChipRow>
+              </>
+            ) : null}
 
             {plan ? (
               <>
