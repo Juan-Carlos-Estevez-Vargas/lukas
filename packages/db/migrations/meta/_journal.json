@@ -71,6 +71,13 @@
       "when": 1795161556050,
       "tag": "0009_prueba_y_cupones",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795162382412,
+      "tag": "0010_autorizacion_datos",
+      "breakpoints": true
     }
   ]
 }
