@@ -507,9 +507,9 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-309 · Resúmenes semanales
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Cron semanal
-- [ ] Push con Expo
-- [ ] Preferencias de aviso
+- [x] Cron semanal
+- [x] Push con Expo
+- [x] Preferencias de aviso
 
 **Hecho cuando:** Llega el resumen del domingo.
 
