@@ -1,5 +1,6 @@
 export type { AccountView, AgentData, CategoryView, MovementView } from "./data";
 export { memoryData } from "./memory";
+export { sampleData } from "./sample";
 export {
   type AgentTool,
   callTool,
