@@ -1,5 +1,5 @@
 import type { LanguageModelV4CallOptions, LanguageModelV4StreamPart } from "@ai-sdk/provider";
-import { MockLanguageModelV4 } from "ai/test";
+import { MockEmbeddingModelV4, MockLanguageModelV4 } from "ai/test";
 
 const usage = (input: number, output: number) => ({
   inputTokens: { total: input, noCache: input, cacheRead: 0, cacheWrite: 0 },
@@ -70,6 +70,63 @@ export function visionModel(text: string) {
         content: [{ type: "text", text }],
         finishReason: { unified: "stop", raw: "stop" },
         usage: usage(1200, 40),
+        warnings: [],
+      };
+    },
+  });
+  return { model, calls };
+}
+
+/** Conceptos del embedder de prueba: palabras que "significan" lo mismo caen en la misma dimensión. */
+const CONCEPTS: readonly (readonly string[])[] = [
+  [
+    "restaurante",
+    "comer",
+    "comida",
+    "almuerzo",
+    "cena",
+    "domicilio",
+    "domicilios",
+    "rappi",
+    "crepes",
+    "pizza",
+    "salidas",
+    "corral",
+  ],
+  ["mercado", "supermercado", "carulla", "éxito", "exito", "d1", "ara"],
+  ["transporte", "uber", "taxi", "didi", "gasolina", "transmilenio"],
+];
+
+/**
+ * Embedder de prueba (1024 dimensiones) que imita la búsqueda por significado con un diccionario
+ * de conceptos. Las palabras sin concepto pesan poco, en una dimensión según su texto.
+ */
+export function conceptEmbedder() {
+  const calls: string[][] = [];
+  const vectorOf = (text: string) => {
+    const v = new Array<number>(1024).fill(0);
+    for (const word of text
+      .toLowerCase()
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean)) {
+      const concept = CONCEPTS.findIndex((c) => c.includes(word));
+      if (concept >= 0) v[concept] = (v[concept] ?? 0) + 1;
+      else {
+        const slot =
+          16 + ([...word].reduce((h, ch) => (h * 31 + (ch.codePointAt(0) ?? 0)) % 1000, 7) % 1000);
+        v[slot] = (v[slot] ?? 0) + 0.2;
+      }
+    }
+    const norm = Math.hypot(...v) || 1;
+    return v.map((x) => x / norm);
+  };
+  const model = new MockEmbeddingModelV4({
+    maxEmbeddingsPerCall: 100,
+    doEmbed: async ({ values }) => {
+      calls.push([...values]);
+      return {
+        embeddings: values.map(vectorOf),
+        usage: { tokens: values.reduce((n, v) => n + v.split(/\s+/).length, 0) },
         warnings: [],
       };
     },

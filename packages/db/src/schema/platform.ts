@@ -13,8 +13,10 @@ import {
   text,
   timestamp,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 import { app, userId } from "./common";
+import { transactions } from "./ledger";
 
 export const changeOp = app.enum("change_op", ["upsert", "delete"]);
 
@@ -135,5 +137,29 @@ export const pushDevices = app.table(
     primaryKey({ columns: [t.userId, t.token] }),
     index("push_devices_token_idx").on(t.token),
     check("push_devices_token_shape", sql`length(${t.token}) BETWEEN 10 AND 200`),
+  ],
+);
+
+/** Dimensiones de bge-m3 (Workers AI), el modelo de embeddings multilingüe. */
+export const EMBEDDING_DIMENSIONS = 1024;
+
+/**
+ * Embedding de cada movimiento para buscar por significado (FIN-310). `content_hash` dice con qué
+ * texto se calculó: si el comercio o la categoría cambian, se recalcula.
+ */
+export const transactionEmbeddings = app.table(
+  "transaction_embeddings",
+  {
+    transactionId: uuid("transaction_id")
+      .primaryKey()
+      .references(() => transactions.id, { onDelete: "cascade" }),
+    userId: userId(),
+    embedding: vector("embedding", { dimensions: EMBEDDING_DIMENSIONS }).notNull(),
+    contentHash: text("content_hash").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("transaction_embeddings_user_idx").on(t.userId),
+    index("transaction_embeddings_hnsw").using("hnsw", t.embedding.op("vector_cosine_ops")),
   ],
 );

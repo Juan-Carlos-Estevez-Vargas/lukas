@@ -558,4 +558,13 @@ export const en: Messages = {
   "notifications.weekly": "Weekly summary (Sundays)",
   "notifications.denied": "Notifications are off. Turn them on in your phone settings.",
   "notifications.offline": "We couldn't reach Lukas. Try again.",
+  "search.open": "Search by meaning (AI)",
+  "search.title": "Search by meaning",
+  "search.intro":
+    'Describe what you\'re looking for, like "eating out" or "transport". The assistant finds similar transactions even if they don\'t say it.',
+  "search.query": "What are you looking for?",
+  "search.placeholder": "eating out",
+  "search.go": "Search",
+  "search.empty": "No similar transactions found.",
+  "search.noName": "Transaction",
 };

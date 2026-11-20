@@ -3,8 +3,9 @@ import { FlashList } from "@shopify/flash-list";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { assistantEnabled } from "../../src/assistant/settings";
 import { Chip, ChipRow, Fab } from "../../src/components/quick";
-import { Body, Field, Screen, Title } from "../../src/components/ui";
+import { Body, Button, Field, Screen, Title } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
@@ -31,6 +32,13 @@ export default function Transactions() {
   const { colors, space, fontSize, fontWeight } = useTheme();
   const database = useLocalDatabase();
   const db = database.status === "ready" ? database.db : null;
+  // Buscar por significado usa el asistente: solo si la persona lo encendió.
+  const [semantic, setSemantic] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (db) void assistantEnabled(db).then(setSemantic);
+    }, [db]),
+  );
 
   // Los reportes abren esta pantalla con `?month=2026-10&kind=expense&category=…`.
   const params = useLocalSearchParams<{ month?: string; kind?: string; category?: string }>();
@@ -136,6 +144,9 @@ export default function Transactions() {
         autoCorrect={false}
         returnKeyType="search"
       />
+      {semantic ? (
+        <Button label={t("search.open")} variant="plain" onPress={() => router.push("/search")} />
+      ) : null}
       <ChipRow>
         {month ? (
           <Chip
