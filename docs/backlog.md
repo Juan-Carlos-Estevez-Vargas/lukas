@@ -458,9 +458,9 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-304 · Detector de suscripciones y duplicados
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Patrones de periodicidad
-- [ ] Propuesta de recurrente
-- [ ] Alerta de cobro duplicado
+- [x] Patrones de periodicidad
+- [x] Propuesta de recurrente
+- [x] Alerta de cobro duplicado
 
 **Hecho cuando:** Netflix se detecta como suscripción tras dos cobros.
 

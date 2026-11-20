@@ -28,6 +28,7 @@ export default defineConfig({
         "src/import/**/*.ts",
         "src/export/**/*.ts",
         "src/capture/**/*.ts",
+        "src/insights/**/*.ts",
         "src/rates/**/*.ts",
         "src/backup/**/*.ts",
         "src/widgets/**/*.ts",

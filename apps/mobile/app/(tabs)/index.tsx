@@ -32,6 +32,7 @@ import {
 } from "../../src/home/home-cards";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { InsightsCard } from "../../src/insights/insights-card";
 import { useAppLock } from "../../src/lock/app-lock";
 import { type AccountProjection, atRisk, projectAccounts } from "../../src/projection/projection";
 import { ratesClient } from "../../src/rates/client";
@@ -58,6 +59,8 @@ export default function Summary() {
   const [upcoming, setUpcoming] = useState<UpcomingPayment[]>([]);
   const [risky, setRisky] = useState<AccountProjection[]>([]);
   const [pending, setPending] = useState(0);
+  // Cuenta las veces que se vuelve al Resumen: tras registrar un gasto los avisos se recalculan.
+  const [loads, setLoads] = useState(0);
   const [worth, setWorth] = useState<NetWorth | null>(null);
   const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
@@ -104,6 +107,7 @@ export default function Summary() {
         setUpcoming(upcoming);
         setRisky(risky);
         setPending(pending);
+        setLoads((n) => n + 1);
         setRows(rows);
         setUsd(rates.usd);
         setWorth(
@@ -149,6 +153,9 @@ export default function Summary() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
         <InboxCard count={pending} onOpen={() => router.push("/inbox")} />
+        {database.status === "ready" ? (
+          <InsightsCard db={database.db} reload={version + synced + captured + loads} />
+        ) : null}
         {available ? <AvailableCard data={available} /> : null}
         <TopCategoriesCard data={top} />
         <ProjectionAlertCard

@@ -438,6 +438,21 @@ export const es = {
   "capture.apps": "Apps que Lukas puede leer",
   "capture.unsupported":
     "Esto solo funciona en Android. En iPhone y en la web puedes importar el extracto de tu banco.",
+  "insights.duplicate.title": "¿Cobro doble?",
+  "insights.duplicate.body":
+    "{merchant} te cobró {amount} dos veces el {date}. Revisa si es un error.",
+  "insights.duplicate.open": "Ver el segundo",
+  "insights.duplicate.fine": "Está bien",
+  "insights.subscription.title": "Parece una suscripción",
+  "insights.subscription.weekly":
+    "{merchant} te cobra {amount} cada semana. El próximo sería el {date}.",
+  "insights.subscription.monthly":
+    "{merchant} te cobra {amount} cada mes. El próximo sería el {date}.",
+  "insights.subscription.yearly":
+    "{merchant} te cobra {amount} cada año. El próximo sería el {date}.",
+  "insights.subscription.daily": "{merchant} te cobra {amount} cada día.",
+  "insights.subscription.accept": "Crear recurrente",
+  "insights.subscription.dismiss": "No es una suscripción",
   "inbox.title": "Por revisar",
   "inbox.intro": "Movimientos que llegaron solos. Revisa cuenta y monto antes de aceptarlos.",
   "inbox.empty": "No hay nada por revisar.",

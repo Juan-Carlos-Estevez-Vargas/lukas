@@ -353,6 +353,19 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   Davivienda, BBVA y Nu; cada uno es una prueba. Para un formato nuevo: agregar el ejemplo y la
   forma.
 
+## Suscripciones y cobros dobles
+
+- `src/insights/subscriptions.ts` mira los gastos con comercio de los últimos dos años, sin contar
+  los que registró un recurrente.
+- **Suscripción:** al menos dos cargos del mismo comercio y cuenta, con montos a menos de 15 % y un
+  periodo semanal (6–8 días), mensual (26–35) o anual (350–380). Además, el último cargo no puede
+  pasar de 12, 45 o 400 días.
+  - No se sugiere si ya hay un recurrente con ese nombre, o en esa cuenta con un monto parecido.
+  - "Crear recurrente" lo deja avisando, no registrándose solo, desde el próximo cobro.
+- **Cobro doble:** mismo comercio, cuenta y monto exacto en menos de 24 horas, en la última semana.
+- El Resumen muestra ambos avisos (`insights-card.tsx`). "Está bien" y "No es una suscripción" se
+  recuerdan en `preferences` (`insights.dismissed`) y no vuelven a salir.
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,
