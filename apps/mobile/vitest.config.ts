@@ -36,6 +36,7 @@ export default defineConfig({
         "src/assistant/**/*.ts",
         "src/notifications/**/*.ts",
         "src/security/**/*.ts",
+        "src/billing/**/*.ts",
         "app.config.ts",
         "plugins/**/*.ts",
         "e2e/perf.ts",

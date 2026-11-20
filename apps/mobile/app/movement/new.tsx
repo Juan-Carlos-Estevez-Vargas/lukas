@@ -6,6 +6,7 @@ import { civilDate } from "../../src/accounts/credit-card";
 import { accountErrorKey } from "../../src/accounts/messages";
 import { assistantEnabled } from "../../src/assistant/settings";
 import { useSession } from "../../src/auth/session";
+import { useEntitlements } from "../../src/billing/use-entitlements";
 import { useBudgetAlerts } from "../../src/budgets/use-budget-alerts";
 import { Chip, ChipRow, Keypad } from "../../src/components/quick";
 import { Body, Button, Field, Screen, Toggle } from "../../src/components/ui";
@@ -46,6 +47,7 @@ const DAYS = [0, 1, 2] as const;
 const READ_ERRORS: Record<ReadError["kind"], MessageKey> = {
   signed_out: "assistant.error.signedOut",
   quota: "assistant.error.quota",
+  premium: "assistant.error.premium",
   unreadable: "receipt.read.unreadable",
   unavailable: "assistant.error.unavailable",
   network: "assistant.error.network",
@@ -93,6 +95,7 @@ export default function NewMovement() {
   const [reading, setReading] = useState(false);
   const [readNote, setReadNote] = useState<MessageKey | null>(null);
   const { state: session } = useSession();
+  const { can } = useEntitlements();
   const [note, setNote] = useState(params.note?.slice(0, 200) ?? "");
   const [split, setSplit] = useState(false);
   const [parts, setParts] = useState<Record<string, string>>({});
@@ -392,7 +395,7 @@ export default function NewMovement() {
           receipt ? (
             <>
               <Body>{t("movement.receipt.attached")}</Body>
-              {canRead ? (
+              {canRead && can("receiptReading") ? (
                 <Button
                   label={t("receipt.read")}
                   busy={reading}

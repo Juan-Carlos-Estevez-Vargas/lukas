@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider } from "../src/auth/session";
+import { EntitlementsProvider } from "../src/billing/use-entitlements";
 import { BudgetAlertsProvider } from "../src/budgets/use-budget-alerts";
 import { CaptureProvider } from "../src/capture/use-capture";
 import { LocalDatabaseProvider } from "../src/data/provider";
@@ -27,23 +28,25 @@ export default function RootLayout() {
             <LocalDatabaseProvider>
               <DeviceSecurityProvider>
                 <SyncProvider>
-                  <OnboardingProvider>
-                    <CaptureProvider>
-                      <DiscreetProvider>
-                        <CardRemindersProvider>
-                          <BudgetAlertsProvider>
-                            <RecurringProvider>
-                              <AppLockProvider>
-                                <StatusBar style="auto" />
-                                <Stack screenOptions={{ headerShown: false }} />
-                                <LockGate />
-                              </AppLockProvider>
-                            </RecurringProvider>
-                          </BudgetAlertsProvider>
-                        </CardRemindersProvider>
-                      </DiscreetProvider>
-                    </CaptureProvider>
-                  </OnboardingProvider>
+                  <EntitlementsProvider>
+                    <OnboardingProvider>
+                      <CaptureProvider>
+                        <DiscreetProvider>
+                          <CardRemindersProvider>
+                            <BudgetAlertsProvider>
+                              <RecurringProvider>
+                                <AppLockProvider>
+                                  <StatusBar style="auto" />
+                                  <Stack screenOptions={{ headerShown: false }} />
+                                  <LockGate />
+                                </AppLockProvider>
+                              </RecurringProvider>
+                            </BudgetAlertsProvider>
+                          </CardRemindersProvider>
+                        </DiscreetProvider>
+                      </CaptureProvider>
+                    </OnboardingProvider>
+                  </EntitlementsProvider>
                 </SyncProvider>
               </DeviceSecurityProvider>
             </LocalDatabaseProvider>

@@ -33,9 +33,9 @@ export const PINS: readonly { readonly name: string; readonly sha256: string }[]
 ];
 
 /**
- * `network_security_config.xml`: sin tráfico en claro salvo hacia el Worker local del emulador
- * (`10.0.2.2`), CAs que instale el usuario no cuentan y la API va con pines. El cliente de
- * desarrollo (`devClient`) permite tráfico en claro para hablar con Metro en la red local.
+ * `network_security_config.xml`: sin tráfico en claro, CAs que instale el usuario no cuentan y la
+ * API va con pines. Solo el cliente de desarrollo (`devClient`) permite tráfico en claro, para
+ * hablar con Metro y con el Worker local (`10.0.2.2`).
  */
 export function networkSecurityXml({ devClient = false }: { devClient?: boolean } = {}): string {
   const domains = PINNED_HOSTS.map((h) => `    <domain includeSubdomains="false">${h}</domain>`);
@@ -50,10 +50,6 @@ export function networkSecurityXml({ devClient = false }: { devClient?: boolean 
     '      <certificates src="system" />',
     "    </trust-anchors>",
     "  </base-config>",
-    '  <domain-config cleartextTrafficPermitted="true">',
-    '    <domain includeSubdomains="false">10.0.2.2</domain>',
-    '    <domain includeSubdomains="false">localhost</domain>',
-    "  </domain-config>",
     "  <domain-config>",
     ...domains,
     `    <pin-set expiration="${PIN_EXPIRATION}">`,

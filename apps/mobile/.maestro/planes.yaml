@@ -1,0 +1,12 @@
+# Planes: la pantalla muestra qué trae premium y los precios en pesos. El build de e2e no llama a
+# la API de facturación (no hay servidor), así que no ofrece la prueba ni canjea cupones.
+appId: co.lukas.app
+name: Planes
+---
+- runFlow: subflows/primer-uso.yaml
+- openLink: "lukas://premium"
+- extendedWaitUntil:
+    visible: "Lukas Premium"
+    timeout: 10000
+- assertVisible: ".*14.900 al mes"
+- assertVisible: "Canjear cupón"

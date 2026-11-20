@@ -14,6 +14,7 @@ describe("pinning de certificados", () => {
     expect(xml).toContain('<base-config cleartextTrafficPermitted="false">');
     expect(xml).toContain('<certificates src="system" />');
     expect(xml).not.toContain('src="user"');
+    expect(xml).not.toContain('cleartextTrafficPermitted="true"');
     for (const host of PINNED_HOSTS) expect(xml).toContain(`>${host}</domain>`);
     expect(xml).toContain(`<pin-set expiration="${PIN_EXPIRATION}">`);
     expect(xml.match(/<pin digest="SHA-256">/g)).toHaveLength(PINS.length);

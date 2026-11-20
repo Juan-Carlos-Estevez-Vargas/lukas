@@ -21,6 +21,7 @@ import { useTheme } from "../../src/theme/theme";
 const ERRORS: Record<SearchError, MessageKey> = {
   signed_out: "assistant.error.signedOut",
   quota: "assistant.error.quota",
+  premium: "assistant.error.premium",
   unavailable: "assistant.error.unavailable",
   network: "assistant.error.network",
   unexpected: "assistant.error.unexpected",
