@@ -17,6 +17,8 @@ import { agentRoutes } from "./modules/agent/routes";
 import { type AuthFactory, neonAuthFactory } from "./modules/auth/factory";
 import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
+import { type BillingFactory, neonBillingFactory } from "./modules/billing/factory";
+import { billingRoutes } from "./modules/billing/routes";
 import { healthRoutes } from "./modules/health/routes";
 import {
   type NotificationsFactory,
@@ -46,6 +48,8 @@ export interface AppDeps {
   readonly embedder?: EmbedderFactory;
   /** Teléfonos para avisos push (en pruebas, PGlite). */
   readonly notifications?: NotificationsFactory;
+  /** Suscripciones y entitlements (en pruebas, PGlite). */
+  readonly billing?: BillingFactory;
 }
 
 export const createApp = ({
@@ -57,6 +61,7 @@ export const createApp = ({
   vision = openAiCompatibleVisionModel,
   notifications = neonNotificationsFactory,
   embedder = openAiCompatibleEmbedder,
+  billing = neonBillingFactory,
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
@@ -64,7 +69,8 @@ export const createApp = ({
     .route("/", ratesRoutes(rates))
     .route("/", syncRoutes(sync))
     .route("/", agentRoutes(agent, model, vision, embedder))
-    .route("/", notificationRoutes(notifications));
+    .route("/", notificationRoutes(notifications))
+    .route("/", billingRoutes(billing));
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {

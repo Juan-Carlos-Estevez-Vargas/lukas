@@ -1,6 +1,7 @@
 import type { PGlite } from "@electric-sql/pglite";
 import { accounts, aiUsage, categories, entries, transactions, users } from "@lukas/db/schema";
 import { createTestDatabase, newId } from "@lukas/db/testing";
+import { entitlementsOf } from "@lukas/domain";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../app";
@@ -8,12 +9,13 @@ import type { Env } from "../../env";
 import { testEnv } from "../../test/env";
 import { createAuth } from "../auth/auth";
 import type { Mailer } from "../auth/mailer";
+import { postgresBilling } from "../billing/store";
 import { agentTools } from "./agent";
 import { postgresAgentData } from "./data";
 import { neonAgentFactory } from "./factory";
 import { conceptEmbedder, scriptedModel, visionModel } from "./mock-model";
 import { openAiCompatibleModel, openAiCompatibleVisionModel } from "./model";
-import { colombiaDay, DAILY_TOKENS, postgresQuota } from "./quota";
+import { colombiaDay, postgresQuota } from "./quota";
 import { postgresSearch } from "./search";
 
 const ORIGIN = "http://localhost:8081";
@@ -60,6 +62,7 @@ const appWith = (withModel = true) =>
     agent: () => ({
       data: (userId) => postgresAgentData(db, userId),
       quota: postgresQuota(db),
+      entitlements: postgresBilling(db).entitlements,
       search: postgresSearch(db),
       close: async () => {
         closes += 1;
@@ -87,6 +90,19 @@ const call = (
     },
     env,
   );
+
+/** Activa premium a mano, como lo haría soporte (proveedor `manual`). */
+const premium = (userId: string) =>
+  postgresBilling(db).process(`manual-${userId}`, {
+    userId,
+    provider: "manual",
+    plan: "premium",
+    event: {
+      type: "payment_succeeded",
+      at: new Date("2026-01-01T00:00:00Z"),
+      periodEnd: new Date("2099-01-01T00:00:00Z"),
+    },
+  });
 
 const signIn = async (app: ReturnType<typeof createApp>, email: string) => {
   await call(app, "/v1/auth/email-otp/send-verification-otp", null, { email, type: "sign-in" });
@@ -208,7 +224,7 @@ describe("chat con el agente", () => {
     const app = appWith();
     const carla = await signIn(app, "carla@lukas.test");
     await postgresQuota(db).add(carla.userId, colombiaDay(new Date()), {
-      tokens: DAILY_TOKENS,
+      tokens: entitlementsOf("free").aiDailyTokens,
       requests: 1,
     });
     const res = await chat(app, carla.token);
@@ -271,6 +287,7 @@ describe("lectura de recibos", () => {
   it("devuelve comercio, total y fecha y cuenta en la cuota", async () => {
     const app = appWith();
     const eva = await signIn(app, "eva@lukas.test");
+    await premium(eva.userId);
     vi.useFakeTimers({ now: new Date("2026-11-20T15:00:00Z"), toFake: ["Date"] });
     try {
       const res = await read(app, eva.token, { image, mediaType: "image/jpeg" });
@@ -291,6 +308,7 @@ describe("lectura de recibos", () => {
   it("valida la foto, la sesión, la cuota y los fallos del modelo", async () => {
     const app = appWith();
     const fede = await signIn(app, "fede@lukas.test");
+    await premium(fede.userId);
     expect((await read(app, "", { image, mediaType: "image/jpeg" })).status).toBe(401);
     expect((await read(app, fede.token, { image, mediaType: "image/gif" })).status).toBe(400);
     expect(
@@ -312,7 +330,7 @@ describe("lectura de recibos", () => {
     visionFails = false;
 
     await postgresQuota(db).add(fede.userId, colombiaDay(new Date()), {
-      tokens: DAILY_TOKENS,
+      tokens: entitlementsOf("premium").aiDailyTokens,
       requests: 0,
     });
     expect((await read(app, fede.token, { image, mediaType: "image/jpeg" })).status).toBe(429);
@@ -323,6 +341,7 @@ describe("búsqueda por significado", () => {
   it("busca en los movimientos de la persona y cuenta en la cuota", async () => {
     const app = appWith();
     const gabi = await signIn(app, "gabi@lukas.test");
+    await premium(gabi.userId);
     const nequi = newId();
     const comida = newId();
     await db.insert(accounts).values({
@@ -367,14 +386,50 @@ describe("búsqueda por significado", () => {
       agent: () => ({
         data: (userId) => postgresAgentData(db, userId),
         quota: postgresQuota(db),
+        entitlements: postgresBilling(db).entitlements,
         search: postgresSearch(db),
         close: async () => undefined,
       }),
     });
     const hugo = await signIn(app, "hugo@lukas.test");
+    await premium(hugo.userId);
     const res = await call(app, "/v1/agent/search", hugo.token, { query: "comida" });
     expect(res.status).toBe(503);
     expect(await res.text()).not.toContain("xyz");
+  });
+});
+
+describe("funciones premium", () => {
+  it("el plan gratis no lee recibos ni busca por significado; premium sí", async () => {
+    const app = appWith();
+    const juli = await signIn(app, "juli@lukas.test");
+    for (const [path, body] of [
+      ["/v1/agent/receipt", { image: "A".repeat(200), mediaType: "image/jpeg" }],
+      ["/v1/agent/search", { query: "comida" }],
+    ] as const) {
+      const res = await call(app, path, juli.token, body);
+      expect(res.status).toBe(402);
+      expect(((await res.json()) as { code: string }).code).toBe("premium_required");
+    }
+    expect(await postgresQuota(db).usage(juli.userId, colombiaDay(new Date()))).toEqual({
+      tokens: 0,
+      requests: 0,
+    });
+    await premium(juli.userId);
+    const res = await call(app, "/v1/agent/search", juli.token, { query: "comida" });
+    expect(res.status).toBe(200);
+  });
+
+  it("premium tiene más cuota de chat que el plan gratis", async () => {
+    const app = appWith();
+    const kike = await signIn(app, "kike@lukas.test");
+    await postgresQuota(db).add(kike.userId, colombiaDay(new Date()), {
+      tokens: entitlementsOf("free").aiDailyTokens,
+      requests: 0,
+    });
+    expect((await chat(app, kike.token)).status).toBe(429);
+    await premium(kike.userId);
+    expect((await chat(app, kike.token)).status).toBe(200);
   });
 });
 
@@ -392,6 +447,7 @@ describe("inyección de instrucciones", () => {
       agent: () => ({
         data: (userId) => postgresAgentData(db, userId),
         quota: postgresQuota(db),
+        entitlements: postgresBilling(db).entitlements,
         close: async () => undefined,
       }),
       model: () => injected,
