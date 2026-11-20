@@ -316,6 +316,23 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   `#,##0.00`, escritos desde el decimal exacto (sin punto flotante); los textos van como texto en
   línea, así que nunca se interpretan como fórmulas.
 
+## Capturas y bandeja "Por revisar"
+
+- Todo lo que llega solo (notificaciones, correos, extractos) entra por `ingestCapture`
+  (`src/capture/ingest.ts`), que lo normaliza (`normalize.ts`: monto positivo en bigint, tipo,
+  comercio sin "Compra en" ni mayúsculas gritadas, últimos 4 dígitos) y lo guarda en `captures`.
+  Esa tabla vive solo en el teléfono, no se sincroniza y no guarda el texto original.
+- Duplicados entre vías: misma huella (tipo, moneda, monto, tarjeta y franja de 10 min) o mismo
+  tipo y monto a menos de 15 minutos (el mismo día si una viene de un extracto), sin contradecirse
+  en la tarjeta; si alguna no sabe la tarjeta, los comercios deben compartir una palabra. La
+  segunda queda como `duplicate` y no aparece.
+- Cuenta: la única activa con esos 4 dígitos; si no, la única del banco de la app o del correo
+  (`com.todo1.mobile` es Bancolombia). Con dudas se pregunta en la bandeja.
+- Si en la cuenta ya hay un movimiento del mismo monto cerca de la hora, la bandeja ofrece "Ya
+  estaba" en vez de crear otro. "Aceptar" lo registra con la categoría sugerida y `source` de la vía.
+- El Resumen avisa cuántos hay por revisar. En el modo e2e la bandeja tiene "Simular aviso de
+  compra" (una notificación y su correo) para probarla sin lectores.
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,
