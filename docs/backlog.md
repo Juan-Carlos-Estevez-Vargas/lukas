@@ -414,8 +414,8 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-210 · Exportación PDF y Excel
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Reporte mensual en PDF
-- [ ] Excel con hojas por cuenta
+- [x] Reporte mensual en PDF
+- [x] Excel con hojas por cuenta
 
 **Hecho cuando:** El PDF del mes se descarga desde la app.
 
