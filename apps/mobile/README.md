@@ -228,10 +228,25 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   vuelven a su id local. Presupuestos, metas, recurrentes, etiquetas y recibos aún no se suben.
 - Conflictos: fusión de tres vías campo por campo contra la última versión conocida. Si ambos lados cambiaron el mismo campo, gana la edición más reciente y queda anotado en `sync_conflicts`. Un borrado contra una edición: gana la edición.
 
+## Reportes
+
+- Pestaña Reportes: flujo de caja de los últimos 6 meses (ingresos contra gastos), en qué se va
+  el gasto de un mes por categoría y patrimonio al cierre de cada mes (`src/reports/reports.ts`).
+  Todo en pesos, con la TRM del día para las cuentas en dólares.
+- Tocar una barra abre Movimientos filtrado por ese mes y, si se tocó la barra, por ingresos o
+  gastos; tocar una categoría filtra por mes y categoría. El filtro se quita con su ✕.
+- Gráficos: la geometría (escalas, barras, líneas y qué se tocó) vive en `@lukas/charts`, sin
+  dependencias. En el teléfono se dibuja con `react-native-svg` (`src/charts/*.tsx`; Skia pesaba ~15 MB
+  en el APK) y en la web con ECharts en
+  SVG (`src/charts/*.web.tsx`), importado pieza por pieza para no cargar todo ECharts.
+- `metro.config.js` resuelve `tslib` a su versión ES: la que elige Metro por defecto deja a ECharts
+  sin `__extends` en la web.
+
 ## Pruebas de extremo a extremo y rendimiento
 
-- Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto y
-  transferencia entre cuentas. Cada uno arranca desde una instalación limpia.
+- Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,
+  transferencia entre cuentas y reportes (tocar la barra filtra). Cada uno arranca desde una
+  instalación limpia.
 - `.github/workflows/e2e.yml` compila el APK de release en el runner (sin EAS, solo x86_64) con
   `EXPO_PUBLIC_E2E=1`: la entrada por correo acepta el código fijo `123456` sin red. Ese modo no
   existe en los perfiles de `eas.json` (una prueba lo verifica).

@@ -9,7 +9,13 @@ import { useI18n } from "../i18n/i18n";
 import { useTheme } from "../theme/theme";
 import type { CategorySpend, MonthAvailable, UpcomingPayment } from "./home";
 
-function Card({ title, children }: { readonly title: string; readonly children: ReactNode }) {
+export function Card({
+  title,
+  children,
+}: {
+  readonly title: string;
+  readonly children: ReactNode;
+}) {
   const { colors, space, radius } = useTheme();
   return (
     <View

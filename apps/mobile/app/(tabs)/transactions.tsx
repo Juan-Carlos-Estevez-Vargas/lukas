@@ -1,6 +1,6 @@
 import type { Account } from "@lukas/domain";
 import { FlashList } from "@shopify/flash-list";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Chip, ChipRow, Fab } from "../../src/components/quick";
@@ -8,13 +8,14 @@ import { Body, Field, Screen, Title } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
-import { formatCivilDate } from "../../src/format/date";
+import { formatCivilDate, formatMonth } from "../../src/format/date";
 import { formatMoney } from "../../src/format/money";
 import { useI18n } from "../../src/i18n/i18n";
 import type { ListKind, MovementFilters, MovementRow } from "../../src/movements/filters";
 import { type DaySection, groupByDay, listMovements, PAGE_SIZE } from "../../src/movements/list";
 import { type Period, periodRange } from "../../src/movements/periods";
 import { recentTags } from "../../src/movements/tags";
+import { type Month, monthRange, parseMonth } from "../../src/reports/reports";
 import { useTheme } from "../../src/theme/theme";
 
 type Item =
@@ -31,9 +32,13 @@ export default function Transactions() {
   const database = useLocalDatabase();
   const db = database.status === "ready" ? database.db : null;
 
+  // Los reportes abren esta pantalla con `?month=2026-10&kind=expense&category=…`.
+  const params = useLocalSearchParams<{ month?: string; kind?: string; category?: string }>();
   const [text, setText] = useState("");
   const [kind, setKind] = useState<ListKind | null>(null);
   const [period, setPeriod] = useState<Period>("thisMonth");
+  const [month, setMonth] = useState<Month | null>(null);
+  const [category, setCategory] = useState<{ id: string; name: string } | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [tag, setTag] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -43,10 +48,29 @@ export default function Transactions() {
   const page = useRef(0);
   const request = useRef(0);
 
+  useEffect(() => {
+    const wanted = parseMonth(params.month);
+    if (!wanted && !params.category && !params.kind) return;
+    setMonth(wanted);
+    if (params.kind === "income" || params.kind === "expense") setKind(params.kind);
+    else setKind(null);
+    if (!params.category || !db) {
+      setCategory(null);
+      return;
+    }
+    const id = params.category;
+    void db
+      .get<{ name: string; icon: string | null }>(
+        "SELECT name, icon FROM categories WHERE id = ?",
+        id,
+      )
+      .then((c) => setCategory(c ? { id, name: c.icon ? `${c.icon} ${c.name}` : c.name } : null));
+  }, [params.month, params.kind, params.category, db]);
+
   const filters = useMemo<MovementFilters>(() => {
-    const { from, to } = periodRange(period, new Date());
-    return { text, kind, accountId, tag, from, to };
-  }, [text, kind, accountId, tag, period]);
+    const { from, to } = month ? monthRange(month) : periodRange(period, new Date());
+    return { text, kind, accountId, tag, from, to, categoryId: category?.id ?? null };
+  }, [text, kind, accountId, tag, period, month, category]);
 
   const load = useCallback(
     async (reset: boolean) => {
@@ -113,12 +137,25 @@ export default function Transactions() {
         returnKeyType="search"
       />
       <ChipRow>
+        {month ? (
+          <Chip
+            label={`${formatMonth(month, locale, "long")} ✕`}
+            selected
+            onPress={() => setMonth(null)}
+          />
+        ) : null}
+        {category ? (
+          <Chip label={`${category.name} ✕`} selected onPress={() => setCategory(null)} />
+        ) : null}
         {PERIODS.map((p) => (
           <Chip
             key={p}
             label={t(`list.period.${p}`)}
-            selected={period === p}
-            onPress={() => setPeriod(p)}
+            selected={!month && period === p}
+            onPress={() => {
+              setMonth(null);
+              setPeriod(p);
+            }}
           />
         ))}
         {KINDS.map((k) => (
