@@ -15,6 +15,7 @@ import {
   idempotencyKeys,
   outbox,
   pushDevices,
+  transactionEmbeddings,
   transactions,
 } from "./schema";
 import { createTestDatabase, insertUsers, newId } from "./test/database";
@@ -411,5 +412,30 @@ describe("teléfonos para avisos", () => {
       ),
     );
     expect(short).toMatch(/push_devices_token_shape/);
+  });
+});
+
+describe("embeddings de movimientos", () => {
+  it("cada quien indexa y busca solo en sus movimientos", async () => {
+    const embedding = Array.from({ length: 1024 }, (_, i) => (i === 0 ? 1 : 0));
+    await withUser(db, ANA, (tx) =>
+      tx
+        .insert(transactionEmbeddings)
+        .values({ transactionId: ids.anaTx, userId: ANA, embedding, contentHash: "h" }),
+    );
+    const forged = await failure(
+      withUser(db, CARLA, (tx) =>
+        tx
+          .insert(transactionEmbeddings)
+          .values({ transactionId: ids.anaSharedTx, userId: ANA, embedding, contentHash: "h" }),
+      ),
+    );
+    expect(forged).toMatch(/row-level security/);
+    expect(await withUser(db, CARLA, (tx) => tx.select().from(transactionEmbeddings))).toEqual([]);
+    const [nearest] = await withUser(db, ANA, (tx) =>
+      tx.execute(sql`SELECT transaction_id, embedding <=> ${JSON.stringify(embedding)}::vector AS d
+        FROM app.transaction_embeddings`),
+    ).then((r) => (r as unknown as { rows: { transaction_id: string; d: number }[] }).rows);
+    expect(nearest).toMatchObject({ transaction_id: ids.anaTx, d: 0 });
   });
 });

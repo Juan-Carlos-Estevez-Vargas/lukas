@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
+import { vector } from "@electric-sql/pglite-pgvector";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import * as schema from "../schema";
@@ -9,7 +10,8 @@ const migrationsFolder = fileURLToPath(new URL("../../migrations", import.meta.u
 
 /** Postgres en memoria (PGlite) con todas las migraciones aplicadas. */
 export const createTestDatabase = async () => {
-  const client = new PGlite();
+  // pgvector para la búsqueda semántica (FIN-310), como en Neon.
+  const client = new PGlite({ extensions: { vector } });
   const db = drizzle({ client, schema });
   await migrate(db, { migrationsFolder });
   return { client, db };
