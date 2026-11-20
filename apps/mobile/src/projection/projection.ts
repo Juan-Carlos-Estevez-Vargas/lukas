@@ -1,6 +1,7 @@
 import {
   addDays,
   type CivilDate,
+  CURRENCIES,
   type CurrencyCode,
   compareCivil,
   Money,
@@ -108,7 +109,8 @@ export async function projectAccounts(
   );
   const recurring = await listRecurring(db);
   const horizon = addDays(today, days);
-  const todayStart = new Date(startOfDay(today));
+  // Los últimos `span` días contando hoy: lo que se registró hoy ya dice algo del ritmo de gasto.
+  const tomorrow = new Date(startOfDay(addDays(today, 1)));
   const out: AccountProjection[] = [];
   for (const a of accounts) {
     const balance = await sqliteAccounts(db).balance(a);
@@ -130,7 +132,7 @@ export async function projectAccounts(
       LOOKBACK_DAYS,
       Math.max(MIN_LOOKBACK_DAYS, daysBetween(civilDate(a.createdAt), today)),
     );
-    const from = new Date(startOfDay(addDays(today, -span)));
+    const from = new Date(startOfDay(addDays(today, 1 - span)));
     const row = await db.get<{ total: number }>(
       `SELECT coalesce(sum(e.amount_minor), 0) AS total
        FROM entries e
@@ -144,7 +146,7 @@ export async function projectAccounts(
       a.id,
       a.currency,
       from.toISOString(),
-      todayStart.toISOString(),
+      tomorrow.toISOString(),
     );
     const variable = BigInt(row?.total ?? 0);
     const points = projectBalance(balance.amountMinor, today, days, scheduled, {
@@ -158,12 +160,19 @@ export async function projectAccounts(
       today: balance,
       points,
       scheduled: scheduled.sort((x, y) => compareCivil(x.date, y.date)),
-      dailyAverage: Money.ofMinor(variable / BigInt(span), a.currency),
+      dailyAverage: Money.ofMinor(toWholeUnits(variable / BigInt(span), a.currency), a.currency),
       firstNegative: firstNegative(points),
       lowest: lowest(points),
     });
   }
   return out;
+}
+
+/** Redondea a la unidad entera de la moneda (pesos, dólares): un promedio no necesita centavos. */
+export function toWholeUnits(minor: bigint, currency: CurrencyCode): bigint {
+  const unit = 10n ** BigInt(CURRENCIES[currency].minorUnits);
+  const half = unit / 2n;
+  return ((minor + (minor < 0n ? -half : half)) / unit) * unit;
 }
 
 /** Las cuentas que quedarían en rojo, primero la que se queda antes. */

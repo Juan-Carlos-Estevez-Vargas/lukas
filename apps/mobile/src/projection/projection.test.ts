@@ -12,6 +12,7 @@ import {
   projectAccounts,
   projectBalance,
   todayCivil,
+  toWholeUnits,
 } from "./projection";
 
 const d = (year: number, month: number, day: number): CivilDate => ({ year, month, day });
@@ -55,6 +56,12 @@ describe("proyección (cálculo)", () => {
     expect(lowest(points)?.balance).toBe(-30n);
     expect(firstNegative(projectBalance(5n, today, 3, [], { total: 0n, days: 0 }))).toBeNull();
     expect(lowest([])).toBeNull();
+  });
+
+  it("el promedio se muestra en unidades enteras", () => {
+    expect(toWholeUnits(-466_666n, "COP")).toBe(-466_700n);
+    expect(toWholeUnits(466_649n, "COP")).toBe(466_600n);
+    expect(toWholeUnits(150n, "USD")).toBe(200n);
   });
 
   it("hoy es la fecha del teléfono", () => {
