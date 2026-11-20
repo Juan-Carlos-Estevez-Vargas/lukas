@@ -113,6 +113,14 @@ export {
   type TransactionStatus,
 } from "./ledger/transaction";
 export { type TransferDeps, type TransferInput, transferFunds } from "./ledger/transfer";
+export {
+  isLegalDocument,
+  LEGAL_DOCUMENTS,
+  LEGAL_VERSIONS,
+  type LegalConsent,
+  type LegalDocument,
+  pendingConsents,
+} from "./legal";
 export { Money } from "./money";
 export * from "./result";
 export { divideRounded, type ExactDecimal, parseDecimal, type RoundingMode } from "./rounding";
