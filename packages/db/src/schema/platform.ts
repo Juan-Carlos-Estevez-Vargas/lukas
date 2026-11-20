@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigserial,
+  boolean,
   char,
   check,
   date,
@@ -110,5 +111,29 @@ export const aiUsage = app.table(
   (t) => [
     primaryKey({ columns: [t.userId, t.day] }),
     check("ai_usage_counts", sql`${t.tokens} >= 0 AND ${t.requests} >= 0`),
+  ],
+);
+
+export const pushPlatform = app.enum("push_platform", ["android", "ios"]);
+
+/**
+ * Teléfonos que reciben avisos push (token de Expo). Una fila por persona y token: si el teléfono
+ * cambia de cuenta, el cron solo usa la fila más reciente de cada token.
+ */
+export const pushDevices = app.table(
+  "push_devices",
+  {
+    userId: userId(),
+    token: text("token").notNull(),
+    platform: pushPlatform("platform").notNull(),
+    /** Resumen de la semana los domingos (FIN-309). */
+    weeklySummary: boolean("weekly_summary").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.token] }),
+    index("push_devices_token_idx").on(t.token),
+    check("push_devices_token_shape", sql`length(${t.token}) BETWEEN 10 AND 200`),
   ],
 );
