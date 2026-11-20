@@ -110,7 +110,7 @@ describe("comentarios de la beta", () => {
     const odd = await call(app, "POST", "/v1/feedback", token, {
       ...note,
       message: "Me gusta mucho",
-      appVersion: "<script>",
+      appVersion: "0.4.0 (beta; android)",
     });
     expect(odd.status).toBe(400);
   });
