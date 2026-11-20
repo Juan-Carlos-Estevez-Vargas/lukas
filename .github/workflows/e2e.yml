@@ -5,6 +5,7 @@ name: E2E
 #      EXPO_PUBLIC_E2E=1, que cambia la entrada por correo por un código fijo sin red.
 #   2. Lo instala en un emulador de Android con KVM, corre los flujos de apps/mobile/.maestro y
 #      mide el arranque en frío y el tamaño del APK (apps/mobile/e2e/perf.ts).
+#   3. Antes, pasa el APK por MobSF (scripts/security/mobsf-scan.sh) y falla con hallazgos altos.
 # Falla si un flujo falla, si el arranque (mediana) pasa de 1,5 s o si el APK pasa del límite.
 
 on:
@@ -15,6 +16,7 @@ on:
       - "packages/ui/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/e2e.yml"
+      - "scripts/security/mobsf-scan.sh"
   push:
     branches: [main]
     paths:
@@ -23,6 +25,7 @@ on:
       - "packages/ui/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/e2e.yml"
+      - "scripts/security/mobsf-scan.sh"
   workflow_dispatch:
 
 concurrency:
@@ -78,6 +81,10 @@ jobs:
           EXPO_PUBLIC_API_URL: http://127.0.0.1:9
           NODE_ENV: production
         run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --no-daemon
+
+      # MobSF sobre el mismo APK de release (FIN-405): falla si hay hallazgos altos.
+      - name: MobSF (análisis del APK)
+        run: bash scripts/security/mobsf-scan.sh apps/mobile/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/e2e"
 
       - name: Instalar Maestro
         run: |
