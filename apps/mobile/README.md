@@ -302,6 +302,20 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   `generate.mjs` (Chromium) y `generate.py` (reportlab y pypdf). Imitan la estructura de cada banco;
   hay que reemplazarlos por extractos reales anonimizados cuando estén disponibles.
 
+## Reporte mensual en PDF y Excel
+
+- Reportes → "Descargar PDF del mes" / "Descargar Excel" para el mes elegido en los chips
+  (`src/export/export-buttons.tsx`). En el teléfono sale por el menú de compartir y la copia en
+  caché se borra; en la web se descarga.
+- `src/export/monthly.ts` reúne ingresos, gastos, neto y totales por categoría en COP, y para cada
+  cuenta su saldo inicial y final del mes y sus movimientos (las archivadas solo si se movieron).
+- PDF (`pdf-writer.ts`, `report.ts`): escritor propio, carta, Helvetica WinAnsi sin incrustar,
+  comprimido con `fflate`; cabecera de la tabla repetida al cambiar de página y "Página n de N".
+  Las pruebas lo leen de vuelta con el lector de extractos.
+- Excel (`xlsx.ts`): hoja "Resumen" y una hoja por cuenta. Los montos van como número con formato
+  `#,##0.00`, escritos desde el decimal exacto (sin punto flotante); los textos van como texto en
+  línea, así que nunca se interpretan como fórmulas.
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,
