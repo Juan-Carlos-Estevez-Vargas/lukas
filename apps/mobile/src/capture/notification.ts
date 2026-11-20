@@ -1,3 +1,5 @@
+import { bankFor } from "./banks/banks";
+import { applyRules } from "./banks/rules";
 import type { RawCapture } from "./normalize";
 
 /** Lo que entrega el lector de Android por cada aviso de una app permitida. */
@@ -26,10 +28,21 @@ const MERCHANT =
   /(?:compra(?:ste)?|pag(?:o|aste))(?: aprobad[oa])?(?:\s+(?:de|por))?(?:\s+(?:\$|cop)?\s?[\d.,]+)?\s+(?:en|a)\s+(.+?)(?=\s+(?:por|el|con|desde|de tu|con tu)\b|[,;!]|\.(?!\d)|$)/i;
 
 /**
+ * Lee un aviso: primero con las formas conocidas del banco de la app (`banks/`) y, si ninguna
+ * encaja, con la lectura genérica. `null` si no es un movimiento.
+ */
+export function parseNotification(n: PostedNotification): RawCapture | null {
+  const bank = bankFor(n.app);
+  const known = bank ? applyRules(bank, n) : null;
+  if (known === "ignore") return null;
+  return known ?? parseGeneric(n);
+}
+
+/**
  * Lectura genérica de un aviso bancario: monto, si es ingreso o gasto (lo deduce `normalize`) y el
  * comercio cuando sigue a "compra en" o "pago a". `null` si no parece un movimiento.
  */
-export function parseNotification(n: PostedNotification): RawCapture | null {
+export function parseGeneric(n: PostedNotification): RawCapture | null {
   const text = `${n.title}. ${n.text}`.replace(/\s+/g, " ").trim();
   if (!MOVEMENT.test(text) || NOT_MOVEMENT.test(text)) return null;
   const m = AMOUNT.exec(text);
