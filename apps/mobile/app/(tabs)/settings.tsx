@@ -6,20 +6,31 @@ import { assistantEnabled, setAssistantEnabled } from "../../src/assistant/setti
 import { useSession } from "../../src/auth/session";
 import { notificationReader } from "../../src/capture/reader";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
+import { apiUrl } from "../../src/config";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
 import { useI18n } from "../../src/i18n/i18n";
 import { useAppLock } from "../../src/lock/app-lock";
 import { lockStore } from "../../src/lock/lock-store";
 import { PinSetup } from "../../src/lock/pin-setup";
+import { pushTokenSource } from "../../src/notifications/push-token";
+import {
+  createDeviceClient,
+  forgetDevice,
+  setWeeklySummary,
+  type WeeklyResult,
+  weeklyEnabled,
+} from "../../src/notifications/weekly";
 import { removeSampleData } from "../../src/onboarding/onboarding";
 import { useCardReminders } from "../../src/reminders/use-card-reminders";
 import { syncLine as describeSync } from "../../src/sync/text";
 import { useSync } from "../../src/sync/use-sync";
 
+const devices = createDeviceClient(apiUrl);
+
 export default function Settings() {
   const { t, locale } = useI18n();
-  const { signOut } = useSession();
+  const { signOut, state: session } = useSession();
   const sync = useSync();
   const syncLine = describeSync(t, locale, sync);
   const { discreet, setDiscreet } = useDiscreet();
@@ -30,11 +41,16 @@ export default function Settings() {
   const reminders = useCardReminders();
   const [reminderError, setReminderError] = useState(false);
   const [assistant, setAssistant] = useState(false);
+  const [weekly, setWeekly] = useState(false);
+  const [weeklyBusy, setWeeklyBusy] = useState(false);
+  const [weeklyNote, setWeeklyNote] = useState<WeeklyResult | null>(null);
   const db = database.status === "ready" ? database.db : null;
 
   useFocusEffect(
     useCallback(() => {
-      if (db) void assistantEnabled(db).then(setAssistant);
+      if (!db) return;
+      void assistantEnabled(db).then(setAssistant);
+      void weeklyEnabled(db).then(setWeekly);
     }, [db]),
   );
 
@@ -57,6 +73,32 @@ export default function Settings() {
               void setAssistantEnabled(db, false);
             }}
           />
+        ) : null}
+        {db && pushTokenSource.available && session.status === "signedIn" ? (
+          <Toggle
+            label={t("notifications.weekly")}
+            value={weekly}
+            onChange={(on) => {
+              if (weeklyBusy) return;
+              setWeeklyBusy(true);
+              setWeeklyNote(null);
+              void setWeeklySummary(
+                db,
+                { source: pushTokenSource, client: devices, session: session.token },
+                on,
+              )
+                .then((result) => {
+                  if (result === "on" || result === "off") setWeekly(result === "on");
+                  else setWeeklyNote(result);
+                })
+                .finally(() => setWeeklyBusy(false));
+            }}
+          />
+        ) : null}
+        {weeklyNote ? (
+          <Body tone="error">
+            {t(weeklyNote === "denied" ? "notifications.denied" : "notifications.offline")}
+          </Body>
         ) : null}
         {db && assistant ? (
           <Button
@@ -151,7 +193,12 @@ export default function Settings() {
           busy={busy}
           onPress={() => {
             setBusy(true);
-            void signOut();
+            // Que el teléfono no siga recibiendo resúmenes de esta cuenta.
+            const forget =
+              db && session.status === "signedIn"
+                ? forgetDevice(db, devices, session.token).catch(() => undefined)
+                : Promise.resolve();
+            void forget.then(() => signOut());
           }}
         />
         <Body muted>

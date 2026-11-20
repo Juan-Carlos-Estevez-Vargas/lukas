@@ -9,6 +9,7 @@ import { DiscreetProvider } from "../src/display/discreet";
 import { I18nProvider } from "../src/i18n/i18n";
 import { AppLockProvider } from "../src/lock/app-lock";
 import { LockGate } from "../src/lock/lock-screen";
+import { usePushLinks } from "../src/notifications/use-push-links";
 import { OnboardingProvider } from "../src/onboarding/use-onboarding";
 import { RecurringProvider } from "../src/recurring/use-recurring";
 import { CardRemindersProvider } from "../src/reminders/use-card-reminders";
@@ -16,6 +17,7 @@ import { SyncProvider } from "../src/sync/use-sync";
 import { ThemeProvider } from "../src/theme/theme";
 
 export default function RootLayout() {
+  usePushLinks();
   return (
     <SafeAreaProvider>
       <ThemeProvider>
