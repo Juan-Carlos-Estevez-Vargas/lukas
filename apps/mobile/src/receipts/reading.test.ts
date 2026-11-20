@@ -28,6 +28,7 @@ describe("lectura de recibos en la app", () => {
   it.each([
     [401, "signed_out"],
     [422, "unreadable"],
+    [402, "premium"],
     [429, "quota"],
     [503, "unavailable"],
     [500, "unexpected"],
