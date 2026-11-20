@@ -9,7 +9,8 @@ mkdir -p "$out"
 
 booted() { [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; }
 
-# La app sigue el idioma del teléfono y los flujos están en español.
+# La app sigue el idioma del teléfono y los flujos están en español. Se cambia aquí y no con
+# `-change-locale` del emulador: ese reinicia el framework mientras la acción aún le manda comandos.
 if [ "$(adb shell getprop persist.sys.locale | tr -d '\r')" != "es-CO" ]; then
   adb root && adb wait-for-device
   adb shell "setprop persist.sys.locale es-CO; setprop ctl.restart zygote"
@@ -26,7 +27,13 @@ for _ in $(seq 1 60); do
   sleep 2
 done
 
-adb install -r "$apk" || exit 1
+# El servicio de paquetes a veces corta la conexión ("Broken pipe") justo después de arrancar.
+installed=1
+for _ in 1 2 3; do
+  adb install -r "$apk" && { installed=0; break; }
+  sleep 10
+done
+[ "$installed" -eq 0 ] || exit 1
 
 maestro test apps/mobile/.maestro \
   --format junit --output "$out/maestro.xml" --debug-output "$out/maestro"
