@@ -13,6 +13,7 @@ import {
   coupons,
   entries,
   exchangeRates,
+  feedback,
   householdMembers,
   households,
   idempotencyKeys,
@@ -546,5 +547,33 @@ describe("autorización de datos", () => {
     );
     expect(bad).toMatch(/legal_consents_version/);
     expect(await withUser(db, ANA, (tx) => tx.select().from(legalConsents))).toHaveLength(1);
+  });
+});
+
+describe("comentarios de la beta", () => {
+  it("cada quien deja los suyos; no los lee, no los cambia y no firma por otro", async () => {
+    const note = { kind: "bug", message: "No abre el resumen", appVersion: "0.4.0" } as const;
+    await withUser(db, ANA, (tx) =>
+      tx.insert(feedback).values({ ...note, userId: ANA, platform: "android" }),
+    );
+    const forged = await failure(
+      withUser(db, CARLA, (tx) =>
+        tx.insert(feedback).values({ ...note, userId: ANA, platform: "web" }),
+      ),
+    );
+    expect(forged).toMatch(/row-level security/);
+    const read = await failure(withUser(db, ANA, (tx) => tx.select().from(feedback)));
+    expect(read).toMatch(/permission denied/);
+    const changed = await failure(
+      withUser(db, ANA, (tx) => tx.update(feedback).set({ message: "otra cosa" })),
+    );
+    expect(changed).toMatch(/permission denied/);
+    const short = await failure(
+      withUser(db, ANA, (tx) =>
+        tx.insert(feedback).values({ ...note, userId: ANA, platform: "web", message: "ok" }),
+      ),
+    );
+    expect(short).toMatch(/feedback_message_length/);
+    expect(await db.select().from(feedback)).toHaveLength(1);
   });
 });

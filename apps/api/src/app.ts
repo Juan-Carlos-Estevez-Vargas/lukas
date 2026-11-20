@@ -19,6 +19,8 @@ import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
 import { type BillingFactory, neonBillingFactory } from "./modules/billing/factory";
 import { billingRoutes } from "./modules/billing/routes";
+import { type FeedbackFactory, neonFeedbackFactory } from "./modules/feedback/factory";
+import { feedbackRoutes } from "./modules/feedback/routes";
 import { healthRoutes } from "./modules/health/routes";
 import { type LegalFactory, neonLegalFactory } from "./modules/legal/factory";
 import { legalRoutes } from "./modules/legal/routes";
@@ -54,6 +56,8 @@ export interface AppDeps {
   readonly billing?: BillingFactory;
   /** Autorizaciones de datos (en pruebas, PGlite). */
   readonly legal?: LegalFactory;
+  /** Comentarios de la beta (en pruebas, PGlite). */
+  readonly feedback?: FeedbackFactory;
 }
 
 export const createApp = ({
@@ -67,6 +71,7 @@ export const createApp = ({
   embedder = openAiCompatibleEmbedder,
   billing = neonBillingFactory,
   legal = neonLegalFactory,
+  feedback = neonFeedbackFactory,
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
@@ -76,7 +81,8 @@ export const createApp = ({
     .route("/", agentRoutes(agent, model, vision, embedder))
     .route("/", notificationRoutes(notifications))
     .route("/", billingRoutes(billing))
-    .route("/", legalRoutes(legal));
+    .route("/", legalRoutes(legal))
+    .route("/", feedbackRoutes(feedback));
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {
@@ -96,6 +102,8 @@ export const createApp = ({
     .use("/v1/auth/*", rateLimit("AUTH_LIMITER", 60))
     // Los cupones se adivinan probando: mismo límite estricto que el inicio de sesión.
     .use("/v1/billing/coupons/*", rateLimit("AUTH_LIMITER", 60))
+    // Que nadie llene la tabla de comentarios a punta de scripts.
+    .use("/v1/feedback", rateLimit("AUTH_LIMITER", 60))
     .on(["GET", "POST"], "/v1/auth/*", authHandler(auth))
     .route("/", healthRoutes)
     .route("/", securityTxtRoutes)

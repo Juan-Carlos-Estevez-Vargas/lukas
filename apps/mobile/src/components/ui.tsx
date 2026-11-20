@@ -106,7 +106,7 @@ export function Button({
   );
 }
 
-export function Field({ label, ...input }: { readonly label: string } & TextInputProps) {
+export function Field({ label, style, ...input }: { readonly label: string } & TextInputProps) {
   const { colors, space, radius, fontSize } = useTheme();
   return (
     <View style={{ gap: space.xs }}>
@@ -114,16 +114,19 @@ export function Field({ label, ...input }: { readonly label: string } & TextInpu
       <TextInput
         accessibilityLabel={label}
         placeholderTextColor={colors.textMuted}
-        style={{
-          minHeight: 48,
-          paddingHorizontal: space.md,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: radius.md,
-          backgroundColor: colors.surface,
-          color: colors.text,
-          fontSize: fontSize.body,
-        }}
+        style={[
+          {
+            minHeight: 48,
+            paddingHorizontal: space.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: radius.md,
+            backgroundColor: colors.surface,
+            color: colors.text,
+            fontSize: fontSize.body,
+          },
+          style,
+        ]}
         {...input}
       />
     </View>

@@ -1,0 +1,17 @@
+# Comentarios de la beta: elegir el tipo, escribir y enviar. El build de e2e no tiene API, así que
+# la pantalla da el mensaje por enviado sin red.
+appId: co.lukas.app
+name: Comentarios
+---
+- runFlow: subflows/primer-uso.yaml
+- openLink: "lukas://feedback"
+- extendedWaitUntil:
+    visible: "Cuéntanos"
+    timeout: 10000
+- tapOn: "Tengo una idea"
+- tapOn:
+    id: "feedback-message"
+- inputText: "Quiero ver mis gastos por semana"
+- hideKeyboard
+- tapOn: "Enviar"
+- assertVisible: ".*Recibimos tu mensaje.*"

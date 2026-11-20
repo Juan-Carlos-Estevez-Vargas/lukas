@@ -213,6 +213,11 @@ export default function Settings() {
           variant="plain"
           onPress={() => router.push("/premium")}
         />
+        <Button
+          label={t("settings.feedback")}
+          variant="plain"
+          onPress={() => router.push("/feedback")}
+        />
         <Body muted>
           {t("settings.version", { version: Constants.expoConfig?.version ?? "?" })}
         </Body>
