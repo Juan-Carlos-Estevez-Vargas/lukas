@@ -235,10 +235,22 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   Todo en pesos, con la TRM del día para las cuentas en dólares.
 - Tocar una barra abre Movimientos filtrado por ese mes y, si se tocó la barra, por ingresos o
   gastos; tocar una categoría filtra por mes y categoría. El filtro se quita con su ✕.
-- Gráficos: la geometría (escalas, barras, líneas y qué se tocó) vive en `@lukas/charts`, sin
-  dependencias. En el teléfono se dibuja con `react-native-svg` (`src/charts/*.tsx`; Skia pesaba ~15 MB
-  en el APK) y en la web con ECharts en
-  SVG (`src/charts/*.web.tsx`), importado pieza por pieza para no cargar todo ECharts.
+- Arriba se elige el mes; todo lo de abajo (comparación, Sankey, mapa de calor, categorías) es de
+  ese mes. Elegir octubre ya lo compara contra septiembre, por categoría y del mayor cambio al
+  menor (`src/reports/advanced.ts`); también se puede comparar contra el mismo mes del año pasado.
+  Tocar una categoría deja solo esa.
+- Comparaciones guardadas: base (mes anterior o año pasado) y categoría opcional, siempre relativas
+  al mes elegido. Viven en las preferencias del teléfono, no se sincronizan
+  (`src/reports/views.ts`). Se borran manteniéndolas presionadas.
+- "A dónde se fue la plata": Sankey de ingresos por categoría → total → gastos por categoría, con
+  "Ahorro" si sobró o "De más" si se gastó más de lo que entró.
+- Gasto por día: calendario del mes (empieza el lunes) con la intensidad del gasto; tocar un día
+  muestra cuánto fue.
+- Gráficos: la geometría (escalas, barras, líneas, Sankey, calendario y qué se tocó) vive en
+  `@lukas/charts`, sin dependencias. Barras y líneas se dibujan con `react-native-svg` en el
+  teléfono (`src/charts/*.tsx`; Skia pesaba ~15 MB en el APK) y con ECharts en SVG en la web
+  (`src/charts/*.web.tsx`), importado pieza por pieza. El Sankey y el mapa de calor usan
+  `react-native-svg` en ambos.
 - `metro.config.js` resuelve `tslib` a su versión ES: la que elige Metro por defecto deja a ECharts
   sin `__extends` en la web.
 

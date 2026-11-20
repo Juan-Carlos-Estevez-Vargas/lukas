@@ -7,17 +7,27 @@ export function Chip({
   label,
   selected = false,
   onPress,
+  onLongPress,
+  hint,
+  testID,
 }: {
   readonly label: string;
   readonly selected?: boolean;
   readonly onPress: () => void;
+  readonly onLongPress?: () => void;
+  /** Para el lector de pantalla, cuando el chip hace algo más que elegir (p. ej. borrar). */
+  readonly hint?: string;
+  readonly testID?: string;
 }) {
   const { colors, space, radius, fontSize, fontWeight } = useTheme();
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="radio"
       accessibilityState={{ checked: selected }}
+      accessibilityHint={hint}
       onPress={onPress}
+      onLongPress={onLongPress}
       style={{
         minHeight: 44,
         justifyContent: "center",

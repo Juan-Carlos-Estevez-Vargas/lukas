@@ -19,14 +19,15 @@ export function parseMonth(value: string | undefined): Month | null {
   return month >= 1 && month <= 12 ? { year: Number(m[1]), month } : null;
 }
 
-const shift = (m: Month, by: number): Month => {
+/** El mes `by` meses después (o antes, si es negativo). */
+export const addMonths = (m: Month, by: number): Month => {
   const index = m.year * 12 + (m.month - 1) + by;
   return { year: Math.floor(index / 12), month: (index % 12) + 1 };
 };
 
 /** Los últimos `count` meses hasta `last` incluido, del más viejo al más nuevo. */
 export const lastMonths = (last: Month, count: number): Month[] =>
-  Array.from({ length: count }, (_, i) => shift(last, i - count + 1));
+  Array.from({ length: count }, (_, i) => addMonths(last, i - count + 1));
 
 /** Rango [desde, hasta) del mes en la hora del teléfono, como lo guarda la base. */
 export function monthRange(m: Month): { from: Date; to: Date } {

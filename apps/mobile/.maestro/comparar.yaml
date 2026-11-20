@@ -1,0 +1,35 @@
+# Reportes avanzados: comparar el mes contra el anterior (un toque), cambiar al año pasado, guardar
+# la comparación y ver el Sankey y el mapa de calor del mes.
+appId: co.lukas.app
+name: Comparar meses
+---
+- runFlow: subflows/primer-uso.yaml
+- openLink: "lukas://movement/new?kind=expense&category=default.mercado"
+- extendedWaitUntil:
+    visible:
+      id: "movement-merchant"
+    timeout: 10000
+- tapOn: "4"
+- tapOn: "0"
+- tapOn: "000"
+- scrollUntilVisible:
+    element: "Guardar"
+- tapOn: "Guardar"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 10000
+- tapOn: "Reportes"
+# El mes actual ya viene comparado contra el anterior: el mercado subió.
+- scrollUntilVisible:
+    element: ".* contra .*"
+- assertVisible: "▲ .* más"
+- tapOn: "Mismo mes del año pasado"
+- scrollUntilVisible:
+    element: "Guardar esta comparación"
+- tapOn: "Guardar esta comparación"
+- scrollUntilVisible:
+    element: "Contra el año pasado"
+- scrollUntilVisible:
+    element: "A dónde se fue la plata"
+- scrollUntilVisible:
+    element: "Toca un día para ver cuánto gastaste."

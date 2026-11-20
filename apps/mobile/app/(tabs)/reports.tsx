@@ -1,12 +1,16 @@
 import { ratio } from "@lukas/charts";
 import { Money } from "@lukas/domain";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { BarChart } from "../../src/charts/bar-chart";
+import { HeatmapChart } from "../../src/charts/heatmap-chart";
 import { LineChart } from "../../src/charts/line-chart";
+import { SankeyChart, type SankeyItem } from "../../src/charts/sankey-chart";
 import { Chip, ChipRow } from "../../src/components/quick";
-import { Body, Screen, Title } from "../../src/components/ui";
+import { Body, Button, Screen, Title } from "../../src/components/ui";
+import { newId } from "../../src/data/ids";
+import { sqlitePreferences } from "../../src/data/preferences";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
 import { formatMonth } from "../../src/format/date";
@@ -15,6 +19,15 @@ import type { CategorySpend } from "../../src/home/home";
 import { Card } from "../../src/home/home-cards";
 import { useI18n } from "../../src/i18n/i18n";
 import { copRates } from "../../src/rates/rates";
+import {
+  baseMonth,
+  type CompareBase,
+  compareMonths,
+  dailySpending,
+  type MoneyFlow,
+  type MonthComparison,
+  moneyFlow,
+} from "../../src/reports/advanced";
 import {
   cashFlow,
   lastMonths,
@@ -25,11 +38,15 @@ import {
   netWorthSeries,
   spendingByCategory,
 } from "../../src/reports/reports";
+import { loadViews, removeView, type SavedView, saveView } from "../../src/reports/views";
 import { useSync } from "../../src/sync/use-sync";
 import { useTheme } from "../../src/theme/theme";
 
 const MONTHS = 6;
 const CHART_HEIGHT = 160;
+const SANKEY_HEIGHT = 220;
+/** Colores de las categorías en el Sankey, en orden; se repiten si hay más. */
+const PALETTE = ["#2E7D9A", "#B0532F", "#6B5BA8", "#3F8A4A", "#A0662B", "#8A4F7D", "#4D6A8F"];
 
 export default function Reports() {
   const { t, locale } = useI18n();
@@ -43,9 +60,25 @@ export default function Reports() {
   });
   const months = useMemo(() => lastMonths(current, MONTHS), [current]);
   const [selected, setSelected] = useState<Month>(current);
+  const [base, setBase] = useState<CompareBase>("previous");
+  const [focus, setFocus] = useState<string | null>(null);
+  const [day, setDay] = useState<number | null>(null);
+  const [views, setViews] = useState<SavedView[]>([]);
+  const [notice, setNotice] = useState<string | null>(null);
   const [flow, setFlow] = useState<MonthFlow[]>([]);
   const [worth, setWorth] = useState<MonthNetWorth[]>([]);
   const [categories, setCategories] = useState<CategorySpend[]>([]);
+  const [comparison, setComparison] = useState<MonthComparison | null>(null);
+  const [sankey, setSankey] = useState<MoneyFlow | null>(null);
+  const [daily, setDaily] = useState<bigint[]>([]);
+
+  const prefs = useMemo(
+    () => (database.status === "ready" ? sqlitePreferences(database.db) : null),
+    [database],
+  );
+  useEffect(() => {
+    if (prefs) void loadViews(prefs).then(setViews);
+  }, [prefs]);
 
   useFocusEffect(
     useCallback(() => {
@@ -53,20 +86,26 @@ export default function Reports() {
       let active = true;
       void (async () => {
         const { table } = await copRates(database.db);
-        const [f, w, c] = await Promise.all([
+        const [f, w, c, cmp, s, d] = await Promise.all([
           cashFlow(database.db, months, "COP", table),
           netWorthSeries(database.db, months, "COP", table),
           spendingByCategory(database.db, selected, "COP", table),
+          compareMonths(database.db, selected, baseMonth(selected, base), "COP", table),
+          moneyFlow(database.db, selected, "COP", table),
+          dailySpending(database.db, selected, "COP", table),
         ]);
         if (!active) return;
         setFlow(f);
         setWorth(w);
         setCategories(c);
+        setComparison(cmp);
+        setSankey(s);
+        setDaily(d);
       })();
       return () => {
         active = false;
       };
-    }, [database, months, selected, synced]),
+    }, [database, months, selected, base, synced]),
   );
 
   const money = useCallback((m: Money) => formatMoney(m, { locale, discreet }), [locale, discreet]);
@@ -89,6 +128,41 @@ export default function Reports() {
     ],
     [flow, t, colors],
   );
+  const sankeyItems = useMemo(() => {
+    if (!sankey) return { sources: [], targets: [] };
+    const sources: SankeyItem[] = sankey.income.map((c, i) => ({
+      key: `in:${c.id}`,
+      label: c.name,
+      color: i === 0 ? colors.income : (PALETTE[i % PALETTE.length] ?? colors.income),
+      value: c.amount.amountMinor,
+    }));
+    if (sankey.deficit.amountMinor > 0n)
+      sources.push({
+        key: "deficit",
+        label: t("reports.deficit"),
+        color: colors.expense,
+        value: sankey.deficit.amountMinor,
+      });
+    const targets: SankeyItem[] = sankey.expenses.map((c, i) => ({
+      key: `out:${c.id}`,
+      label: c.name,
+      color: PALETTE[i % PALETTE.length] ?? colors.expense,
+      value: c.amount.amountMinor,
+    }));
+    if (sankey.savings.amountMinor > 0n)
+      targets.push({
+        key: "savings",
+        label: t("reports.savings"),
+        color: colors.income,
+        value: sankey.savings.amountMinor,
+      });
+    return { sources, targets };
+  }, [sankey, colors, t]);
+
+  const pickMonth = (m: Month) => {
+    setSelected(m);
+    setDay(null);
+  };
 
   /** Tocar una barra abre Movimientos filtrado por ese mes y, si se tocó una barra, ese tipo. */
   const openMonth = (group: number, s: number | null) => {
@@ -101,7 +175,7 @@ export default function Reports() {
     });
   };
 
-  if (database.status !== "ready") {
+  if (database.status !== "ready" || !prefs) {
     return (
       <Screen>
         <Title>{t("tabs.reports")}</Title>
@@ -121,11 +195,56 @@ export default function Reports() {
     )
     .join(". ");
   const latest = worth.at(-1);
+  const selectedLong = formatMonth(selected, locale, "long");
+  const beforeLong = formatMonth(baseMonth(selected, base), locale, "long");
+  const baseLabel = (b: CompareBase) =>
+    t(b === "previous" ? "reports.base.previous" : "reports.base.lastYear");
+  const changeText = (m: Money) =>
+    m.amountMinor > 0n
+      ? t("reports.more", { amount: money(m) })
+      : m.amountMinor < 0n
+        ? t("reports.less", { amount: money(m.negate()) })
+        : t("reports.same");
+  const shown = (comparison?.categories ?? []).filter((c) => focus === null || c.id === focus);
+  const focusName = comparison?.categories.find((c) => c.id === focus)?.name;
+  const peak = daily.reduce<{ day: number; value: bigint }>(
+    (best, v, i) => (v > best.value ? { day: i + 1, value: v } : best),
+    { day: 0, value: 0n },
+  );
+  const weekdays = t("reports.weekdays").split(",");
+
+  const applyView = (v: SavedView) => {
+    setBase(v.base);
+    setFocus(v.categoryId);
+    setNotice(null);
+  };
+  const saveCurrent = async () => {
+    const label = t(
+      base === "previous" ? "reports.viewName.previous" : "reports.viewName.lastYear",
+    );
+    const name = focusName ? `${label} · ${focusName}` : label;
+    setViews(await saveView(prefs, { name, base, categoryId: focus }, newId));
+  };
+  const deleteView = async (v: SavedView) => {
+    setViews(await removeView(prefs, v.id));
+    setNotice(t("reports.viewDeleted", { name: v.name }));
+  };
 
   return (
     <Screen>
       <Title>{t("tabs.reports")}</Title>
       <ScrollView contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
+        <ChipRow testID="report-months">
+          {months.map((m) => (
+            <Chip
+              key={monthKey(m)}
+              label={formatMonth(m, locale)}
+              selected={monthKey(m) === monthKey(selected)}
+              onPress={() => pickMonth(m)}
+            />
+          ))}
+        </ChipRow>
+
         <Card title={t("reports.cashflow")}>
           <View style={{ flexDirection: "row", gap: space.md }}>
             {series.map((s) => (
@@ -154,21 +273,158 @@ export default function Reports() {
           <Body muted>{t("reports.tapHint")}</Body>
         </Card>
 
-        <Card title={t("reports.byCategory")}>
-          <ChipRow>
-            {months.map((m) => (
-              <Chip
-                key={monthKey(m)}
-                label={formatMonth(m, locale)}
-                selected={monthKey(m) === monthKey(selected)}
-                onPress={() => setSelected(m)}
-              />
+        <Card title={t("reports.compareTitle", { current: selectedLong, before: beforeLong })}>
+          <ChipRow testID="compare-base">
+            {(["previous", "lastYear"] as const).map((b) => (
+              <Chip key={b} label={baseLabel(b)} selected={b === base} onPress={() => setBase(b)} />
             ))}
           </ChipRow>
+          {comparison && comparison.categories.length > 0 ? (
+            <>
+              <Body>
+                {t("reports.compareTotal", {
+                  current: money(comparison.totalCurrent),
+                  before: beforeLong,
+                  amount: money(comparison.totalBefore),
+                })}{" "}
+                {changeText(comparison.totalCurrent.subtract(comparison.totalBefore))}
+              </Body>
+              {focus !== null ? (
+                <ChipRow>
+                  <Chip
+                    label={`${t("reports.onlyCategory", { name: focusName ?? "" })} ✕`}
+                    selected
+                    onPress={() => setFocus(null)}
+                  />
+                </ChipRow>
+              ) : null}
+              {shown.map((c) => {
+                const up = c.change.amountMinor > 0n;
+                const down = c.change.amountMinor < 0n;
+                return (
+                  <Pressable
+                    key={c.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("reports.changeA11y", {
+                      name: c.name,
+                      current: money(c.current),
+                      before: money(c.before),
+                      change: changeText(c.change),
+                    })}
+                    onPress={() => setFocus(focus === c.id ? null : c.id)}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      paddingVertical: space.xs,
+                      gap: space.sm,
+                    }}
+                  >
+                    <Text style={{ color: colors.text, fontSize: fontSize.body, flexShrink: 1 }}>
+                      {c.icon ? `${c.icon} ${c.name}` : c.name}
+                    </Text>
+                    <View style={{ alignItems: "flex-end" }}>
+                      <Text style={{ color: colors.text, fontSize: fontSize.body }}>
+                        {money(c.current)}
+                      </Text>
+                      <Text
+                        style={{
+                          color: up ? colors.expense : down ? colors.income : colors.textMuted,
+                          fontSize: fontSize.caption,
+                        }}
+                      >
+                        {`${up ? "▲" : down ? "▼" : "="} ${changeText(c.change)}`}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </>
+          ) : (
+            <Body muted>{t("reports.noCompare")}</Body>
+          )}
+          {views.length > 0 ? (
+            <>
+              <Body muted>{t("reports.savedViews")}</Body>
+              <ChipRow testID="saved-views">
+                {views.map((v) => (
+                  <Chip
+                    key={v.id}
+                    label={v.name}
+                    selected={v.base === base && v.categoryId === focus}
+                    onPress={() => applyView(v)}
+                    onLongPress={() => void deleteView(v)}
+                    hint={t("reports.viewHint")}
+                  />
+                ))}
+              </ChipRow>
+            </>
+          ) : null}
+          {notice ? <Body muted>{notice}</Body> : null}
+          <Button
+            label={t("reports.saveView")}
+            variant="plain"
+            onPress={() => void saveCurrent()}
+          />
+        </Card>
+
+        <Card title={t("reports.flow")}>
+          {sankeyItems.sources.length > 0 || sankeyItems.targets.length > 0 ? (
+            <SankeyChart
+              sources={sankeyItems.sources}
+              targets={sankeyItems.targets}
+              totalColor={colors.primary}
+              height={SANKEY_HEIGHT}
+              textColor={colors.text}
+              description={t("reports.flowA11y", {
+                income: money(
+                  (sankey?.income ?? []).reduce((s, c) => s.add(c.amount), Money.zero("COP")),
+                ),
+                expenses: money(
+                  (sankey?.expenses ?? []).reduce((s, c) => s.add(c.amount), Money.zero("COP")),
+                ),
+                month: selectedLong,
+                detail: [...sankeyItems.sources, ...sankeyItems.targets]
+                  .map((i) => `${i.label}: ${minor(i.value)}`)
+                  .join(". "),
+              })}
+            />
+          ) : (
+            <Body muted>{t("reports.noFlow", { month: selectedLong })}</Body>
+          )}
+        </Card>
+
+        <Card title={t("reports.daily")}>
+          <HeatmapChart
+            year={selected.year}
+            month={selected.month}
+            values={daily}
+            weekdays={weekdays}
+            color={colors.expense}
+            emptyColor={colors.border}
+            textColor={colors.text}
+            strongTextColor={colors.surface}
+            selected={day}
+            onSelect={setDay}
+            testID="daily-heatmap"
+            description={t("reports.dailyA11y", {
+              month: selectedLong,
+              day: peak.day,
+              amount: minor(peak.value),
+            })}
+          />
+          <Body muted>
+            {day
+              ? t("reports.dayDetail", {
+                  date: `${day} ${formatMonth(selected, locale)}`,
+                  amount: minor(daily[day - 1] ?? 0n),
+                })
+              : t("reports.dailyHint")}
+          </Body>
+        </Card>
+
+        <Card title={t("reports.byCategory")}>
           {categories.length === 0 ? (
-            <Body muted>
-              {t("reports.noSpending", { month: formatMonth(selected, locale, "long") })}
-            </Body>
+            <Body muted>{t("reports.noSpending", { month: selectedLong })}</Body>
           ) : (
             categories.map((c) => (
               <Pressable
