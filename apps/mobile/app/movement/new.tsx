@@ -40,11 +40,21 @@ export default function NewMovement() {
   const database = useLocalDatabase();
   const reminders = useCardReminders();
   const budgets = useBudgetAlerts();
-  // Los widgets abren esta pantalla con `?kind=…&category=…` para registrar más rápido.
-  const params = useLocalSearchParams<{ kind?: string; category?: string }>();
+  // Los widgets abren esta pantalla con `?kind=…&category=…` para registrar más rápido; el
+  // asistente ("Editar" en una propuesta) además manda cuenta, monto en pesos, comercio y nota.
+  const params = useLocalSearchParams<{
+    kind?: string;
+    category?: string;
+    account?: string;
+    amount?: string;
+    merchant?: string;
+    note?: string;
+  }>();
   const [kind, setKind] = useState<MovementKind>(params.kind === "income" ? "income" : "expense");
-  const [digits, setDigits] = useState("");
-  const [merchant, setMerchant] = useState("");
+  const [digits, setDigits] = useState(() =>
+    /^\d{1,13}$/.test(params.amount ?? "") ? (params.amount ?? "").replace(/^0+/, "") : "",
+  );
+  const [merchant, setMerchant] = useState(params.merchant?.slice(0, 80) ?? "");
   const [merchants, setMerchants] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -53,7 +63,7 @@ export default function NewMovement() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [daysAgo, setDaysAgo] = useState(0);
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(params.note?.slice(0, 200) ?? "");
   const [split, setSplit] = useState(false);
   const [parts, setParts] = useState<Record<string, string>>({});
   const [tagsText, setTagsText] = useState("");
@@ -66,10 +76,16 @@ export default function NewMovement() {
 
   useEffect(() => {
     if (!db) return;
-    void sqliteAccounts(db).list().then(setAccounts);
-    void defaultAccountId(db).then(setAccountId);
+    const wanted = params.account;
+    void sqliteAccounts(db)
+      .list()
+      .then((list) => {
+        setAccounts(list);
+        if (wanted && list.some((a) => a.id === wanted && !a.archivedAt)) setAccountId(wanted);
+        else void defaultAccountId(db).then(setAccountId);
+      });
     void recentTags(db).then(setKnownTags);
-  }, [db]);
+  }, [db, params.account]);
 
   useEffect(() => {
     if (!db) return;

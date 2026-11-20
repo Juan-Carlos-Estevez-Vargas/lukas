@@ -1,5 +1,5 @@
 import { BUDGET_PERIODS, type BudgetPeriod } from "@lukas/domain";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { civilDate } from "../../src/accounts/credit-card";
@@ -20,17 +20,24 @@ export default function NewBudget() {
   const database = useLocalDatabase();
   const alerts = useBudgetAlerts();
   const db = database.status === "ready" ? database.db : null;
+  // "Editar" en una propuesta del asistente abre el formulario con `?category=…&amount=…`.
+  const params = useLocalSearchParams<{ category?: string; amount?: string }>();
   const [categories, setCategories] = useState<GroupedCategory[]>([]);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [period, setPeriod] = useState<BudgetPeriod>("monthly");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(params.amount?.slice(0, 20) ?? "");
   const [rollover, setRollover] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (db) void categoryGroups(db).then(setCategories);
-  }, [db]);
+    if (!db) return;
+    const wanted = params.category;
+    void categoryGroups(db).then((list) => {
+      setCategories(list);
+      if (wanted && list.some((c) => c.id === wanted)) setCategoryId(wanted);
+    });
+  }, [db, params.category]);
 
   if (!db) {
     return (

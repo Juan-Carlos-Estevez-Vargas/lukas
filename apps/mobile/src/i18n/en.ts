@@ -519,4 +519,36 @@ export const en: Messages = {
   "import.pdf.unbalanced":
     "Heads up: the balance doesn't add up. Check the transactions before importing.",
   "import.pdf.skipped": "{count} lines couldn't be read ({rate}% were read).",
+  "assistant.title": "Assistant",
+  "assistant.open": "Ask Lukas",
+  "assistant.setting": "AI assistant",
+  "assistant.intro":
+    "Ask about your spending or budgets, or have it log something for you. It answers with your numbers.",
+  "assistant.point.data":
+    "To answer, your questions and summarized figures (accounts, categories, merchants and amounts) go through an AI provider. Never card numbers or passwords.",
+  "assistant.point.approve":
+    "It never saves anything on its own: suggestions arrive as a card and you accept, edit or ignore them.",
+  "assistant.point.quota": "There's a daily message limit to keep it free.",
+  "assistant.point.off": "Turn it off any time here or in Settings.",
+  "assistant.enable": "Turn on the assistant",
+  "assistant.disable": "Turn off the assistant",
+  "assistant.empty": "Try: How much did I spend on groceries this month?",
+  "assistant.ask": "Your question",
+  "assistant.placeholder": "Type here",
+  "assistant.send": "Send",
+  "assistant.thinking": "Thinking…",
+  "assistant.proposalsOnly": "Review this suggestion:",
+  "assistant.proposal.movement": "Suggested transaction",
+  "assistant.proposal.recategorize": "Suggested category",
+  "assistant.proposal.budget": "Suggested budget",
+  "assistant.proposal.accept": "Accept",
+  "assistant.proposal.edit": "Edit",
+  "assistant.proposal.accepted": "✓ Saved",
+  "assistant.proposal.failed":
+    "Couldn't save it. It may already exist or the data changed; open it with Edit.",
+  "assistant.error.signedOut": "Your session expired. Sign in again to use the assistant.",
+  "assistant.error.quota": "You've reached today's limit. You can keep asking tomorrow.",
+  "assistant.error.unavailable": "The assistant isn't available right now.",
+  "assistant.error.network": "We couldn't reach Lukas. Check your connection.",
+  "assistant.error.unexpected": "Something went wrong with the answer. Try again.",
 };
