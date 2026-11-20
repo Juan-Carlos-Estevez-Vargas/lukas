@@ -39,3 +39,21 @@ pnpm --filter @lukas/ai-tools mcp
 Levanta un servidor MCP por stdio con datos inventados (`src/sample.ts`). Sirve para probar las
 herramientas desde cualquier cliente MCP, por ejemplo el inspector
 (`npx @modelcontextprotocol/inspector pnpm --filter @lukas/ai-tools mcp`). No toca datos reales.
+
+## El agente en la API
+
+`apps/api/src/modules/agent` usa estas herramientas en `POST /v1/agent/chat`:
+
+- **Modelo intercambiable:** AI SDK con un proveedor compatible con OpenAI (`model.ts`). Por
+  defecto es Workers AI de la cuenta (`CLOUDFLARE_ACCOUNT_ID` + secreto `AI_API_KEY`, modelo
+  `@cf/meta/llama-3.3-70b-instruct-fp8-fast`). Con `AI_BASE_URL` y `AI_MODEL` se cambia de
+  proveedor sin tocar el código. Sin `AI_API_KEY` el endpoint responde 503.
+- **Streaming:** la respuesta es un *UI message stream* del AI SDK. Las propuestas llegan como
+  resultados de herramientas para que la app pinte la tarjeta de aprobación.
+- **Cuota diaria:** 20 000 tokens y 40 mensajes por persona y día de Colombia, en `app.ai_usage`
+  (con RLS). Al pasarse, 429 `agent_quota`.
+- **Datos personales:** antes de llegar al modelo se tapan tarjetas, correos, celulares y números
+  de 8 o más dígitos, tanto en los mensajes como en los resultados de las herramientas (`redact.ts`).
+  Los ids se dejan porque el modelo los necesita para proponer cambios.
+- **Alcance:** los datos salen de `postgresAgentData`, que corre cada consulta con `withUser`, así
+  que RLS limita todo a la persona de la sesión.

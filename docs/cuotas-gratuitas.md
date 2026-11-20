@@ -13,6 +13,7 @@ los primeros usuarios externos.
 | Expo EAS | APK de Android en cada release y actualizaciones OTA (pendiente) | Cupo mensual de builds y de usuarios de OTA del plan Free | https://expo.dev → Usage | Compilar APK solo en releases |
 | Cron Triggers | TRM diaria en staging y producción (13:00 UTC); las previews no tienen cron | 5 cron triggers por cuenta en el plan Free | Panel → Workers → `lukas-api` → Settings → Triggers | No agregar crons por entorno; juntar tareas en el mismo |
 | datos.gov.co (Socrata) | TRM histórica, una consulta al día más las de respaldo | Consultas anónimas con límite por IP | — | Agregar un app token gratuito de Socrata como secreto |
+| Workers AI | Asistente de Lukas (`/v1/agent/chat`), Llama 3.3 70B por la API compatible con OpenAI | 10 000 neuronas al día por cuenta en el plan Free (unas 200 conversaciones cortas); además, la API limita a 20 000 tokens y 40 mensajes por persona al día (`app.ai_usage`) | Panel → AI → Workers AI → Usage | Bajar la cuota por persona o usar un modelo más pequeño con `AI_MODEL`; nunca pasar a pago sin aprobación |
 | Turnstile | Captcha antes de enviar el código | Sin límite práctico en el plan Free | Panel → Turnstile | — |
 
 ## Alertas
