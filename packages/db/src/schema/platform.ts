@@ -163,3 +163,24 @@ export const transactionEmbeddings = app.table(
     index("transaction_embeddings_hnsw").using("hnsw", t.embedding.op("vector_cosine_ops")),
   ],
 );
+
+export const legalDocument = app.enum("legal_document", ["privacy", "terms"]);
+
+/**
+ * Prueba de la autorización (Ley 1581, art. 9 y Decreto 1377, art. 8): qué versión de cada
+ * documento aceptó la persona y cuándo. Solo se agregan filas; nunca se cambian ni se borran
+ * (salvo al borrar la cuenta).
+ */
+export const legalConsents = app.table(
+  "legal_consents",
+  {
+    userId: userId(),
+    document: legalDocument("document").notNull(),
+    version: text("version").notNull(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.document, t.version] }),
+    check("legal_consents_version", sql`${t.version} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
+  ],
+);

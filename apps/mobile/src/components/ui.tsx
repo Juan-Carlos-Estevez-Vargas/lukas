@@ -151,16 +151,19 @@ export function Toggle({
   label,
   value,
   onChange,
+  testID,
 }: {
   readonly label: string;
   readonly value: boolean;
   readonly onChange: (value: boolean) => void;
+  readonly testID?: string;
 }) {
   const { colors, space, fontSize } = useTheme();
   return (
     <View style={{ minHeight: 48, flexDirection: "row", alignItems: "center", gap: space.md }}>
       <Text style={{ flex: 1, color: colors.text, fontSize: fontSize.body }}>{label}</Text>
       <Switch
+        testID={testID}
         accessibilityLabel={label}
         value={value}
         onValueChange={onChange}

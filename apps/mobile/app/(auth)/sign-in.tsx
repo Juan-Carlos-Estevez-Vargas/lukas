@@ -1,10 +1,13 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { type AuthError, isSixDigitCode, looksLikeEmail } from "../../src/api/auth-client";
 import { useSession } from "../../src/auth/session";
-import { Body, Button, Field, Screen, Title } from "../../src/components/ui";
+import { Body, Button, Field, Screen, Title, Toggle } from "../../src/components/ui";
+import { useLocalDatabase } from "../../src/data/provider";
 import { useI18n } from "../../src/i18n/i18n";
 import type { Translate } from "../../src/i18n/translator";
+import { rememberAcceptance } from "../../src/legal/consent";
 
 const describe = (t: Translate, error: AuthError): string => {
   switch (error.kind) {
@@ -26,10 +29,14 @@ export default function SignIn() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Autorización previa, expresa e informada (Ley 1581, art. 9): sin aceptarla no se registra.
+  const [accepted, setAccepted] = useState(false);
+  const database = useLocalDatabase();
 
   const sendCode = async () => {
     const address = email.trim().toLowerCase();
     if (!looksLikeEmail(address)) return setError(t("signIn.invalidEmail"));
+    if (!accepted) return setError(t("legal.signIn.required"));
     setBusy(true);
     setError(null);
     const result = await client.sendCode(address);
@@ -48,6 +55,8 @@ export default function SignIn() {
       setBusy(false);
       return setError(describe(t, result.error));
     }
+    // Se envía a la API con la sesión (ConsentGate); aquí queda la prueba de este teléfono.
+    if (database.status === "ready") await rememberAcceptance(database.db).catch(() => undefined);
     await signIn(result.value);
   };
 
@@ -72,6 +81,22 @@ export default function SignIn() {
               textContentType="emailAddress"
               returnKeyType="send"
               onSubmitEditing={sendCode}
+            />
+            <Toggle
+              testID="signin-accept"
+              label={t("legal.signIn.accept")}
+              value={accepted}
+              onChange={setAccepted}
+            />
+            <Button
+              variant="plain"
+              label={t("legal.privacy")}
+              onPress={() => router.push("/legal/privacy")}
+            />
+            <Button
+              variant="plain"
+              label={t("legal.terms")}
+              onPress={() => router.push("/legal/terms")}
             />
             {error ? <Body tone="error">{error}</Body> : null}
             <Button label={t("signIn.sendCode")} onPress={sendCode} busy={busy} />

@@ -299,6 +299,7 @@ describe("exportar CSV", () => {
   });
 });
 
+// scrypt con N=2^15 bajo cobertura tarda ~30 s en los runners de CI.
 describe("flujo completo", () => {
   it("crea el archivo y lo restaura con la misma contraseña", async () => {
     const fx = await fullDb();
@@ -307,5 +308,5 @@ describe("flujo completo", () => {
     expect(await restoreBackup(fresh, file, "clave segura")).toBeGreaterThan(20);
     expect(await dump(fresh)).toEqual(await dump(fx.db));
     expect(backupFileName(new Date(2026, 0, 5), "csv")).toBe("lukas-2026-01-05.csv");
-  }, 30_000);
+  }, 120_000);
 });

@@ -11,7 +11,8 @@ export type PreferenceKey =
   | "insights.dismissed"
   | "assistant.enabled"
   | "notifications.weekly"
-  | "billing.entitlements";
+  | "billing.entitlements"
+  | "legal.accepted";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;
