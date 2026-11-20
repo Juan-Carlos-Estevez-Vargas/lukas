@@ -140,7 +140,11 @@ function firstSheetPath(workbook: string | null, rels: string | null): string {
   const fallback = "xl/worksheets/sheet1.xml";
   const rid = workbook ? /<sheet\b[^>]*\br:id="([^"]+)"/.exec(workbook)?.[1] : undefined;
   if (!rid || !rels) return fallback;
-  const rel = new RegExp(`<Relationship\\b[^>]*Id="${rid}"[^>]*>`).exec(rels)?.[0];
+  // Se recorren las relaciones con una expresión fija: el id viene del archivo y no debe armar
+  // una expresión regular (ReDoS).
+  const rel = [...rels.matchAll(/<Relationship\b[^>]*>/g)]
+    .map((m) => m[0])
+    .find((tag) => /\bId="([^"]+)"/.exec(tag)?.[1] === rid);
   const target = rel ? /Target="([^"]+)"/.exec(rel)?.[1] : undefined;
   if (!target) return fallback;
   return target.startsWith("/") ? target.slice(1) : `xl/${target}`;
