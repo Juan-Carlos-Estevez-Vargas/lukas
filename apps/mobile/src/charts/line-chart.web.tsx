@@ -7,6 +7,7 @@ import { useEChart } from "./use-echart.web";
 /** Línea con ECharts (SVG) en la web. */
 export function LineChart(props: LineChartProps) {
   const { labels, values, color, height, description, formatValue, gridColor, textColor } = props;
+  const every = Math.max(1, props.labelEvery ?? 1);
   const option = useMemo<EChartsOption>(
     () => ({
       animation: false,
@@ -24,7 +25,7 @@ export function LineChart(props: LineChartProps) {
         boundaryGap: false,
         axisLine: { lineStyle: { color: gridColor } },
         axisTick: { show: false },
-        axisLabel: { color: textColor },
+        axisLabel: { color: textColor, interval: every - 1 },
       },
       yAxis: {
         type: "value",
@@ -41,7 +42,7 @@ export function LineChart(props: LineChartProps) {
         },
       ],
     }),
-    [labels, values, color, formatValue, gridColor, textColor],
+    [labels, values, color, formatValue, gridColor, textColor, every],
   );
   const ref = useEChart(option);
   return (

@@ -7,6 +7,7 @@ import type { LineChartProps } from "./types";
 /** Línea con SVG; el cero se marca para ver cuándo el patrimonio fue negativo. */
 export function LineChart(props: LineChartProps) {
   const { labels, values, color, height, description, gridColor, textColor } = props;
+  const every = Math.max(1, props.labelEvery ?? 1);
   const [width, setWidth] = useState(0);
   // Margen para que los puntos de los extremos no queden cortados.
   const pad = 6;
@@ -42,11 +43,13 @@ export function LineChart(props: LineChartProps) {
         <View style={{ height }} />
       )}
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        {labels.map((label) => (
-          <Text key={label} style={{ color: textColor, fontSize: 12 }}>
-            {label}
-          </Text>
-        ))}
+        {labels
+          .filter((_, i) => i % every === 0)
+          .map((label) => (
+            <Text key={label} style={{ color: textColor, fontSize: 12 }}>
+              {label}
+            </Text>
+          ))}
       </View>
     </View>
   );

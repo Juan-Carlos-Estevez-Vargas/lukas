@@ -254,6 +254,16 @@ garantiza SQLCipher y se comprueba en el dispositivo.
 - `metro.config.js` resuelve `tslib` a su versión ES: la que elige Metro por defecto deja a ECharts
   sin `__extends` en la web.
 
+## Proyección de saldo
+
+- Para cada cuenta de efectivo, banco o billetera proyecta el saldo de los próximos 90 días
+  (`src/projection/projection.ts`): el saldo de hoy, los recurrentes de esa cuenta en su fecha (los
+  que esperan confirmación cuentan hoy) y el promedio diario de los ingresos y gastos que no salieron
+  de un recurrente, de los últimos 90 días o desde que existe la cuenta (mínimo 30, para que una
+  cuenta nueva no se proyecte en picada). No adivina transferencias ni pagos de tarjeta.
+- Si una cuenta quedaría en rojo, el Resumen lo avisa con la fecha y el monto; "Ver proyección"
+  abre Reportes en el gráfico de esa cuenta, con lo programado y el punto más bajo.
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,

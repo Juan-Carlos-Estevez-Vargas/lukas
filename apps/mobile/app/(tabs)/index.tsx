@@ -21,10 +21,16 @@ import {
   type UpcomingPayment,
   upcomingPayments,
 } from "../../src/home/home";
-import { AvailableCard, TopCategoriesCard, UpcomingCard } from "../../src/home/home-cards";
+import {
+  AvailableCard,
+  ProjectionAlertCard,
+  TopCategoriesCard,
+  UpcomingCard,
+} from "../../src/home/home-cards";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
 import { useAppLock } from "../../src/lock/app-lock";
+import { type AccountProjection, atRisk, projectAccounts } from "../../src/projection/projection";
 import { ratesClient } from "../../src/rates/client";
 import { copRates, refreshRates, type StoredRate } from "../../src/rates/rates";
 import { parseCivil } from "../../src/recurring/recurring";
@@ -47,6 +53,7 @@ export default function Summary() {
   const [available, setAvailable] = useState<MonthAvailable | null>(null);
   const [top, setTop] = useState<CategorySpend[]>([]);
   const [upcoming, setUpcoming] = useState<UpcomingPayment[]>([]);
+  const [risky, setRisky] = useState<AccountProjection[]>([]);
   const [worth, setWorth] = useState<NetWorth | null>(null);
   const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
@@ -79,6 +86,7 @@ export default function Summary() {
         const available = await monthAvailable(database.db, today, "COP", table);
         const top = await topCategories(database.db, today, "COP", 3, table);
         const upcoming = await upcomingPayments(database.db, today);
+        const risky = atRisk(await projectAccounts(database.db, today));
         const accounts = await repo.list({ includeArchived: showArchived });
         const rows = await Promise.all(
           accounts.map(async (a) => ({ account: a, balance: await repo.balance(a) })),
@@ -87,6 +95,7 @@ export default function Summary() {
         setAvailable(available);
         setTop(top);
         setUpcoming(upcoming);
+        setRisky(risky);
         setRows(rows);
         setUsd(rates.usd);
         setWorth(
@@ -133,6 +142,10 @@ export default function Summary() {
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
         {available ? <AvailableCard data={available} /> : null}
         <TopCategoriesCard data={top} />
+        <ProjectionAlertCard
+          data={risky}
+          onOpen={(account) => router.push({ pathname: "/(tabs)/reports", params: { account } })}
+        />
         <UpcomingCard data={upcoming} />
         <Body muted>{t("summary.netWorth")}</Body>
         {worth ? <Title>{fmt(worth.total)}</Title> : null}

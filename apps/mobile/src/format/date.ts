@@ -21,3 +21,11 @@ export function formatMonth(
     .format(new Date(Date.UTC(m.year, m.month - 1, 1)))
     .replace(".", "");
 }
+
+/** "30 nov" / "Nov 30": para las etiquetas de un eje con días. */
+export function formatShortDate(date: CivilDate, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" })
+    .format(new Date(Date.UTC(date.year, date.month - 1, date.day)))
+    .replace(" de ", " ")
+    .replace(".", "");
+}

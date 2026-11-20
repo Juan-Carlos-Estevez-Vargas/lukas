@@ -1,0 +1,28 @@
+# Proyección: con $150.000 y una compra de $140.000 hoy, el ritmo de gasto deja a Nequi en rojo en
+# pocos días. El Resumen avisa y "Ver proyección" lleva al gráfico en Reportes.
+appId: co.lukas.app
+name: Proyección de saldo
+---
+- runFlow: subflows/primer-uso.yaml
+- openLink: "lukas://movement/new?kind=expense&category=default.mercado"
+- extendedWaitUntil:
+    visible:
+      id: "movement-merchant"
+    timeout: 10000
+- tapOn: "1"
+- tapOn: "4"
+- tapOn: "0"
+- tapOn: "000"
+- scrollUntilVisible:
+    element: "Guardar"
+- tapOn: "Guardar"
+- extendedWaitUntil:
+    visible: "⚠ Nequi quedaría en rojo .*"
+    timeout: 10000
+- scrollUntilVisible:
+    element: "Ver proyección"
+- tapOn: "Ver proyección"
+- extendedWaitUntil:
+    visible: "⚠ Quedaría en rojo .*"
+    timeout: 10000
+- assertVisible: "Hoy: .* Lo más bajo: .*"

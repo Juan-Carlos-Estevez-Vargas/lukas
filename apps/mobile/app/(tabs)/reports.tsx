@@ -1,8 +1,8 @@
 import { ratio } from "@lukas/charts";
 import { Money } from "@lukas/domain";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Pressable, ScrollView, type ScrollViewInstance, Text, View } from "react-native";
 import { BarChart } from "../../src/charts/bar-chart";
 import { HeatmapChart } from "../../src/charts/heatmap-chart";
 import { LineChart } from "../../src/charts/line-chart";
@@ -13,11 +13,16 @@ import { newId } from "../../src/data/ids";
 import { sqlitePreferences } from "../../src/data/preferences";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
-import { formatMonth } from "../../src/format/date";
+import { formatCivilDate, formatMonth, formatShortDate } from "../../src/format/date";
 import { formatMoney } from "../../src/format/money";
 import type { CategorySpend } from "../../src/home/home";
 import { Card } from "../../src/home/home-cards";
 import { useI18n } from "../../src/i18n/i18n";
+import {
+  type AccountProjection,
+  projectAccounts,
+  todayCivil,
+} from "../../src/projection/projection";
 import { copRates } from "../../src/rates/rates";
 import {
   baseMonth,
@@ -46,6 +51,8 @@ const MONTHS = 6;
 const CHART_HEIGHT = 160;
 const SANKEY_HEIGHT = 220;
 /** Colores de las categorías en el Sankey, en orden; se repiten si hay más. */
+/** La proyección se dibuja con un punto cada tantos días (0, 10, …, 90). */
+const PROJECTION_STEP = 10;
 const PALETTE = ["#2E7D9A", "#B0532F", "#6B5BA8", "#3F8A4A", "#A0662B", "#8A4F7D", "#4D6A8F"];
 
 export default function Reports() {
@@ -71,6 +78,18 @@ export default function Reports() {
   const [comparison, setComparison] = useState<MonthComparison | null>(null);
   const [sankey, setSankey] = useState<MoneyFlow | null>(null);
   const [daily, setDaily] = useState<bigint[]>([]);
+  const [projections, setProjections] = useState<AccountProjection[]>([]);
+  const params = useLocalSearchParams<{ account?: string }>();
+  const [projected, setProjected] = useState<string | null>(params.account ?? null);
+  const scroll = useRef<ScrollViewInstance>(null);
+  const [projectionY, setProjectionY] = useState<number | null>(null);
+  useEffect(() => {
+    if (params.account) setProjected(params.account);
+  }, [params.account]);
+  useEffect(() => {
+    // Desde el aviso del Resumen se llega directo a la proyección.
+    if (params.account && projectionY !== null) scroll.current?.scrollTo({ y: projectionY });
+  }, [params.account, projectionY]);
 
   const prefs = useMemo(
     () => (database.status === "ready" ? sqlitePreferences(database.db) : null),
@@ -86,13 +105,14 @@ export default function Reports() {
       let active = true;
       void (async () => {
         const { table } = await copRates(database.db);
-        const [f, w, c, cmp, s, d] = await Promise.all([
+        const [f, w, c, cmp, s, d, p] = await Promise.all([
           cashFlow(database.db, months, "COP", table),
           netWorthSeries(database.db, months, "COP", table),
           spendingByCategory(database.db, selected, "COP", table),
           compareMonths(database.db, selected, baseMonth(selected, base), "COP", table),
           moneyFlow(database.db, selected, "COP", table),
           dailySpending(database.db, selected, "COP", table),
+          projectAccounts(database.db, todayCivil()),
         ]);
         if (!active) return;
         setFlow(f);
@@ -101,6 +121,7 @@ export default function Reports() {
         setComparison(cmp);
         setSankey(s);
         setDaily(d);
+        setProjections(p);
       })();
       return () => {
         active = false;
@@ -212,6 +233,10 @@ export default function Reports() {
     { day: 0, value: 0n },
   );
   const weekdays = t("reports.weekdays").split(",");
+  const projection = projections.find((p) => p.id === projected) ?? projections[0] ?? null;
+  const projectionMoney = (v: bigint) =>
+    projection ? money(Money.ofMinor(v, projection.currency)) : "";
+  const samples = (projection?.points ?? []).filter((_, i) => i % PROJECTION_STEP === 0);
 
   const applyView = (v: SavedView) => {
     setBase(v.base);
@@ -233,7 +258,7 @@ export default function Reports() {
   return (
     <Screen>
       <Title>{t("tabs.reports")}</Title>
-      <ScrollView contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
+      <ScrollView ref={scroll} contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
         <ChipRow testID="report-months">
           {months.map((m) => (
             <Chip
@@ -479,6 +504,100 @@ export default function Reports() {
             textColor={colors.textMuted}
           />
         </Card>
+
+        <View onLayout={(e) => setProjectionY(e.nativeEvent.layout.y)}>
+          <Card title={t("projection.title")}>
+            {projection ? (
+              <>
+                {projections.length > 1 ? (
+                  <ChipRow testID="projection-accounts">
+                    {projections.map((p) => (
+                      <Chip
+                        key={p.id}
+                        label={p.firstNegative ? `⚠ ${p.name}` : p.name}
+                        selected={p.id === projection.id}
+                        onPress={() => setProjected(p.id)}
+                      />
+                    ))}
+                  </ChipRow>
+                ) : null}
+                {projection.firstNegative ? (
+                  <Text style={{ color: colors.warning, fontSize: fontSize.body }}>
+                    {`⚠ ${t("projection.negative", {
+                      date: formatCivilDate(projection.firstNegative.date, locale),
+                    })}`}
+                  </Text>
+                ) : null}
+                <Body>
+                  {t("projection.lowest", {
+                    today: money(projection.today),
+                    amount: projectionMoney(projection.lowest?.balance ?? 0n),
+                    date: projection.lowest ? formatCivilDate(projection.lowest.date, locale) : "",
+                  })}
+                </Body>
+                <LineChart
+                  labels={samples.map((p, i) =>
+                    i === 0 ? t("projection.today") : formatShortDate(p.date, locale),
+                  )}
+                  labelEvery={3}
+                  values={samples.map((p) => p.balance)}
+                  color={projection.firstNegative ? colors.expense : colors.primary}
+                  height={CHART_HEIGHT}
+                  description={t("projection.a11y", {
+                    account: projection.name,
+                    detail: samples
+                      .map(
+                        (p) => `${formatCivilDate(p.date, locale)}: ${projectionMoney(p.balance)}`,
+                      )
+                      .join(". "),
+                  })}
+                  formatValue={projectionMoney}
+                  gridColor={colors.border}
+                  textColor={colors.textMuted}
+                />
+                <Body muted>
+                  {projection.dailyAverage.amountMinor < 0n
+                    ? t("projection.averageOut", {
+                        amount: money(projection.dailyAverage.negate()),
+                      })
+                    : t("projection.averageIn", { amount: money(projection.dailyAverage) })}
+                </Body>
+                {projection.scheduled.length > 0 ? (
+                  <>
+                    <Body muted>{t("projection.next")}</Body>
+                    {projection.scheduled.slice(0, 5).map((f) => (
+                      <View
+                        key={`${f.name}-${formatShortDate(f.date, locale)}`}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          gap: space.sm,
+                        }}
+                      >
+                        <Text
+                          style={{ color: colors.text, fontSize: fontSize.body, flexShrink: 1 }}
+                        >
+                          {`${formatShortDate(f.date, locale)} · ${f.name}`}
+                        </Text>
+                        <Text
+                          style={{
+                            color: f.amount < 0n ? colors.expense : colors.income,
+                            fontSize: fontSize.body,
+                          }}
+                        >
+                          {projectionMoney(f.amount)}
+                        </Text>
+                      </View>
+                    ))}
+                  </>
+                ) : null}
+                <Body muted>{t("projection.how")}</Body>
+              </>
+            ) : (
+              <Body muted>{t("projection.empty")}</Body>
+            )}
+          </Card>
+        </View>
       </ScrollView>
     </Screen>
   );

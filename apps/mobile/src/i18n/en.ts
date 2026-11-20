@@ -391,4 +391,19 @@ export const en: Messages = {
   "reports.dailyHint": "Tap a day to see how much you spent.",
   "reports.dayDetail": "{date}: {amount}",
   "reports.weekdays": "M,T,W,T,F,S,S",
+  "projection.title": "Balance in 90 days",
+  "projection.alert": "{account} would go negative on {date}: {amount}.",
+  "projection.see": "See projection",
+  "projection.ok":
+    "With what's scheduled and your average spending, no account goes negative in the next 90 days.",
+  "projection.lowest": "Today: {today}. Lowest: {amount} on {date}.",
+  "projection.negative": "It would go negative on {date}.",
+  "projection.averageOut": "Outside of recurring items, on average {amount} goes out per day.",
+  "projection.averageIn": "Outside of recurring items, on average {amount} comes in per day.",
+  "projection.next": "Scheduled",
+  "projection.how":
+    "Adds this account's recurring items and the average of everything else over the last 90 days (or since you created it). It doesn't guess transfers or card payments.",
+  "projection.a11y": "Projected balance of {account} for the next 90 days. {detail}",
+  "projection.empty": "There are no cash, bank or wallet accounts to project.",
+  "projection.today": "Today",
 };

@@ -26,6 +26,8 @@ export interface BarChartProps {
 
 export interface LineChartProps {
   readonly labels: readonly string[];
+  /** Mostrar una etiqueta cada tantas (por defecto todas): para series largas. */
+  readonly labelEvery?: number;
   readonly values: readonly bigint[];
   readonly color: string;
   readonly height: number;
