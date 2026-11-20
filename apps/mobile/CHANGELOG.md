@@ -1,5 +1,59 @@
 # @lukas/mobile
 
+## 0.4.0
+
+### Minor Changes
+
+- f6ae881: Chat con el asistente: arranca apagado, explica qué datos usa y lo que propone (movimientos, categorías, presupuestos) solo se guarda al aceptarlo o editarlo.
+- a838421: Bandeja "Por revisar" para los movimientos que llegan solos: sin duplicados entre vías, con la cuenta adivinada por los últimos 4 dígitos o el banco.
+- aac5ebf: Planes y entitlements: plan gratis y premium, una saga de suscripción que aplica cada evento de pago una sola vez y `GET /v1/billing/entitlements`. Leer recibos y buscar por significado pasan a ser premium, y premium tiene más cuota diaria del asistente. Activar premium en la base lo habilita en la API, el teléfono y la web.
+- 869d772: Búsqueda por significado: los movimientos se indexan con embeddings (pgvector) y "salidas a comer" encuentra restaurantes y domicilios. Solo busca en los movimientos de la persona y la consulta nunca da órdenes.
+- 3706acb: Subcategorías con ícono, reglas por comercio o palabra clave y aprendizaje al corregir una categoría.
+- a24c811: Comentarios de la beta: en Ajustes → Enviar comentarios se puede reportar una falla, proponer una idea o escribir otra cosa. Los números de tarjeta se tapan antes de enviar y antes de guardar.
+- 03d2585: Política de tratamiento de datos y términos y condiciones dentro de la app. Al registrarse se pide la autorización (Ley 1581) y queda registrada con la versión aceptada; si un documento cambia, se pide de nuevo.
+- e47162c: Seguridad del teléfono: Lukas bloquea las capturas de pantalla (se pueden permitir en Ajustes), avisa si el teléfono tiene root y solo habla con la API por HTTPS con pinning de certificados.
+- dff0d18: Importar extractos en PDF de Bancolombia, Davivienda, BBVA, Nu y Nequi (también con clave), con verificación de saldos y conciliación con lo ya registrado.
+- 0cc8cfa: Importar movimientos desde CSV o Excel del banco: columnas adivinadas y editables, vista previa y sin duplicados al importar dos veces el mismo archivo.
+- 571b37d: Lector de notificaciones en Android: con tu permiso, los avisos de las apps de banco que elijas llegan solos a "Por revisar", leídos solo en el teléfono.
+- 7b040e1: Lectores por banco para los avisos de Nequi, Daviplata, Bancolombia, Davivienda, BBVA y Nu: monto, comercio, tarjeta y hora; los pagos de tarjeta y los movimientos entre bolsillos no llegan a la bandeja.
+- bfe0b49: Lectura de recibos: la foto se comprime en el teléfono, un modelo de visión lee comercio, total y fecha en `POST /v1/agent/receipt` (sin guardar la imagen) y el formulario se llena para revisarlo antes de guardar.
+- 416fae6: Metas de ahorro con fecha, progreso y cuánto apartar por mes.
+- 4510aa5: Multimoneda con TRM: cron diario desde datos abiertos, endpoint público y cuentas en USD que suman al patrimonio en pesos.
+- 1fc6660: Inicio con el disponible del mes, el top de categorías y los próximos pagos.
+- 38d7976: Pantalla de planes con precios en pesos, prueba gratis de premium por 14 días (vence sola, una vez por persona) y cupones de días de premium que se suman a lo vigente.
+- 3ba18b3: Presupuestos por categoría y periodo, sobres, regla 50/30/20 y avisos al 80 % y 100 %.
+- af24e7a: Proyección de saldo a 90 días por cuenta, con recurrentes y el promedio de lo variable. El Resumen avisa si una cuenta quedaría en rojo y Reportes muestra el gráfico.
+- dc44ef2: Movimientos recurrentes que se registran solos al vencer o avisan para confirmarlos.
+- 57c0457: Descargar el reporte del mes en PDF y en Excel (una hoja de resumen y una por cuenta) desde Reportes.
+- 3028154: Reportes avanzados: comparar un mes contra el anterior o el del año pasado por categoría, comparaciones guardadas, Sankey de a dónde se fue la plata y mapa de calor del gasto por día.
+- 623cdad: Reportes: flujo de caja, gasto por categoría y patrimonio mes a mes. Tocar una barra o una categoría abre los movimientos filtrados.
+- d13654f: Respaldo cifrado con contraseña, restauración completa y exportación de movimientos a CSV.
+- e1e9776: Resumen semanal: los domingos a las 8 a. m. llega un aviso push con lo gastado en los últimos 7 días, la comparación con los 7 anteriores y la categoría principal. Se activa por teléfono en Ajustes y se borra al cerrar sesión.
+- 8befa50: El Resumen detecta suscripciones (dos cobros iguales con periodo semanal, mensual o anual) y propone crear el recurrente, y avisa cuando un comercio te cobra dos veces lo mismo.
+- 844705a: Conflictos de sincronización sin perder datos: si dos dispositivos editan el mismo registro se fusiona campo por campo, gana la edición más reciente en lo que choca y queda registro del conflicto.
+- e855f4d: Sincronización push / pull: el teléfono sube sus cambios (cuentas, categorías y movimientos) y baja los de otros dispositivos al abrir la app o desde Ajustes.
+- 2a098aa: App web instalable (PWA): menú lateral en escritorio, datos traídos con el sync y guardados solo en memoria, e instalación desde Safari en el iPhone.
+- 256413f: Widgets de Android: gasto rápido con categorías frecuentes y disponible del mes que se oculta con PIN o modo discreto.
+
+### Patch Changes
+
+- Updated dependencies [aac5ebf]
+- Updated dependencies [3706acb]
+- Updated dependencies [a24c811]
+- Updated dependencies [03d2585]
+- Updated dependencies [416fae6]
+- Updated dependencies [4510aa5]
+- Updated dependencies [38d7976]
+- Updated dependencies [3ba18b3]
+- Updated dependencies [dc44ef2]
+- Updated dependencies [3028154]
+- Updated dependencies [623cdad]
+- Updated dependencies [844705a]
+- Updated dependencies [e855f4d]
+  - @lukas/domain@0.3.0
+  - @lukas/charts@0.2.0
+  - @lukas/sync@0.2.0
+
 ## 0.3.0
 
 ### Minor Changes

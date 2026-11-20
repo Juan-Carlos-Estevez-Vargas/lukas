@@ -1,6 +1,6 @@
 {
   "name": "@lukas/sync",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Protocolo de sincronización push / pull compartido entre la API y las apps",
   "type": "module",
