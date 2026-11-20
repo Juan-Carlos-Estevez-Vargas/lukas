@@ -11,6 +11,7 @@ export type PreferenceKey =
   | "insights.dismissed"
   | "assistant.enabled"
   | "notifications.weekly"
+  | "security.allowScreenshots"
   | "billing.entitlements"
   | "legal.accepted";
 

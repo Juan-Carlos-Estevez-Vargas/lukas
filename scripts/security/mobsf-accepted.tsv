@@ -1,0 +1,6 @@
+# Hallazgos altos de MobSF aceptados, con su razón. Una línea por hallazgo: el comienzo exacto
+# del título, un tabulador y la razón. Revisar cada vez que cambie algo de esto.
+Application signed with debug certificate	El APK de CI se firma con la llave de depuración de React Native; los de release los firma EAS (FIN-012).
+Certificate algorithm vulnerable to hash collision	Es el certificado de depuración del APK de CI (SHA1withRSA); el de EAS usa SHA-256.
+App can be installed on a vulnerable unpatched Android version	minSdk 24 (Android 7) es el mínimo de Expo SDK 58; subirlo deja por fuera teléfonos que aún se usan en Colombia. Decisión pendiente del dueño.
+The App uses the encryption mode CBC with PKCS5/PKCS7 padding	Está en código de terceros (R8 lo ubica en Fresco, la librería de imágenes de React Native). Lukas no usa ese cifrado: los respaldos van con XChaCha20-Poly1305 y los secretos en el Keystore (expo-secure-store). Si aparece en co.lukas.*, el script falla igual.

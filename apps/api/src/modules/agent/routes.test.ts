@@ -217,6 +217,14 @@ describe("chat con el agente", () => {
     expect(account?.balance.toDecimalString()).toBe("-410000.00");
     expect((await data.categories()).map((c) => c.name).sort()).toEqual(["Mercado", "Salario"]);
     expect(await data.movement("no-es-un-uuid")).toBeNull();
+    // IDOR: con el id de un movimiento de Ana, Beto no lo ve.
+    const [anaTx] = await db
+      .select({ id: transactions.id })
+      .from(transactions)
+      .where(eq(transactions.userId, ana.userId));
+    expect(anaTx).toBeDefined();
+    expect(await data.movement(anaTx?.id ?? "")).not.toBeNull();
+    expect(await postgresAgentData(db, beto.userId).movement(anaTx?.id ?? "")).toBeNull();
     expect(await postgresAgentData(db, beto.userId).accounts()).toEqual([]);
   });
 

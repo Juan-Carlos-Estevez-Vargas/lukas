@@ -39,6 +39,7 @@ import { ratesClient } from "../../src/rates/client";
 import { copRates, refreshRates, type StoredRate } from "../../src/rates/rates";
 import { parseCivil } from "../../src/recurring/recurring";
 import { useRecurring } from "../../src/recurring/use-recurring";
+import { useDeviceSecurity } from "../../src/security/use-device-security";
 import { useSync } from "../../src/sync/use-sync";
 import { updateWidgets } from "../../src/widgets/bridge";
 import { availableSnapshot } from "../../src/widgets/snapshot";
@@ -50,6 +51,7 @@ interface Row {
 
 export default function Summary() {
   const { t, locale } = useI18n();
+  const rooted = useDeviceSecurity().rootSignals.length > 0;
   const { discreet } = useDiscreet();
   const database = useLocalDatabase();
   const [rows, setRows] = useState<Row[]>([]);
@@ -152,6 +154,7 @@ export default function Summary() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
+        {rooted ? <Body tone="error">{t("security.rooted")}</Body> : null}
         <InboxCard count={pending} onOpen={() => router.push("/inbox")} />
         <Button
           label={t("assistant.open")}

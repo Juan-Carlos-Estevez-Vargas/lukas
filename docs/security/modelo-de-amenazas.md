@@ -77,7 +77,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | T, I | Base local leída o alterada | ✓ SQLCipher (AES-256) con clave aleatoria en Keystore/Keychain; sin SQLCipher la app no abre la base (FIN-101) |
 | I | Finanzas guardadas en claro en el navegador | ✓ La web usa SQLite solo en memoria, llenado por el sync; nada queda en disco (ADR 0005) |
 | I | Alguien con el teléfono desbloqueado abre la app | ✓ Bloqueo con PIN (hash con sal en Keystore) o biometría; espera progresiva tras 5 fallos (FIN-103) |
-| I | Datos visibles en el selector de apps o mirando la pantalla | ✓ Pantalla tapada en segundo plano y modo discreto (FIN-103) · ○ `FLAG_SECURE` contra capturas |
+| I | Datos visibles en el selector de apps o mirando la pantalla | ✓ Pantalla tapada en segundo plano y modo discreto (FIN-103) · ✓ `FLAG_SECURE` contra capturas y grabación, encendido por defecto; la persona puede permitir capturas en Ajustes (FIN-405) |
 | I | Montos visibles en notificaciones con el teléfono bloqueado | ✓ Los avisos de pago de tarjetas, recurrentes y presupuestos no incluyen montos y son locales, sin push ni servidor (FIN-105, FIN-111, FIN-112) |
 | I | Fotos de recibos expuestas | ✓ Carpeta privada de la app, sin respaldo (`allowBackup` apagado), sin EXIF ni ubicación; nunca salen del teléfono (FIN-108) · ○ cifrarlas como la base |
 | I | Copias de seguridad del teléfono con datos | ✓ `allowBackup: false` |
@@ -86,6 +86,8 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 | I | CSV exportado abierto en Excel ejecuta fórmulas | ✓ Celdas que empiezan con `=`, `+`, `-`, `@` se anteponen con `'`; el CSV no va cifrado y la pantalla lo advierte (FIN-116) |
 | I | Copias del respaldo o CSV quedan en el teléfono | ✓ Se escriben en la caché privada solo para compartirlos y se borran al terminar (FIN-116) |
 | I | Widget con el disponible a la vista sin desbloquear | ✓ Con PIN o modo discreto muestra `••••`; no se ofrece en la pantalla de bloqueo; el resumen se guarda en SecureStore (FIN-117) |
+| T, I | Proxy o CA instalada por el usuario intercepta el tráfico con la API | ✓ Pinning de las raíces de Cloudflare (GTS, Let's Encrypt, SSL.com) para los dominios de la API, sin CAs de usuario y sin tráfico en claro (`network_security_config`). Los pines vencen el 2027-11-20 y hay que renovarlos antes (FIN-405) |
+| E | Teléfono con root: otras apps leen el almacenamiento de Lukas | ✓ Detección de señales de root (`su`, Magisk, `test-keys`) con aviso en el inicio. No se bloquea: sería fácil de saltar y castigaría a quien usa un ROM propio (FIN-405) |
 | D | Actualización OTA maliciosa | ○ Firma de código de EAS Update (FIN-011) |
 | E | Permisos de notificaciones usados para leer más de lo necesario | ○ Filtro por paquete de banco/billetera y procesamiento solo local (F2) |
 
@@ -93,6 +95,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 
 | STRIDE | Amenaza | Control |
 | --- | --- | --- |
+| I, E | Vulnerabilidades en la web, la API o el APK | ✓ ZAP baseline sobre staging después de cada despliegue y MobSF sobre el APK de release en cada PR de la app; fallan con hallazgos altos (FIN-405). Los aceptados están en `scripts/security/mobsf-accepted.tsv` con su razón; uno en `co.lukas.*` nunca se acepta |
 | T | Dependencia comprometida | ✓ Versiones exactas, 14 días mínimos de publicación, `trustPolicy: no-downgrade`, OSV-Scanner y Dependabot |
 | T | Acción de GitHub comprometida | ✓ Acciones fijadas por SHA, permisos `contents: read` por defecto |
 | I | Secretos en el código | ✓ gitleaks en cada PR |

@@ -569,10 +569,10 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-405 · Endurecimiento de seguridad
 
 - Tipo: `security` · Tamaño: L
-- [ ] FLAG_SECURE, root detection, pinning
-- [ ] ZAP baseline en staging
-- [ ] MobSF sobre el APK
-- [ ] Pruebas IDOR
+- [x] FLAG_SECURE, root detection, pinning
+- [x] ZAP baseline en staging
+- [x] MobSF sobre el APK
+- [x] Pruebas IDOR
 
 **Hecho cuando:** Sin hallazgos altos en ZAP y MobSF.
 

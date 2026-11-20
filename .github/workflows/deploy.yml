@@ -31,6 +31,9 @@ jobs:
     environment:
       name: ${{ inputs.environment || 'staging' }}
       url: ${{ steps.web.outputs.url }}
+    outputs:
+      api_url: ${{ steps.names.outputs.api_url }}
+      web_url: ${{ steps.web.outputs.url }}
     env:
       TARGET: ${{ inputs.environment || 'staging' }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -157,3 +160,29 @@ jobs:
             echo "- API: $API_URL/health"
             echo "- Commit: \`${GITHUB_SHA::7}\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # ZAP baseline (FIN-405): escaneo pasivo de la web y de la API de staging después de cada
+  # despliegue. Falla si hay alertas de riesgo alto; las medias y bajas quedan en el resumen.
+  zap:
+    name: ZAP baseline (staging)
+    needs: deploy
+    if: ${{ (inputs.environment || 'staging') == 'staging' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: ZAP baseline
+        env:
+          WEB_URL: ${{ needs.deploy.outputs.web_url }}
+          API_URL: ${{ needs.deploy.outputs.api_url }}
+        run: bash scripts/security/zap-baseline.sh "$RUNNER_TEMP/zap" "$WEB_URL" "$API_URL/v1/health" "$API_URL/v1/openapi.json"
+
+      - name: Reportes de ZAP
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: zap
+          path: ${{ runner.temp }}/zap
+          retention-days: 14
+          if-no-files-found: ignore

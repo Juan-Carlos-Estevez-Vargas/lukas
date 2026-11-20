@@ -25,6 +25,7 @@ import {
 } from "../../src/notifications/weekly";
 import { removeSampleData } from "../../src/onboarding/onboarding";
 import { useCardReminders } from "../../src/reminders/use-card-reminders";
+import { useDeviceSecurity } from "../../src/security/use-device-security";
 import { syncLine as describeSync } from "../../src/sync/text";
 import { useSync } from "../../src/sync/use-sync";
 
@@ -33,6 +34,7 @@ const devices = createDeviceClient(apiUrl);
 export default function Settings() {
   const { t, locale } = useI18n();
   const { signOut, state: session } = useSession();
+  const security = useDeviceSecurity();
   const { entitlements } = useEntitlements();
   const sync = useSync();
   const syncLine = describeSync(t, locale, sync);
@@ -62,6 +64,13 @@ export default function Settings() {
       <ScrollView contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
         <Title>{t("tabs.settings")}</Title>
         <Toggle label={t("settings.discreet")} value={discreet} onChange={setDiscreet} />
+        {security.available ? (
+          <Toggle
+            label={t("security.screenshots")}
+            value={security.screenshotsAllowed}
+            onChange={security.setScreenshotsAllowed}
+          />
+        ) : null}
         {db ? (
           <Toggle
             label={t("assistant.setting")}
