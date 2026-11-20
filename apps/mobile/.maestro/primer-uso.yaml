@@ -1,0 +1,8 @@
+# Del primer arranque al resumen: la cuenta del onboarding aparece con su saldo.
+appId: co.lukas.app
+name: Primer uso
+---
+- runFlow: subflows/primer-uso.yaml
+- assertVisible: "Nequi"
+- assertVisible: ".*150\\.000.*"
+- assertVisible: "Registrar movimiento"

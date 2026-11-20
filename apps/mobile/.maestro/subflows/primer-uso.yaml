@@ -1,0 +1,36 @@
+# Instalación limpia: entra con el código de prueba y termina el onboarding con Nequi y $150.000.
+appId: co.lukas.app
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil:
+    visible: "Entra a Lukas"
+    timeout: 30000
+- tapOn:
+    id: "signin-email"
+- inputText: "e2e@lukas.test"
+- hideKeyboard
+- tapOn: "Enviar código"
+- tapOn:
+    id: "signin-code"
+- inputText: "123456"
+- hideKeyboard
+- tapOn: "Entrar"
+- extendedWaitUntil:
+    visible: "Tus finanzas, en tu teléfono"
+    timeout: 15000
+- tapOn: "Empezar"
+- tapOn: "Nequi"
+- tapOn:
+    id: "onboarding-balance"
+- inputText: "150000"
+- hideKeyboard
+- tapOn: "Siguiente"
+- assertVisible: "Protege tu app"
+- scrollUntilVisible:
+    element: "Ahora no"
+- tapOn: "Ahora no"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 15000

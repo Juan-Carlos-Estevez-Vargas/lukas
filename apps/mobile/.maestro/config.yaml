@@ -1,0 +1,5 @@
+# Pruebas de extremo a extremo con Maestro (https://maestro.dev). Corren en el emulador de
+# Android del CI (.github/workflows/e2e.yml) contra el APK de release con EXPO_PUBLIC_E2E=1.
+# Cada flujo empieza desde cero (subflows/primer-uso.yaml), así que el orden no importa.
+flows:
+  - "*.yaml"

@@ -1,0 +1,29 @@
+# El flujo más usado: un gasto de $25.000 en Mercado baja el saldo y aparece en Movimientos.
+appId: co.lukas.app
+name: Registrar un gasto
+---
+- runFlow: subflows/primer-uso.yaml
+# Se entra por el mismo enlace que usa el widget de gasto rápido en Mercado: la fila de categorías es
+# horizontal y Maestro no la recorre de forma fiable en el emulador.
+- openLink: "lukas://movement/new?kind=expense&category=default.mercado"
+- extendedWaitUntil:
+    visible:
+      id: "movement-merchant"
+    timeout: 10000
+- tapOn: "2"
+- tapOn: "5"
+- tapOn: "000"
+- assertVisible: ".*25\\.000.*"
+- tapOn:
+    id: "movement-merchant"
+- inputText: "Tienda E2E"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "Guardar"
+- tapOn: "Guardar"
+- extendedWaitUntil:
+    visible: "Patrimonio"
+    timeout: 10000
+- assertVisible: ".*125\\.000.*"
+- tapOn: "Movimientos"
+- assertVisible: "Tienda E2E"

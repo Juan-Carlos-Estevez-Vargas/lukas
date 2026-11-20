@@ -206,6 +206,18 @@ SQLCipher (AES-256) mediante `expo-sqlite` con `useSQLCipher`.
 Las pruebas corren la lógica sobre `node:sqlite`. Que el archivo no se abra sin la clave lo
 garantiza SQLCipher y se comprueba en el dispositivo.
 
+## Pruebas de extremo a extremo y rendimiento
+
+- Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto y
+  transferencia entre cuentas. Cada uno arranca desde una instalación limpia.
+- `.github/workflows/e2e.yml` compila el APK de release en el runner (sin EAS, solo x86_64) con
+  `EXPO_PUBLIC_E2E=1`: la entrada por correo acepta el código fijo `123456` sin red. Ese modo no
+  existe en los perfiles de `eas.json` (una prueba lo verifica).
+- Después de los flujos, `e2e/measure.ts` mide 7 arranques en frío (`am start -W`, hasta el primer
+  cuadro) y el tamaño del APK. El job falla si la mediana pasa de **1,5 s** o el APK de **45 MB**
+  (`e2e/perf.ts`). El resultado queda en el resumen del job y los reportes como artefacto.
+- En local: `maestro test .maestro` con un emulador en español y el APK de e2e instalado.
+
 ## Versiones
 
 La versión visible sale de `package.json` (la sube Changesets); el número de build lo lleva EAS.

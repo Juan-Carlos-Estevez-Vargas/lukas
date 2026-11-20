@@ -211,6 +211,7 @@ export default function NewMovement() {
         <Keypad onKey={(k) => setDigits((d) => pressKey(d, k))} backLabel={t("movement.erase")} />
 
         <Field
+          testID="movement-merchant"
           label={t("movement.merchant")}
           value={merchant}
           onChangeText={setMerchant}
@@ -227,7 +228,7 @@ export default function NewMovement() {
 
         <Toggle label={t("movement.split")} value={split} onChange={setSplit} />
         <Body muted>{t("movement.category")}</Body>
-        <ChipRow>
+        <ChipRow testID="movement-categories">
           {categories.map((c) => (
             <Chip
               key={c.id}
