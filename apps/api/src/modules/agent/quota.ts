@@ -1,12 +1,9 @@
 import { withUser } from "@lukas/db";
 import { aiUsage } from "@lukas/db/schema";
+import type { Entitlements } from "@lukas/domain";
 import { and, eq, sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import type { TablesRelationalConfig } from "drizzle-orm/relations";
-
-/** Tokens por persona y día. Workers AI regala 10.000 neuronas diarias para toda la cuenta. */
-export const DAILY_TOKENS = 20_000;
-export const DAILY_REQUESTS = 40;
 
 /** Día de Colombia (UTC−5) de un instante, "AAAA-MM-DD". */
 export const colombiaDay = (now: Date) =>
@@ -22,7 +19,14 @@ export interface QuotaStore {
   add(userId: string, day: string, usage: Usage): Promise<void>;
 }
 
-export const exceeded = (u: Usage) => u.tokens >= DAILY_TOKENS || u.requests >= DAILY_REQUESTS;
+/**
+ * Si ya se gastó la cuota del día. La cuota sale del plan (ver `entitlementsOf`); la del plan
+ * gratis cabe en las 10.000 neuronas diarias que Workers AI regala a la cuenta.
+ */
+export const exceeded = (
+  u: Usage,
+  limits: Pick<Entitlements, "aiDailyTokens" | "aiDailyRequests">,
+) => u.tokens >= limits.aiDailyTokens || u.requests >= limits.aiDailyRequests;
 
 export function postgresQuota<
   Q extends PgQueryResultHKT,

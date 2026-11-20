@@ -57,6 +57,20 @@
       "when": 1795158069137,
       "tag": "0007_busqueda_semantica",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795161053911,
+      "tag": "0008_facturacion",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795161556050,
+      "tag": "0009_prueba_y_cupones",
+      "breakpoints": true
     }
   ]
 }

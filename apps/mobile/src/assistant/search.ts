@@ -10,7 +10,13 @@ export interface SearchResult {
   readonly amount: WireMoney | null;
 }
 
-export type SearchError = "signed_out" | "quota" | "unavailable" | "network" | "unexpected";
+export type SearchError =
+  | "signed_out"
+  | "premium"
+  | "quota"
+  | "unavailable"
+  | "network"
+  | "unexpected";
 
 export type SearchOutcome =
   | { readonly ok: true; readonly value: readonly SearchResult[] }
@@ -24,6 +30,7 @@ type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 const ERRORS: Record<number, SearchError> = {
   401: "signed_out",
+  402: "premium",
   429: "quota",
   503: "unavailable",
 };

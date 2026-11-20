@@ -4,6 +4,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { assistantEnabled } from "../../src/assistant/settings";
+import { useEntitlements } from "../../src/billing/use-entitlements";
 import { Chip, ChipRow, Fab } from "../../src/components/quick";
 import { Body, Button, Field, Screen, Title } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
@@ -32,8 +33,9 @@ export default function Transactions() {
   const { colors, space, fontSize, fontWeight } = useTheme();
   const database = useLocalDatabase();
   const db = database.status === "ready" ? database.db : null;
-  // Buscar por significado usa el asistente: solo si la persona lo encendió.
+  // Buscar por significado usa el asistente: solo si la persona lo encendió y su plan lo incluye.
   const [semantic, setSemantic] = useState(false);
+  const { can } = useEntitlements();
   useFocusEffect(
     useCallback(() => {
       if (db) void assistantEnabled(db).then(setSemantic);
@@ -144,7 +146,7 @@ export default function Transactions() {
         autoCorrect={false}
         returnKeyType="search"
       />
-      {semantic ? (
+      {semantic && can("semanticSearch") ? (
         <Button label={t("search.open")} variant="plain" onPress={() => router.push("/search")} />
       ) : null}
       <ChipRow>
