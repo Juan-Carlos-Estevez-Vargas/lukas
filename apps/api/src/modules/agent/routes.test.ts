@@ -10,8 +10,8 @@ import { createAuth } from "../auth/auth";
 import type { Mailer } from "../auth/mailer";
 import { postgresAgentData } from "./data";
 import { neonAgentFactory } from "./factory";
-import { scriptedModel } from "./mock-model";
-import { openAiCompatibleModel } from "./model";
+import { scriptedModel, visionModel } from "./mock-model";
+import { openAiCompatibleModel, openAiCompatibleVisionModel } from "./model";
 import { colombiaDay, DAILY_TOKENS, postgresQuota } from "./quota";
 
 const ORIGIN = "http://localhost:8081";
@@ -42,8 +42,17 @@ const model = () =>
     return `Gastaste ${s.total.amount} COP: ${s.categories.map((c) => `${c.name} ${c.amount}`).join(", ")}.`;
   });
 
+let visionReply = '{"merchant":"Carulla","total":"52.300","currency":"COP","date":"2026-11-20"}';
+let visionFails = false;
+
 const appWith = (withModel = true) =>
   createApp({
+    vision: () => {
+      if (!withModel) return undefined;
+      const { model } = visionModel(visionReply);
+      if (visionFails) model.doGenerate = async () => Promise.reject(new Error("proveedor caído"));
+      return model;
+    },
     auth: () => createAuth({ db, env, mailer }),
     agent: () => ({
       data: (userId) => postgresAgentData(db, userId),
@@ -236,9 +245,72 @@ describe("configuración del proveedor", () => {
       AI_MODEL: "llama-3.3-70b-versatile",
     });
     expect(other).toMatchObject({ modelId: "llama-3.3-70b-versatile" });
+    const vision = { ...testEnv, AI_API_KEY: "k", CLOUDFLARE_ACCOUNT_ID: "abc" };
+    expect(openAiCompatibleVisionModel(vision)).toMatchObject({
+      modelId: "@cf/google/gemma-4-26b-a4b-it",
+    });
+    expect(
+      openAiCompatibleVisionModel({ ...vision, AI_VISION_MODEL: "@cf/otro/modelo" }),
+    ).toMatchObject({ modelId: "@cf/otro/modelo" });
     expect(neonAgentFactory(testEnv)).toBeUndefined();
     const real = neonAgentFactory({ ...testEnv, DATABASE_URL: "postgres://u:p@localhost:1/x" });
     expect(real?.data("u")).toBeDefined();
     void real?.close();
+  });
+});
+
+describe("lectura de recibos", () => {
+  const image = "A".repeat(200);
+  const read = (app: ReturnType<typeof createApp>, token: string, body: unknown) =>
+    call(app, "/v1/agent/receipt", token, body);
+
+  it("devuelve comercio, total y fecha y cuenta en la cuota", async () => {
+    const app = appWith();
+    const eva = await signIn(app, "eva@lukas.test");
+    vi.useFakeTimers({ now: new Date("2026-11-20T15:00:00Z"), toFake: ["Date"] });
+    try {
+      const res = await read(app, eva.token, { image, mediaType: "image/jpeg" });
+      expect(res.status).toBe(200);
+      expect(res.headers.get("cache-control")).toBe("no-store");
+      expect(await res.json()).toEqual({
+        merchant: "Carulla",
+        amount: { amount: "52300.00", currency: "COP" },
+        date: "2026-11-20",
+      });
+      const [usage] = await db.select().from(aiUsage).where(eq(aiUsage.userId, eva.userId));
+      expect(usage).toMatchObject({ requests: 1, tokens: 1240 });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("valida la foto, la sesión, la cuota y los fallos del modelo", async () => {
+    const app = appWith();
+    const fede = await signIn(app, "fede@lukas.test");
+    expect((await read(app, "", { image, mediaType: "image/jpeg" })).status).toBe(401);
+    expect((await read(app, fede.token, { image, mediaType: "image/gif" })).status).toBe(400);
+    expect(
+      (await read(app, fede.token, { image: "no es base64!", mediaType: "image/png" })).status,
+    ).toBe(400);
+    expect((await read(appWith(false), fede.token, { image, mediaType: "image/png" })).status).toBe(
+      503,
+    );
+
+    visionReply = "No veo ningún recibo.";
+    const blurry = await read(app, fede.token, { image, mediaType: "image/webp" });
+    expect(blurry.status).toBe(422);
+    expect(((await blurry.json()) as { code: string }).code).toBe("receipt_unreadable");
+
+    visionFails = true;
+    const down = await read(app, fede.token, { image, mediaType: "image/jpeg" });
+    expect(down.status).toBe(503);
+    expect(await down.text()).not.toContain("proveedor caído");
+    visionFails = false;
+
+    await postgresQuota(db).add(fede.userId, colombiaDay(new Date()), {
+      tokens: DAILY_TOKENS,
+      requests: 0,
+    });
+    expect((await read(app, fede.token, { image, mediaType: "image/jpeg" })).status).toBe(429);
   });
 });

@@ -59,3 +59,20 @@ export function scriptedModel(tool: string, input: unknown, answer: (result: unk
     },
   });
 }
+
+/** Modelo de visión de prueba: responde `text` y deja ver qué recibió. */
+export function visionModel(text: string) {
+  const calls: LanguageModelV4CallOptions[] = [];
+  const model = new MockLanguageModelV4({
+    doGenerate: async (options) => {
+      calls.push(options);
+      return {
+        content: [{ type: "text", text }],
+        finishReason: { unified: "stop", raw: "stop" },
+        usage: usage(1200, 40),
+        warnings: [],
+      };
+    },
+  });
+  return { model, calls };
+}

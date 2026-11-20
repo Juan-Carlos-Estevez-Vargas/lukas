@@ -25,6 +25,8 @@ export interface Env {
   /** Otro proveedor compatible con OpenAI (opcional). */
   readonly AI_BASE_URL?: string;
   readonly AI_MODEL?: string;
+  /** Modelo de visión para leer recibos (opcional). */
+  readonly AI_VISION_MODEL?: string;
 }
 
 export interface AppContext {

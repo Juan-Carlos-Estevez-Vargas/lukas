@@ -547,6 +547,10 @@ export const es = {
   "assistant.error.unavailable": "El asistente no está disponible en este momento.",
   "assistant.error.network": "No pudimos conectar con Lukas. Revisa tu conexión.",
   "assistant.error.unexpected": "Algo salió mal con la respuesta. Intenta de nuevo.",
+  "receipt.read": "Leer el recibo con IA",
+  "receipt.read.review":
+    "Listo: llené monto, comercio y fecha con lo que leí. Revísalos y elige la categoría antes de guardar.",
+  "receipt.read.unreadable": "No pude leer el recibo. Intenta con una foto más nítida y derecha.",
 } as const;
 
 export type MessageKey = keyof typeof es;
