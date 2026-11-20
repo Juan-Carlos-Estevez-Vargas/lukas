@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { civilDate } from "../../src/accounts/credit-card";
 import { groupAccounts } from "../../src/accounts/templates";
+import { pendingCount } from "../../src/capture/ingest";
 import { Fab } from "../../src/components/quick";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
@@ -23,6 +24,7 @@ import {
 } from "../../src/home/home";
 import {
   AvailableCard,
+  InboxCard,
   ProjectionAlertCard,
   TopCategoriesCard,
   UpcomingCard,
@@ -54,6 +56,7 @@ export default function Summary() {
   const [top, setTop] = useState<CategorySpend[]>([]);
   const [upcoming, setUpcoming] = useState<UpcomingPayment[]>([]);
   const [risky, setRisky] = useState<AccountProjection[]>([]);
+  const [pending, setPending] = useState(0);
   const [worth, setWorth] = useState<NetWorth | null>(null);
   const [usd, setUsd] = useState<StoredRate | null>(null);
   const { version } = useRecurring();
@@ -87,6 +90,7 @@ export default function Summary() {
         const top = await topCategories(database.db, today, "COP", 3, table);
         const upcoming = await upcomingPayments(database.db, today);
         const risky = atRisk(await projectAccounts(database.db, today));
+        const pending = await pendingCount(database.db);
         const accounts = await repo.list({ includeArchived: showArchived });
         const rows = await Promise.all(
           accounts.map(async (a) => ({ account: a, balance: await repo.balance(a) })),
@@ -96,6 +100,7 @@ export default function Summary() {
         setTop(top);
         setUpcoming(upcoming);
         setRisky(risky);
+        setPending(pending);
         setRows(rows);
         setUsd(rates.usd);
         setWorth(
@@ -140,6 +145,7 @@ export default function Summary() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
+        <InboxCard count={pending} onOpen={() => router.push("/inbox")} />
         {available ? <AvailableCard data={available} /> : null}
         <TopCategoriesCard data={top} />
         <ProjectionAlertCard

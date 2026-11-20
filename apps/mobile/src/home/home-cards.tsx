@@ -155,3 +155,21 @@ export function ProjectionAlertCard({
     </Card>
   );
 }
+
+/** Aviso de capturas por revisar (FIN-301). */
+export function InboxCard({
+  count,
+  onOpen,
+}: {
+  readonly count: number;
+  readonly onOpen: () => void;
+}) {
+  const { t } = useI18n();
+  if (count === 0) return null;
+  return (
+    <Card title={t("inbox.title")}>
+      <Body>{t(count === 1 ? "inbox.pendingOne" : "inbox.pending", { count })}</Body>
+      <Button label={t("inbox.review")} variant="plain" onPress={onOpen} />
+    </Card>
+  );
+}
