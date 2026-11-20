@@ -469,20 +469,20 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-305 · Herramientas del agente y servidor MCP
 
 - Tipo: `feat` · Tamaño: L
-- [ ] packages/ai-tools con esquemas Zod
-- [ ] Herramientas de lectura
-- [ ] Herramientas de propuesta
-- [ ] Servidor MCP propio para pruebas
+- [x] packages/ai-tools con esquemas Zod
+- [x] Herramientas de lectura
+- [x] Herramientas de propuesta
+- [x] Servidor MCP propio para pruebas
 
 **Hecho cuando:** Cada herramienta tiene test y respeta el alcance del usuario.
 
 #### FIN-306 · Agente en Workers AI
 
 - Tipo: `feat` · Tamaño: L
-- [ ] AI SDK con proveedor intercambiable
-- [ ] Streaming
-- [ ] Cuota diaria de tokens
-- [ ] Limpieza de datos personales antes del modelo
+- [x] AI SDK con proveedor intercambiable
+- [x] Streaming
+- [x] Cuota diaria de tokens
+- [x] Limpieza de datos personales antes del modelo
 
 **Hecho cuando:** Responde gasto por categoría con números correctos.
 
