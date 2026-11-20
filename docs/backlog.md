@@ -396,9 +396,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-208 · Importación CSV y Excel
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Mapeo de columnas
-- [ ] Vista previa
-- [ ] Deduplicación
+- [x] Mapeo de columnas
+- [x] Vista previa
+- [x] Deduplicación
 
 **Hecho cuando:** Importar dos veces el mismo archivo no duplica.
 
