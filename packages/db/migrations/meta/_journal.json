@@ -36,6 +36,13 @@
       "when": 1795118674382,
       "tag": "0004_hogares_y_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795154926711,
+      "tag": "0005_uso_ia",
+      "breakpoints": true
     }
   ]
 }

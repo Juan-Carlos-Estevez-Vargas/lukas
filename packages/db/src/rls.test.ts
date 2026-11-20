@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { withUser } from "./rls";
 import {
   accounts,
+  aiUsage,
   auditLog,
   categories,
   changes,
@@ -363,5 +364,27 @@ describe("auditoría de accesos", () => {
   it("las escrituras del sistema quedan como `system`", async () => {
     const [row] = await db.select().from(auditLog).where(eq(auditLog.entityId, ids.carlaAccount));
     expect(row).toMatchObject({ actor: "system", userId: CARLA, action: "insert" });
+  });
+});
+
+describe("uso del agente de IA", () => {
+  it("cada quien solo ve y suma su propio uso", async () => {
+    await withUser(db, ANA, (tx) =>
+      tx.insert(aiUsage).values({ userId: ANA, day: "2026-11-20", tokens: 1200, requests: 1 }),
+    );
+    const forged = await failure(
+      withUser(db, CARLA, (tx) =>
+        tx.insert(aiUsage).values({ userId: ANA, day: "2026-11-21", tokens: 0, requests: 0 }),
+      ),
+    );
+    expect(forged).toMatch(/row-level security/);
+    expect(await withUser(db, CARLA, (tx) => tx.select().from(aiUsage))).toEqual([]);
+    expect(await withUser(db, ANA, (tx) => tx.select().from(aiUsage))).toHaveLength(1);
+    const negative = await failure(
+      withUser(db, ANA, (tx) =>
+        tx.update(aiUsage).set({ tokens: -1 }).where(eq(aiUsage.userId, ANA)),
+      ),
+    );
+    expect(negative).toMatch(/ai_usage_counts/);
   });
 });

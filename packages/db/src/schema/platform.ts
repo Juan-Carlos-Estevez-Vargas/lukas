@@ -97,3 +97,18 @@ export const exchangeRates = app.table(
     check("exchange_rates_positive", sql`${t.rate} > 0`),
   ],
 );
+
+/** Tokens del agente de IA usados por día (día de Colombia), para la cuota diaria gratuita. */
+export const aiUsage = app.table(
+  "ai_usage",
+  {
+    userId: userId(),
+    day: date("day").notNull(),
+    tokens: integer("tokens").notNull().default(0),
+    requests: integer("requests").notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.day] }),
+    check("ai_usage_counts", sql`${t.tokens} >= 0 AND ${t.requests} >= 0`),
+  ],
+);

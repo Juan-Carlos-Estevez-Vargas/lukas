@@ -479,10 +479,10 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-306 · Agente en Workers AI
 
 - Tipo: `feat` · Tamaño: L
-- [ ] AI SDK con proveedor intercambiable
-- [ ] Streaming
-- [ ] Cuota diaria de tokens
-- [ ] Limpieza de datos personales antes del modelo
+- [x] AI SDK con proveedor intercambiable
+- [x] Streaming
+- [x] Cuota diaria de tokens
+- [x] Limpieza de datos personales antes del modelo
 
 **Hecho cuando:** Responde gasto por categoría con números correctos.
 
