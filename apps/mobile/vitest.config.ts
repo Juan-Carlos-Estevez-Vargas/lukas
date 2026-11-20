@@ -41,6 +41,7 @@ export default defineConfig({
         "src/data/database*.ts",
         "src/data/expo-raw.ts",
         "src/lock/lock-store*.ts",
+        "src/import/files*.ts",
         "src/reminders/notifications*.ts",
         "src/receipts/receipt-store*.ts",
         "src/receipts/pick*.ts",

@@ -80,6 +80,13 @@ export default function Settings() {
         ) : null}
         {database.status === "ready" ? (
           <Button
+            label={t("import.manage")}
+            variant="plain"
+            onPress={() => router.push("/import")}
+          />
+        ) : null}
+        {database.status === "ready" ? (
+          <Button
             label={t("recurring.manage")}
             variant="plain"
             onPress={() => router.push("/recurring")}
