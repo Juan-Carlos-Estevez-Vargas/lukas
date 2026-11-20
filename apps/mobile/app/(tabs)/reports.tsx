@@ -13,6 +13,7 @@ import { newId } from "../../src/data/ids";
 import { sqlitePreferences } from "../../src/data/preferences";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
+import { ExportButtons } from "../../src/export/export-buttons";
 import { formatCivilDate, formatMonth, formatShortDate } from "../../src/format/date";
 import { formatMoney } from "../../src/format/money";
 import type { CategorySpend } from "../../src/home/home";
@@ -269,6 +270,7 @@ export default function Reports() {
             />
           ))}
         </ChipRow>
+        {database.status === "ready" ? <ExportButtons db={database.db} month={selected} /> : null}
 
         <Card title={t("reports.cashflow")}>
           <View style={{ flexDirection: "row", gap: space.md }}>
