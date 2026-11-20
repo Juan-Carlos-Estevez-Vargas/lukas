@@ -346,6 +346,12 @@ garantiza SQLCipher y se comprueba en el dispositivo.
   la app abierta llega en segundos). `parseNotification` saca monto, tipo y comercio, y
   `ingestCapture` lo deja en "Por revisar"; el texto original no se guarda ni sale del teléfono.
 - En la web y en iOS `notificationReader` es `null` y la opción no aparece.
+- Lectores por banco (`src/capture/banks/`): cada banco tiene sus formas de aviso como expresiones
+  con grupos (`amount`, `merchant`, `last4`, `date`, `time`) y el tipo de movimiento. Las formas
+  con tipo `null` (pago de tarjeta, mover a un bolsillo) se descartan. Si ninguna encaja, se usa la
+  lectura genérica. `fixtures.ts` tiene ejemplos inventados de Nequi, Daviplata, Bancolombia,
+  Davivienda, BBVA y Nu; cada uno es una prueba. Para un formato nuevo: agregar el ejemplo y la
+  forma.
 
 ## Pruebas de extremo a extremo y rendimiento
 
