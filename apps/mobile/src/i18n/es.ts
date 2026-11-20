@@ -554,6 +554,15 @@ export const es = {
   "notifications.weekly": "Resumen de la semana (domingos)",
   "notifications.denied": "Sin permiso de notificaciones. Actívalo en los ajustes del teléfono.",
   "notifications.offline": "No pudimos conectar con Lukas. Intenta de nuevo.",
+  "search.open": "Buscar por significado (IA)",
+  "search.title": "Buscar por significado",
+  "search.intro":
+    'Escribe lo que buscas con tus palabras, como "salidas a comer" o "transporte". El asistente encuentra los movimientos que se parecen, aunque no digan eso.',
+  "search.query": "¿Qué buscas?",
+  "search.placeholder": "salidas a comer",
+  "search.go": "Buscar",
+  "search.empty": "No encontré movimientos parecidos.",
+  "search.noName": "Movimiento",
 } as const;
 
 export type MessageKey = keyof typeof es;
