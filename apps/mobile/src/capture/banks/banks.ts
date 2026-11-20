@@ -1,36 +1,45 @@
-import { AMOUNT, type BankParser } from "./rules";
+import type { BankParser } from "./rules";
 
-const re = (source: string) => new RegExp(source, "i");
-
-// Lo que sigue al comercio en los avisos: hora, fecha, tarjeta, "con", "desde" o fin de frase.
-const END = String.raw`(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)`;
-const MERCHANT = `(?<merchant>.+?)${END}`;
-const LAST4 = String.raw`(?:\*|terminada en |finalizada en )(?<last4>\d{4})`;
-const DATE = String.raw`(?<date>\d{1,2}/\d{1,2}/\d{2,4})`;
-const TIME = String.raw`(?<time>\d{1,2}:\d{2})`;
-
-/**
- * Formas de los avisos de cada banco. Los ejemplos de `fixtures.ts` las cubren todas; si un banco
- * cambia el texto, la prueba de ese banco falla y aquí se agrega la forma nueva.
+/*
+ * Formas de los avisos de cada banco. Son literales (sin `new RegExp`) para que el análisis
+ * estático las revise y nadie pueda inyectar una expresión. Piezas que se repiten:
+ *
+ * - Monto: `(?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)` ("$45.900", "COP 8.000").
+ * - Comercio: `(?<merchant>.+?)` hasta hora, fecha, "el", "con", "desde", "por" o fin de frase.
+ * - Tarjeta: `(?:\*|terminada en |finalizada en )(?<last4>\d{4})`, a menos de 80 caracteres.
+ * - Fecha y hora: `(?<date>\d{1,2}/\d{1,2}/\d{2,4})` y `(?<time>\d{1,2}:\d{2})`.
+ *
+ * Los ejemplos de `fixtures.ts` las cubren todas; si un banco cambia el texto, la prueba de ese
+ * banco falla y aquí se agrega la forma nueva.
  */
 export const BANKS: readonly BankParser[] = [
   {
     bank: "Nequi",
     apps: ["com.nequi.MobileApp"],
     rules: [
-      { pattern: re(`(?:entre|a) tus? (?:bolsillos?|colch[oó]n|metas?)`), kind: null },
+      { pattern: /(?:entre|a) tus? (?:bolsillos?|colch[oó]n|metas?)/i, kind: null },
       {
-        pattern: re(`pagaste(?: con QR)? ${AMOUNT} (?:en|a) ${MERCHANT}`),
+        pattern:
+          /pagaste(?: con QR)? (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) (?:en|a) (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
       {
-        pattern: re(`(?:enviaste|le enviaste) ${AMOUNT} a ${MERCHANT}`),
+        pattern:
+          /(?:enviaste|le enviaste) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) a (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
-      { pattern: re(`retiraste ${AMOUNT}`), kind: "expense" },
-      { pattern: re(`(?<merchant>[^.!]+?) te envi[oó] ${AMOUNT}`), kind: "income" },
       {
-        pattern: re(`(?:te envi[oó]|recibiste) ${AMOUNT}(?: de ${MERCHANT})?`),
+        pattern: /retiraste (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)/i,
+        kind: "expense",
+      },
+      {
+        pattern:
+          /(?<merchant>[^.!]+?) te envi[oó] (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)/i,
+        kind: "income",
+      },
+      {
+        pattern:
+          /(?:te envi[oó]|recibiste) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?: de (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$))?/i,
         kind: "income",
       },
     ],
@@ -40,16 +49,23 @@ export const BANKS: readonly BankParser[] = [
     apps: ["com.davivienda.daviplataapp"],
     rules: [
       {
-        pattern: re(`(?:pagaste|compra(?: aprobada)? por) ${AMOUNT} en ${MERCHANT}`),
+        pattern:
+          /(?:pagaste|compra(?: aprobada)? por) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) en (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
       {
-        pattern: re(`(?:transferiste|pasaste|enviaste) ${AMOUNT} a ${MERCHANT}`),
+        pattern:
+          /(?:transferiste|pasaste|enviaste) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) a (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
-      { pattern: re(`(?:sacaste|retiraste) ${AMOUNT}`), kind: "expense" },
       {
-        pattern: re(`(?:recibiste|te (?:pasaron|enviaron|abonaron)) ${AMOUNT}(?: de ${MERCHANT})?`),
+        pattern:
+          /(?:sacaste|retiraste) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)/i,
+        kind: "expense",
+      },
+      {
+        pattern:
+          /(?:recibiste|te (?:pasaron|enviaron|abonaron)) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?: de (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$))?/i,
         kind: "income",
       },
     ],
@@ -58,29 +74,35 @@ export const BANKS: readonly BankParser[] = [
     bank: "Bancolombia",
     apps: ["com.todo1.mobile"],
     rules: [
-      { pattern: re(`pago (?:de|a) (?:tu )?tarjeta`), kind: null },
+      { pattern: /pago (?:de|a) (?:tu )?tarjeta/i, kind: null },
       {
-        pattern: re(
-          String.raw`compra(?:ste)? por ${AMOUNT} en ${MERCHANT}(?: ${TIME})?(?:\.? ${DATE})?.*?${LAST4}`,
-        ),
-        kind: "expense",
-      },
-      { pattern: re(`compra(?:ste)? por ${AMOUNT} en ${MERCHANT}`), kind: "expense" },
-      {
-        pattern: re(`(?:pago|pagaste) por ${AMOUNT} a ${MERCHANT}(?:.*?${LAST4})?`),
+        pattern:
+          /compra(?:ste)? por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) en (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)(?: (?<time>\d{1,2}:\d{2}))?(?:\.? (?<date>\d{1,2}\/\d{1,2}\/\d{2,4}))?.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4})/i,
         kind: "expense",
       },
       {
-        pattern: re(
-          `(?:transferiste|transferencia) por ${AMOUNT} (?:a|hacia) (?:la cuenta )?${MERCHANT}(?:.*?${LAST4})?`,
-        ),
+        pattern:
+          /compra(?:ste)? por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) en (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
-      { pattern: re(`retir(?:o|aste) por ${AMOUNT}(?:.*?${LAST4})?`), kind: "expense" },
       {
-        pattern: re(
-          `(?:recibiste|recepci[oó]n de) (?:una )?(?:transferencia )?por ${AMOUNT}(?: de ${MERCHANT})?(?:.*?${LAST4})?`,
-        ),
+        pattern:
+          /(?:pago|pagaste) por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) a (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
+        kind: "expense",
+      },
+      {
+        pattern:
+          /(?:transferiste|transferencia) por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) (?:a|hacia) (?:la cuenta )?(?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
+        kind: "expense",
+      },
+      {
+        pattern:
+          /retir(?:o|aste) por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
+        kind: "expense",
+      },
+      {
+        pattern:
+          /(?:recibiste|recepci[oó]n de) (?:una )?(?:transferencia )?por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?: de (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$))?(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
         kind: "income",
       },
     ],
@@ -89,20 +111,25 @@ export const BANKS: readonly BankParser[] = [
     bank: "Davivienda",
     apps: ["com.davivienda.daviviendaapp"],
     rules: [
-      { pattern: re(`pago (?:de|a) (?:tu )?tarjeta`), kind: null },
+      { pattern: /pago (?:de|a) (?:tu )?tarjeta/i, kind: null },
       {
-        pattern: re(
-          `compra(?: aprobada)? por ${AMOUNT} en ${MERCHANT}(?:.*?${LAST4})?(?:.*?${DATE})?(?:.*?${TIME})?`,
-        ),
+        pattern:
+          /compra(?: aprobada)? por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) en (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?(?:.{0,80}?(?<date>\d{1,2}\/\d{1,2}\/\d{2,4}))?(?:.{0,80}?(?<time>\d{1,2}:\d{2}))?/i,
         kind: "expense",
       },
       {
-        pattern: re(`(?:pago|transferencia) por ${AMOUNT} a ${MERCHANT}(?:.*?${LAST4})?`),
+        pattern:
+          /(?:pago|transferencia) por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) a (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
         kind: "expense",
       },
-      { pattern: re(`retiro por ${AMOUNT}(?:.*?${LAST4})?`), kind: "expense" },
       {
-        pattern: re(`abono (?:a|en) tu cuenta ${LAST4} por ${AMOUNT}(?: de ${MERCHANT})?`),
+        pattern:
+          /retiro por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
+        kind: "expense",
+      },
+      {
+        pattern:
+          /abono (?:a|en) tu cuenta (?:\*|terminada en |finalizada en )(?<last4>\d{4}) por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?: de (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$))?/i,
         kind: "income",
       },
     ],
@@ -111,17 +138,20 @@ export const BANKS: readonly BankParser[] = [
     bank: "BBVA",
     apps: ["co.com.bbva.mb"],
     rules: [
-      { pattern: re(`pago (?:de|a) (?:tu )?tarjeta`), kind: null },
+      { pattern: /pago (?:de|a) (?:tu )?tarjeta/i, kind: null },
       {
-        pattern: re(`compra por ${AMOUNT} en ${MERCHANT}(?:.*?${LAST4})?`),
+        pattern:
+          /compra por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) en (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)(?:.{0,80}?(?:\*|terminada en |finalizada en )(?<last4>\d{4}))?/i,
         kind: "expense",
       },
       {
-        pattern: re(`transferencia (?:enviada )?por ${AMOUNT} a ${MERCHANT}`),
+        pattern:
+          /transferencia (?:enviada )?por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) a (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
       {
-        pattern: re(`(?:abono|transferencia recibida) por ${AMOUNT}(?: de ${MERCHANT})?`),
+        pattern:
+          /(?:abono|transferencia recibida) por (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?: de (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$))?/i,
         kind: "income",
       },
     ],
@@ -130,17 +160,20 @@ export const BANKS: readonly BankParser[] = [
     bank: "Nu",
     apps: ["com.nu.production"],
     rules: [
-      { pattern: re(`pag(?:o|aste) (?:de )?tu (?:tarjeta|factura)`), kind: null },
+      { pattern: /pag(?:o|aste) (?:de )?tu (?:tarjeta|factura)/i, kind: null },
       {
-        pattern: re(`(?:compra aprobada|compraste)[:.]? ${AMOUNT} en ${MERCHANT}`),
+        pattern:
+          /(?:compra aprobada|compraste)[:.]? (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) en (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
       {
-        pattern: re(`(?:enviaste|transferiste) ${AMOUNT} a ${MERCHANT}`),
+        pattern:
+          /(?:enviaste|transferiste) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?) a (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$)/i,
         kind: "expense",
       },
       {
-        pattern: re(`(?:recibiste|te enviaron) ${AMOUNT}(?: de ${MERCHANT})?`),
+        pattern:
+          /(?:recibiste|te enviaron) (?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)(?: de (?<merchant>.+?)(?=\s+(?:el|a las|con|desde|con tu|en tu|por|\d{1,2}:\d{2}|\d{1,2}\/\d{1,2})\b|[,;!]|\.(?:\s|$)|$))?/i,
         kind: "income",
       },
     ],
