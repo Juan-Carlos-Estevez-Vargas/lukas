@@ -588,9 +588,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-407 · Documentos legales
 
 - Tipo: `docs` · Tamaño: S
-- [ ] Política de tratamiento de datos (Ley 1581)
-- [ ] Términos y condiciones
-- [ ] Autorización en el registro
+- [x] Política de tratamiento de datos (Ley 1581)
+- [x] Términos y condiciones
+- [x] Autorización en el registro
 
 **Hecho cuando:** Las políticas se aceptan al registrarse.
 

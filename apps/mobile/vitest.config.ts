@@ -37,6 +37,7 @@ export default defineConfig({
         "src/notifications/**/*.ts",
         "src/security/**/*.ts",
         "src/billing/**/*.ts",
+        "src/legal/**/*.ts",
         "app.config.ts",
         "plugins/**/*.ts",
         "e2e/perf.ts",

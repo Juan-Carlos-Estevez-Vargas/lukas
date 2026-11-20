@@ -23,6 +23,17 @@ export const es = {
   "security.screenshots": "Permitir capturas de pantalla",
   "security.rooted":
     "Tu teléfono tiene root. Otras apps podrían leer tus datos de Lukas: no guardes aquí nada que no quieras exponer.",
+  "legal.privacy": "Política de tratamiento de datos",
+  "legal.terms": "Términos y condiciones",
+  "legal.since": "Vigente desde el {date}",
+  "legal.back": "Volver",
+  "legal.signIn.accept": "Autorizo el tratamiento de mis datos y acepto los términos",
+  "legal.signIn.required": "Para crear tu cuenta necesitamos tu autorización.",
+  "legal.gate.title": "Antes de seguir",
+  "legal.gate.body":
+    "Para usar Lukas necesitamos que aceptes la política de tratamiento de datos y los términos. Léelos aquí.",
+  "legal.gate.accept": "Autorizo y acepto",
+  "legal.gate.offline": "No pudimos guardar tu respuesta. Revisa tu conexión e inténtalo de nuevo.",
   "settings.signOut": "Cerrar sesión",
   "settings.version": "Versión {version}",
   "premium.title": "Lukas Premium",

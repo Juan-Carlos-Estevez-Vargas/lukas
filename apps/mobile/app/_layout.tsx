@@ -8,6 +8,7 @@ import { CaptureProvider } from "../src/capture/use-capture";
 import { LocalDatabaseProvider } from "../src/data/provider";
 import { DiscreetProvider } from "../src/display/discreet";
 import { I18nProvider } from "../src/i18n/i18n";
+import { ConsentGate } from "../src/legal/consent-gate";
 import { AppLockProvider } from "../src/lock/app-lock";
 import { LockGate } from "../src/lock/lock-screen";
 import { usePushLinks } from "../src/notifications/use-push-links";
@@ -38,6 +39,7 @@ export default function RootLayout() {
                                 <AppLockProvider>
                                   <StatusBar style="auto" />
                                   <Stack screenOptions={{ headerShown: false }} />
+                                  <ConsentGate />
                                   <LockGate />
                                 </AppLockProvider>
                               </RecurringProvider>

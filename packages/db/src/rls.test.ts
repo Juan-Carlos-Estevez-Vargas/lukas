@@ -16,6 +16,7 @@ import {
   householdMembers,
   households,
   idempotencyKeys,
+  legalConsents,
   outbox,
   pushDevices,
   subscriptions,
@@ -517,5 +518,33 @@ describe("cupones", () => {
       db.update(coupons).set({ redemptions: 2 }).where(eq(coupons.code, "BETA-2026")),
     );
     expect(over).toMatch(/coupons_redemptions/);
+  });
+});
+
+describe("autorización de datos", () => {
+  it("cada quien registra y lee la suya; nadie la cambia, la borra ni firma por otro", async () => {
+    await withUser(db, ANA, (tx) =>
+      tx.insert(legalConsents).values({ userId: ANA, document: "privacy", version: "2026-11-20" }),
+    );
+    const forged = await failure(
+      withUser(db, CARLA, (tx) =>
+        tx.insert(legalConsents).values({ userId: ANA, document: "terms", version: "2026-11-20" }),
+      ),
+    );
+    expect(forged).toMatch(/row-level security/);
+    expect(await withUser(db, CARLA, (tx) => tx.select().from(legalConsents))).toEqual([]);
+    const changed = await failure(
+      withUser(db, ANA, (tx) => tx.update(legalConsents).set({ version: "2099-01-01" })),
+    );
+    expect(changed).toMatch(/permission denied/);
+    const removed = await failure(withUser(db, ANA, (tx) => tx.delete(legalConsents)));
+    expect(removed).toMatch(/permission denied/);
+    const bad = await failure(
+      withUser(db, ANA, (tx) =>
+        tx.insert(legalConsents).values({ userId: ANA, document: "terms", version: "v1" }),
+      ),
+    );
+    expect(bad).toMatch(/legal_consents_version/);
+    expect(await withUser(db, ANA, (tx) => tx.select().from(legalConsents))).toHaveLength(1);
   });
 });

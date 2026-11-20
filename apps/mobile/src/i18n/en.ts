@@ -24,6 +24,17 @@ export const en: Messages = {
   "security.screenshots": "Allow screenshots",
   "security.rooted":
     "Your phone is rooted. Other apps could read your Lukas data: don't keep anything here you wouldn't want exposed.",
+  "legal.privacy": "Data processing policy",
+  "legal.terms": "Terms and conditions",
+  "legal.since": "In force since {date}",
+  "legal.back": "Back",
+  "legal.signIn.accept": "I authorize the processing of my data and accept the terms",
+  "legal.signIn.required": "We need your authorization to create your account.",
+  "legal.gate.title": "Before you continue",
+  "legal.gate.body":
+    "To use Lukas you need to accept the data processing policy and the terms. Read them here.",
+  "legal.gate.accept": "I authorize and accept",
+  "legal.gate.offline": "We couldn't save your answer. Check your connection and try again.",
   "settings.signOut": "Sign out",
   "settings.version": "Version {version}",
   "premium.title": "Lukas Premium",
