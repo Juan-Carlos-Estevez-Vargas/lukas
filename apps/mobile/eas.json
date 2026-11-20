@@ -11,7 +11,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://lukas-api-staging.juank2001estevezvargas.workers.dev"
+        "EXPO_PUBLIC_API_URL": "https://lukas-api-staging.juank2001estevezvargas.workers.dev",
+        "LUKAS_DEV_CLIENT": "1"
       }
     },
     "production": {
