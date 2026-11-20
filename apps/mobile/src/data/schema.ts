@@ -376,6 +376,36 @@ CREATE TABLE sync_conflicts (
 ) STRICT;
 `;
 
+/**
+ * Bandeja de capturas (FIN-301): movimientos detectados solos (notificaciones, correos, extractos)
+ * que esperan revisión. Solo vive en el teléfono y no se sincroniza; tampoco guarda el texto
+ * original de la notificación, solo lo normalizado.
+ */
+const v14 = `
+CREATE TABLE captures (
+  id TEXT PRIMARY KEY NOT NULL,
+  source TEXT NOT NULL CHECK (source IN ('notification', 'email', 'statement')),
+  app TEXT,
+  received_at TEXT NOT NULL,
+  occurred_at TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('expense', 'income')),
+  amount_minor INTEGER NOT NULL CHECK (amount_minor > 0),
+  currency TEXT NOT NULL CHECK (length(currency) = 3),
+  merchant TEXT,
+  last4 TEXT CHECK (last4 IS NULL OR (length(last4) = 4 AND last4 NOT GLOB '*[^0-9]*')),
+  account_id TEXT REFERENCES accounts (id) ON DELETE SET NULL,
+  fingerprint TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'accepted', 'dismissed', 'duplicate', 'matched')),
+  duplicate_of TEXT REFERENCES captures (id) ON DELETE SET NULL,
+  match_transaction_id TEXT REFERENCES transactions (id) ON DELETE SET NULL,
+  transaction_id TEXT REFERENCES transactions (id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL
+) STRICT;
+CREATE INDEX captures_status_idx ON captures (status, occurred_at);
+CREATE INDEX captures_fingerprint_idx ON captures (fingerprint);
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -390,4 +420,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 11, name: "tasas de cambio", sql: v11 },
   { version: 12, name: "sincronización", sql: v12 },
   { version: 13, name: "conflictos de sincronización", sql: v13 },
+  { version: 14, name: "bandeja de capturas", sql: v14 },
 ];
