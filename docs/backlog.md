@@ -438,10 +438,10 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-302 · Lector de notificaciones Android
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Config plugin de Expo con NotificationListenerService
-- [ ] Pantalla de consentimiento clara
-- [ ] Filtro por apps permitidas
-- [ ] Procesamiento solo en el dispositivo
+- [x] Config plugin de Expo con NotificationListenerService
+- [x] Pantalla de consentimiento clara
+- [x] Filtro por apps permitidas
+- [x] Procesamiento solo en el dispositivo
 
 **Hecho cuando:** Un pago con Nequi aparece en la app en segundos.
 
