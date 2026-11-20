@@ -3,21 +3,11 @@ import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import type { TablesRelationalConfig } from "drizzle-orm/relations";
 import type { PushMessage, PushSender } from "./push";
 
-const HOUR = 3_600_000;
-const DAY = 24 * HOUR;
-/** Colombia no tiene horario de verano: siempre UTC−5. */
-const BOGOTA = -5 * HOUR;
+const DAY = 86_400_000;
 
-/** Lunes 00:00 de Bogotá de la semana de `now`, y el lunes anterior. */
+/** Los últimos 7 días hasta `now`, y los 7 anteriores para comparar. */
 export function weekWindow(now: Date) {
-  const local = new Date(now.getTime() + BOGOTA);
-  const sinceMonday = (local.getUTCDay() + 6) % 7;
-  const mondayLocal = Date.UTC(
-    local.getUTCFullYear(),
-    local.getUTCMonth(),
-    local.getUTCDate() - sinceMonday,
-  );
-  const start = new Date(mondayLocal - BOGOTA);
+  const start = new Date(now.getTime() - 7 * DAY);
   return { previous: new Date(start.getTime() - 7 * DAY), start, end: now };
 }
 
@@ -40,13 +30,14 @@ export interface WeekSpending {
 export function summaryText(s: WeekSpending): { title: string; body: string } {
   const title = "Tu semana en Lukas";
   if (s.thisWeek <= 0n) {
-    return { title, body: "Esta semana no registraste gastos. ¿Se te pasó alguno?" };
+    return { title, body: "En los últimos 7 días no registraste gastos. ¿Se te pasó alguno?" };
   }
-  let body = `Gastaste ${pesos(s.thisWeek)}`;
+  let body = `En los últimos 7 días gastaste ${pesos(s.thisWeek)}`;
   if (s.lastWeek > 0n) {
     const change = Number(((s.thisWeek - s.lastWeek) * 100n) / s.lastWeek);
-    if (change === 0) body += ", igual que la semana pasada";
-    else body += `, ${Math.abs(change)} % ${change > 0 ? "más" : "menos"} que la semana pasada`;
+    if (change === 0) body += ", igual que los 7 días anteriores";
+    else
+      body += `, ${Math.abs(change)} % ${change > 0 ? "más" : "menos"} que los 7 días anteriores`;
   }
   body += ".";
   if (s.top) body += ` Lo que más: ${s.top.name} (${pesos(s.top.amount)}).`;

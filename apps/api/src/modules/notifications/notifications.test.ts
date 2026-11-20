@@ -9,6 +9,7 @@ import { testEnv } from "../../test/env";
 import { createAuth } from "../auth/auth";
 import type { Mailer } from "../auth/mailer";
 import { postgresDevices } from "./devices";
+import { isSummaryDay } from "./factory";
 import { expoPushSender, type PushMessage } from "./push";
 import { pesos, sendWeeklySummaries, summaryText, weeklyMessages, weekWindow } from "./weekly";
 
@@ -113,8 +114,8 @@ async function wallet(userId: string) {
 }
 
 const tokenOf = (name: string) => `ExponentPushToken[${name}-0123456789]`;
-// Domingo 22 de noviembre de 2026, 18:00 de Bogotá.
-const SUNDAY = new Date("2026-11-22T23:00:00Z");
+// Domingo 22 de noviembre de 2026, 8:00 de Bogotá: el cron diario de ese día.
+const SUNDAY = new Date("2026-11-22T13:00:00Z");
 
 beforeAll(async () => {
   const database = await createTestDatabase();
@@ -182,14 +183,14 @@ describe("registro de teléfonos", () => {
 });
 
 describe("resumen semanal", () => {
-  it("la semana va de lunes a hoy en hora de Bogotá", () => {
+  it("compara los últimos 7 días con los 7 anteriores y sale los domingos", () => {
     const w = weekWindow(SUNDAY);
-    expect(w.start.toISOString()).toBe("2026-11-16T05:00:00.000Z");
-    expect(w.previous.toISOString()).toBe("2026-11-09T05:00:00.000Z");
-    // A las 00:30 del lunes en Bogotá ya empieza la semana nueva.
-    expect(weekWindow(new Date("2026-11-23T05:30:00Z")).start.toISOString()).toBe(
-      "2026-11-23T05:00:00.000Z",
-    );
+    expect(w.start.toISOString()).toBe("2026-11-15T13:00:00.000Z");
+    expect(w.previous.toISOString()).toBe("2026-11-08T13:00:00.000Z");
+    expect(isSummaryDay(SUNDAY)).toBe(true);
+    // Domingo en UTC pero aún sábado en Bogotá.
+    expect(isSummaryDay(new Date("2026-11-22T03:00:00Z"))).toBe(false);
+    expect(isSummaryDay(new Date("2026-11-23T13:00:00Z"))).toBe(false);
   });
 
   it("escribe montos y comparaciones", () => {
@@ -200,12 +201,12 @@ describe("resumen semanal", () => {
       "no registraste",
     );
     expect(summaryText({ thisWeek: 1000n, lastWeek: 1000n, top: null }).body).toBe(
-      "Gastaste $ 10, igual que la semana pasada.",
+      "En los últimos 7 días gastaste $ 10, igual que los 7 días anteriores.",
     );
     expect(summaryText({ thisWeek: 1100n, lastWeek: 1000n, top: null }).body).toContain("10 % más");
     expect(
       summaryText({ thisWeek: 500n, lastWeek: 0n, top: { name: "Ocio", amount: 500n } }).body,
-    ).toBe("Gastaste $ 5. Lo que más: Ocio ($ 5).");
+    ).toBe("En los últimos 7 días gastaste $ 5. Lo que más: Ocio ($ 5).");
   });
 
   it("arma el resumen de cada teléfono con sus propios números", async () => {
@@ -248,7 +249,7 @@ describe("resumen semanal", () => {
     const messages = await weeklyMessages(db, SUNDAY);
     const byToken = Object.fromEntries(messages.map((m) => [m.to, m.body]));
     expect(byToken[tokenOf("dani")]).toBe(
-      "Gastaste $ 280.000, 30 % menos que la semana pasada. Lo que más: Mercado ($ 230.000).",
+      "En los últimos 7 días gastaste $ 280.000, 30 % menos que los 7 días anteriores. Lo que más: Mercado ($ 230.000).",
     );
     expect(byToken[tokenOf("fede")]).toContain("no registraste");
     expect(byToken[tokenOf("eva")]).toBeUndefined();

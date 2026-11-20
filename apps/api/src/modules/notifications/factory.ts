@@ -18,8 +18,9 @@ export const neonNotificationsFactory: NotificationsFactory = (env) => {
   return { devices: postgresDevices(drizzle({ client: pool })), close: () => pool.end() };
 };
 
-/** Domingo 18:00 de Bogotá (23:00 UTC). Debe coincidir con wrangler.jsonc. */
-export const WEEKLY_CRON = "0 23 * * SUN";
+/** El resumen sale con el cron diario del domingo (8:00 de Bogotá). */
+export const isSummaryDay = (now: Date) =>
+  new Date(now.getTime() - 5 * 3_600_000).getUTCDay() === 0;
 
 /** Cron del domingo: resumen de la semana a cada teléfono con el aviso activado. */
 export async function weeklyCron(env: Env, now: Date) {
