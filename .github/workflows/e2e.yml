@@ -16,7 +16,7 @@ on:
       - "packages/ui/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/e2e.yml"
-      - "scripts/security/mobsf-scan.sh"
+      - "scripts/security/mobsf-*"
   push:
     branches: [main]
     paths:
@@ -25,7 +25,7 @@ on:
       - "packages/ui/**"
       - "pnpm-lock.yaml"
       - ".github/workflows/e2e.yml"
-      - "scripts/security/mobsf-scan.sh"
+      - "scripts/security/mobsf-*"
   workflow_dispatch:
 
 concurrency:

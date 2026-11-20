@@ -34,6 +34,7 @@ jq --argjson ok "$accepted_json" \
   "$OUT/mobsf-scorecard.json" > "$OUT/mobsf-high.json"
 high="$(jq 'length' "$OUT/mobsf-high.json")"
 warning="$(jq '.warning // [] | length' "$OUT/mobsf-scorecard.json")"
+rm -f "$OUT/mobsf-own.txt"
 {
   echo "### MobSF"
   echo "- Puntaje de seguridad: $score/100"
@@ -50,10 +51,18 @@ warning="$(jq '.warning // [] | length' "$OUT/mobsf-scorecard.json")"
         original="$(grep -m1 -E "^[^ ].* -> ${obf//./\\.}:$" "$MAPPING" | cut -d' ' -f1 || true)"
       fi
       echo "  - 📄 $rule: $file${original:+ ($original)}"
+      # Un hallazgo alto en el código propio no se acepta nunca, aunque el título esté en la lista.
+      case "$file ${original:-}" in
+        *co/lukas/* | *" co.lukas."*) echo "$rule $file" >> "$OUT/mobsf-own.txt" ;;
+      esac
     done
   jq -r '.warning // [] | .[] | "  - 🟡 \(.title)"' "$OUT/mobsf-scorecard.json"
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/stdout}"
 
+if [ -s "$OUT/mobsf-own.txt" ]; then
+  echo "::error::MobSF encontró hallazgos altos en el código de Lukas: $(tr '\n' ';' < "$OUT/mobsf-own.txt")"
+  exit 1
+fi
 if [ "$high" -gt 0 ]; then
   echo "::error::MobSF encontró $high hallazgos altos sin aceptar en el APK"
   exit 1

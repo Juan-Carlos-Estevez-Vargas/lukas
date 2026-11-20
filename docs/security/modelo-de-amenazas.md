@@ -95,7 +95,7 @@ Cada amenaza indica el control que ya existe (✓) o el que falta y en qué tare
 
 | STRIDE | Amenaza | Control |
 | --- | --- | --- |
-| I, E | Vulnerabilidades en la web, la API o el APK | ✓ ZAP baseline sobre staging después de cada despliegue y MobSF sobre el APK de release en cada PR de la app; fallan con hallazgos altos (FIN-405) |
+| I, E | Vulnerabilidades en la web, la API o el APK | ✓ ZAP baseline sobre staging después de cada despliegue y MobSF sobre el APK de release en cada PR de la app; fallan con hallazgos altos (FIN-405). Los aceptados están en `scripts/security/mobsf-accepted.tsv` con su razón; uno en `co.lukas.*` nunca se acepta |
 | T | Dependencia comprometida | ✓ Versiones exactas, 14 días mínimos de publicación, `trustPolicy: no-downgrade`, OSV-Scanner y Dependabot |
 | T | Acción de GitHub comprometida | ✓ Acciones fijadas por SHA, permisos `contents: read` por defecto |
 | I | Secretos en el código | ✓ gitleaks en cada PR |
