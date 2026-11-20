@@ -1,3 +1,5 @@
+import { Money } from "../money";
+
 /**
  * Planes y lo que habilita cada uno (entitlements). La app y la API preguntan por funciones,
  * nunca por el nombre del plan: así un plan nuevo o una promoción no obliga a tocar cada pantalla.
@@ -46,3 +48,32 @@ export const isPlan = (value: string): value is Plan =>
 
 export const isFeature = (value: string): value is Feature =>
   (FEATURES as readonly string[]).includes(value);
+
+/** Cuánto dura la prueba gratis de premium. Vence sola: el acceso depende de `periodEnd`. */
+export const TRIAL_DAYS = 14;
+
+export const BILLING_PERIODS = ["month", "year"] as const;
+export type BillingPeriod = (typeof BILLING_PERIODS)[number];
+
+export interface Price {
+  readonly id: string;
+  readonly plan: Plan;
+  readonly period: BillingPeriod;
+  readonly amount: Money;
+}
+
+/** Precios de premium en pesos (unidades menores: centavos). El anual sale a dos meses gratis. */
+export const PRICES: readonly Price[] = [
+  {
+    id: "premium-month",
+    plan: "premium",
+    period: "month",
+    amount: Money.ofMinor(1_490_000n, "COP"),
+  },
+  {
+    id: "premium-year",
+    plan: "premium",
+    period: "year",
+    amount: Money.ofMinor(14_900_000n, "COP"),
+  },
+];
