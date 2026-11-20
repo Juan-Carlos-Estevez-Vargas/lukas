@@ -174,6 +174,64 @@ const txOp = (record: TransactionRecord, baseVersion: number | null = null): Ope
   record,
 });
 
+describe("IDOR: ids de otra persona en el sync", () => {
+  let cata = "";
+  let dario = "";
+  const cuenta = uuid();
+  const categoria = uuid();
+  const movimiento = uuid();
+
+  beforeAll(async () => {
+    cata = await signIn("cata@lukas.test");
+    dario = await signIn("dario@lukas.test");
+    const setup = await push(cata, [
+      accountOp(cuenta, "Bancolombia"),
+      categoryOp(categoria),
+      txOp(expense(movimiento, cuenta, categoria, "500000")),
+    ]);
+    expect(setup.map((r) => r.status)).toEqual(["applied", "applied", "applied"]);
+  });
+
+  const reasons = (results: Awaited<ReturnType<typeof push>>) =>
+    results.map((r) => (r.status === "rejected" ? r.reason : r.status));
+
+  it("no se puede gastar desde la cuenta de otra persona ni usar su categoría", async () => {
+    const suya = uuid();
+    const results = await push(dario, [
+      accountOp(suya, "Mía"),
+      txOp(expense(uuid(), cuenta, uuid(), "1000")),
+      txOp(expense(uuid(), suya, categoria, "1000")),
+    ]);
+    expect(reasons(results)).toEqual(["applied", "invalid", "invalid"]);
+  });
+
+  it("no se puede sobrescribir, editar ni borrar con el id de un registro ajeno", async () => {
+    const mia = uuid();
+    const [cuentaMia] = await push(dario, [accountOp(mia, "Propia")]);
+    expect(cuentaMia?.status).toBe("applied");
+    const results = await push(dario, [
+      categoryOp(categoria),
+      txOp(expense(movimiento, mia, uuid(), "1")),
+      txOp(expense(movimiento, mia, uuid(), "1"), 1),
+      { opId: uuid(), entity: "transactions", kind: "delete", id: movimiento, baseVersion: 1 },
+      { opId: uuid(), entity: "categories", kind: "delete", id: categoria, baseVersion: 1 },
+    ]);
+    expect(reasons(results.slice(0, 3))).toEqual(["id_taken", "id_taken", "id_taken"]);
+    expect(results.slice(3)).toEqual([
+      expect.objectContaining({ status: "applied", version: 0 }),
+      expect.objectContaining({ status: "applied", version: 0 }),
+    ]);
+    const ids = (changes: PullResponse["changes"]) =>
+      changes.map((c) => `${c.kind}:${"record" in c ? c.record.id : c.id}`);
+    const intact = ids((await pullAll(cata)).changes);
+    expect(intact).toEqual(
+      expect.arrayContaining([`upsert:${movimiento}`, `upsert:${categoria}`, `upsert:${cuenta}`]),
+    );
+    expect(intact.filter((c) => c.startsWith("delete:"))).toEqual([]);
+    expect(ids((await pullAll(dario)).changes)).not.toContain(`upsert:${movimiento}`);
+  });
+});
+
 describe("sincronización push / pull", () => {
   let ana = "";
   let anaLaptop = "";
