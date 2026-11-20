@@ -19,9 +19,6 @@ export interface BankParser {
   readonly rules: readonly NotificationRule[];
 }
 
-// Monto en pesos con separadores colombianos: "$45.900", "$ 1.200.000,00", "COP 8.000".
-export const AMOUNT = String.raw`(?:\$|COP)\s?(?<amount>\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)`;
-
 /** "05/11/2026" y "13:01" del aviso, en hora local; `null` si no están o no tienen sentido. */
 export function occurredAt(date?: string, time?: string, posted?: Date): Date | null {
   if (!date && !time) return null;
@@ -51,11 +48,14 @@ export function occurredAt(date?: string, time?: string, posted?: Date): Date | 
   return at;
 }
 
+const MAX_TEXT = 500;
+
 export type BankResult = RawCapture | "ignore" | null;
 
 /** Aplica las reglas del banco: la captura, `"ignore"` si es un aviso conocido que no cuenta. */
 export function applyRules(parser: BankParser, n: PostedNotification): BankResult {
-  const text = `${n.title}. ${n.text}`.replace(/\s+/g, " ").trim();
+  // Un aviso real tiene pocas líneas; cortar el texto acota el trabajo de las expresiones.
+  const text = `${n.title}. ${n.text}`.replace(/\s+/g, " ").trim().slice(0, MAX_TEXT);
   for (const rule of parser.rules) {
     const m = rule.pattern.exec(text);
     if (!m) continue;
