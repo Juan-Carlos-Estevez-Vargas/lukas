@@ -1,0 +1,27 @@
+# Lector de notificaciones: la pantalla de consentimiento carga el módulo nativo, pide el permiso
+# de Android y guarda qué apps se pueden leer. El aviso simulado pasa por el mismo lector de texto.
+appId: co.lukas.app
+name: Lector de avisos
+---
+- runFlow: subflows/primer-uso.yaml
+- openLink: "lukas://capture"
+- extendedWaitUntil:
+    visible: "Leer avisos del banco"
+    timeout: 10000
+- assertVisible: "Falta el permiso.*"
+- assertVisible: "Dar permiso en Android"
+- scrollUntilVisible:
+    element: "Nequi"
+- tapOn:
+    text: "Nequi"
+    index: 0
+- openLink: "lukas://inbox"
+- extendedWaitUntil:
+    visible: "Por revisar"
+    timeout: 10000
+- scrollUntilVisible:
+    element: "Simular aviso de compra"
+- tapOn: "Simular aviso de compra"
+- extendedWaitUntil:
+    visible: "Tiendas Ara"
+    timeout: 10000

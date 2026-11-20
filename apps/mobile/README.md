@@ -333,6 +333,20 @@ garantiza SQLCipher y se comprueba en el dispositivo.
 - El Resumen avisa cuántos hay por revisar. En el modo e2e la bandeja tiene "Simular aviso de
   compra" (una notificación y su correo) para probarla sin lectores.
 
+## Lector de notificaciones (Android)
+
+- Módulo nativo local `modules/notification-reader` (Kotlin, autoenlazado por Expo; su
+  `AndroidManifest.xml` declara el `NotificationListenerService`, así que no hace falta un config
+  plugin aparte). Android solo lo activa cuando la persona da "Acceso a notificaciones".
+- Ajustes → "Leer avisos del banco" (`app/capture/index.tsx`) explica qué se lee, abre el permiso
+  de Android y deja elegir las apps (`src/capture/apps.ts`). Sin apps elegidas no se lee nada.
+- El servicio descarta todo lo que no venga de una app permitida; de las permitidas guarda título,
+  texto y hora en una cola privada (preferencias de la app, sin copia de seguridad, máximo 200).
+- `CaptureProvider` vacía la cola al abrir la app, al volver a ella y cuando el servicio avisa (con
+  la app abierta llega en segundos). `parseNotification` saca monto, tipo y comercio, y
+  `ingestCapture` lo deja en "Por revisar"; el texto original no se guarda ni sale del teléfono.
+- En la web y en iOS `notificationReader` es `null` y la opción no aparece.
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,

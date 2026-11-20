@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { ScrollView } from "react-native";
 import { useSession } from "../../src/auth/session";
+import { notificationReader } from "../../src/capture/reader";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
@@ -83,6 +84,13 @@ export default function Settings() {
             label={t("import.manage")}
             variant="plain"
             onPress={() => router.push("/import")}
+          />
+        ) : null}
+        {database.status === "ready" && notificationReader ? (
+          <Button
+            label={t("capture.manage")}
+            variant="plain"
+            onPress={() => router.push("/capture")}
           />
         ) : null}
         {database.status === "ready" ? (
