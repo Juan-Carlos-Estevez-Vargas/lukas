@@ -88,6 +88,8 @@ export const createApp = ({
     .use("/v1/*", sessionContext(auth))
     .use("/v1/*", rateLimit("API_LIMITER", 60))
     .use("/v1/auth/*", rateLimit("AUTH_LIMITER", 60))
+    // Los cupones se adivinan probando: mismo límite estricto que el inicio de sesión.
+    .use("/v1/billing/coupons/*", rateLimit("AUTH_LIMITER", 60))
     .on(["GET", "POST"], "/v1/auth/*", authHandler(auth))
     .route("/", healthRoutes)
     .route("/", securityTxtRoutes)

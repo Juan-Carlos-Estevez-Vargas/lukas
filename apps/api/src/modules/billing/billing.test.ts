@@ -1,5 +1,5 @@
 import type { PGlite } from "@electric-sql/pglite";
-import { billingEvents, outbox, subscriptions, users } from "@lukas/db/schema";
+import { billingEvents, coupons, outbox, subscriptions, users } from "@lukas/db/schema";
 import { createTestDatabase, insertUsers } from "@lukas/db/testing";
 import type { SubscriptionCommand } from "@lukas/domain";
 import { eq } from "drizzle-orm";
@@ -175,6 +175,7 @@ describe("GET /billing/entitlements", () => {
       aiDailyTokens: 20_000,
       aiDailyRequests: 40,
       subscription: null,
+      trialAvailable: true,
     });
 
     // Soporte activa premium a mano, directo en la base.
@@ -199,6 +200,130 @@ describe("GET /billing/entitlements", () => {
     const app = appWith(false);
     const { token } = await signIn(appWith(), "mono@lukas.test");
     expect((await call(app, "GET", "/v1/billing/entitlements", token)).status).toBe(503);
+  });
+});
+
+describe("prueba gratis y cupones", () => {
+  const appWith = () =>
+    createApp({
+      auth: () => createAuth({ db, env, mailer }),
+      billing: () => ({ store: postgresBilling(db), close: async () => undefined }),
+    });
+
+  const post = (app: ReturnType<typeof createApp>, path: string, token: string, body?: unknown) =>
+    app.request(
+      `http://localhost:8787${path}`,
+      {
+        method: "POST",
+        headers: {
+          Origin: ORIGIN,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      },
+      env,
+    );
+
+  const signIn = async (app: ReturnType<typeof createApp>, email: string) => {
+    const send = (path: string, body: unknown) =>
+      app.request(
+        `http://localhost:8787${path}`,
+        {
+          method: "POST",
+          headers: { Origin: ORIGIN, "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+        env,
+      );
+    await send("/v1/auth/email-otp/send-verification-otp", { email, type: "sign-in" });
+    const code = mail.findLast((m) => m.to === email)?.code ?? "";
+    const res = await send("/v1/auth/sign-in/email-otp", { email, otp: code });
+    const [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
+    return { token: res.headers.get("set-auth-token") ?? "", userId: user?.id ?? "" };
+  };
+
+  it("la prueba da premium 14 días, una sola vez, y vence sola", async () => {
+    const app = appWith();
+    const nico = await signIn(app, "nico@lukas.test");
+    const before = Date.now();
+    const res = await post(app, "/v1/billing/trial", nico.token);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      plan: string;
+      trialAvailable: boolean;
+      subscription: { status: string; periodEnd: string };
+    };
+    expect(body).toMatchObject({ plan: "premium", trialAvailable: false });
+    expect(body.subscription.status).toBe("trialing");
+    const days = (Date.parse(body.subscription.periodEnd) - before) / 86_400_000;
+    expect(days).toBeGreaterThan(13.99);
+    expect(days).toBeLessThanOrEqual(14.01);
+
+    const again = await post(app, "/v1/billing/trial", nico.token);
+    expect(again.status).toBe(409);
+    expect(((await again.json()) as { code: string }).code).toBe("trial_unavailable");
+
+    const billing = postgresBilling(db);
+    const end = new Date(body.subscription.periodEnd);
+    expect((await billing.entitlements(nico.userId, new Date(end.getTime() - 1))).plan).toBe(
+      "premium",
+    );
+    expect((await billing.entitlements(nico.userId, end)).plan).toBe("free");
+  });
+
+  it("un cupón suma días, una vez por persona, y respeta vencimiento y tope", async () => {
+    await db.insert(coupons).values([
+      { code: "BETA-2026", days: 30, maxRedemptions: 1 },
+      { code: "VIEJO", days: 30, expiresAt: new Date("2020-01-01T00:00:00Z") },
+    ]);
+    const app = appWith();
+    const olga = await signIn(app, "olga@lukas.test");
+    const pablo = await signIn(app, "pablo@lukas.test");
+
+    const res = await post(app, "/v1/billing/coupons/redeem", olga.token, { code: " beta-2026 " });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      plan: "premium",
+      subscription: { status: "active" },
+      trialAvailable: false,
+    });
+
+    const cases: [string, string, number, string][] = [
+      [olga.token, "BETA-2026", 409, "coupon_used"],
+      [pablo.token, "BETA-2026", 410, "coupon_exhausted"],
+      [pablo.token, "VIEJO", 410, "coupon_expired"],
+      [pablo.token, "NO-EXISTE", 404, "coupon_unknown"],
+      [pablo.token, "??", 404, "coupon_unknown"],
+    ];
+    for (const [token, code, status, problem] of cases) {
+      const r = await post(app, "/v1/billing/coupons/redeem", token, { code });
+      expect(r.status).toBe(status);
+      expect(((await r.json()) as { code: string }).code).toBe(problem);
+    }
+    const [beta] = await db.select().from(coupons).where(eq(coupons.code, "BETA-2026"));
+    expect(beta?.redemptions).toBe(1);
+  });
+
+  it("un cupón que no alcanza a aplicarse no se gasta", async () => {
+    await insertUsers(db, "u_reloj");
+    await db.insert(coupons).values({ code: "RELOJ", days: 5 });
+    const billing = postgresBilling(db);
+    await billing.process("evt_futuro", {
+      userId: "u_reloj",
+      provider: "wompi",
+      plan: "premium",
+      event: {
+        type: "payment_succeeded",
+        at: new Date("2027-01-01T00:00:00Z"),
+        periodEnd: new Date("2027-02-01T00:00:00Z"),
+      },
+    });
+    expect(await billing.redeemCoupon("u_reloj", "RELOJ", new Date("2026-11-20T00:00:00Z"))).toBe(
+      "used",
+    );
+    const [reloj] = await db.select().from(coupons).where(eq(coupons.code, "RELOJ"));
+    expect(reloj?.redemptions).toBe(0);
   });
 });
 
