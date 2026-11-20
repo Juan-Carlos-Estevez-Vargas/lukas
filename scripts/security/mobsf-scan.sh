@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Análisis estático del APK con MobSF (FIN-405). Levanta MobSF en Docker, sube el APK, espera el
 # análisis y falla si el scorecard trae hallazgos de severidad alta. Deja el reporte JSON en $2.
-# Uso: scripts/security/mobsf-scan.sh <apk> <carpeta-de-reportes>
+# Uso: scripts/security/mobsf-scan.sh <apk> <carpeta-de-reportes> [mapping.txt de R8]
 set -euo pipefail
 
 APK="$1"
 OUT="$2"
+MAPPING="${3:-}"
 IMAGE="opensecurity/mobile-security-framework-mobsf:v4.6.4@sha256:cf1465a3cc0c95488b9a6cdb1c7799d4b576d391ee28232c221f6a196bf2f74c"
 URL="http://127.0.0.1:8000"
 mkdir -p "$OUT"
@@ -40,7 +41,16 @@ warning="$(jq '.warning // [] | length' "$OUT/mobsf-scorecard.json")"
   jq -r '.[] | "  - 🔴 \(.title)"' "$OUT/mobsf-high.json"
   jq -r --argjson ok "$accepted_json" '.high // [] | .[] | select(.title as $t | ($ok | any(. as $p | $t | startswith($p)))) | "  - ⚪ \(.title) (aceptado, ver mobsf-accepted.tsv)"' "$OUT/mobsf-scorecard.json"
   # Dónde está cada hallazgo alto del código, para revisarlo.
-  jq -r '.code_analysis.findings // {} | to_entries[] | select(.value.metadata.severity == "high") | "  - 📄 \(.key): \((.value.files // {}) | keys | .[0:8] | join(", "))"' "$OUT/mobsf-report.json"
+  jq -r '.code_analysis.findings // {} | to_entries[] | select(.value.metadata.severity == "high") | .key as $k | (.value.files // {}) | keys | .[0:8][] | "\($k)\t\(.)"' "$OUT/mobsf-report.json" |
+    while IFS=$'\t' read -r rule file; do
+      # R8 ofusca los nombres: el mapping dice a qué clase original corresponde cada archivo.
+      original=""
+      if [ -n "$MAPPING" ] && [ -f "$MAPPING" ]; then
+        obf="${file%.java}"; obf="${obf#defpackage/}"; obf="${obf//\//.}"
+        original="$(grep -m1 -E "^[^ ].* -> ${obf//./\\.}:$" "$MAPPING" | cut -d' ' -f1 || true)"
+      fi
+      echo "  - 📄 $rule: $file${original:+ ($original)}"
+    done
   jq -r '.warning // [] | .[] | "  - 🟡 \(.title)"' "$OUT/mobsf-scorecard.json"
 } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/stdout}"
 

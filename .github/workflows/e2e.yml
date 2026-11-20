@@ -5,7 +5,7 @@ name: E2E
 #      EXPO_PUBLIC_E2E=1, que cambia la entrada por correo por un código fijo sin red.
 #   2. Lo instala en un emulador de Android con KVM, corre los flujos de apps/mobile/.maestro y
 #      mide el arranque en frío y el tamaño del APK (apps/mobile/e2e/perf.ts).
-#   3. Antes, pasa el APK por MobSF (scripts/security/mobsf-scan.sh) y falla con hallazgos altos.
+#   3. Después, pasa el APK por MobSF (scripts/security/mobsf-scan.sh) y falla con hallazgos altos.
 # Falla si un flujo falla, si el arranque (mediana) pasa de 1,5 s o si el APK pasa del límite.
 
 on:
@@ -82,10 +82,6 @@ jobs:
           NODE_ENV: production
         run: ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 --no-daemon
 
-      # MobSF sobre el mismo APK de release (FIN-405): falla si hay hallazgos altos.
-      - name: MobSF (análisis del APK)
-        run: bash scripts/security/mobsf-scan.sh apps/mobile/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/e2e"
-
       - name: Instalar Maestro
         run: |
           curl -fsSL -o "$RUNNER_TEMP/maestro.zip" \
@@ -110,6 +106,15 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash apps/mobile/e2e/run.sh apps/mobile/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/e2e"
+
+      # MobSF sobre el mismo APK de release (FIN-405): falla si hay hallazgos altos. Corre después
+      # de los flujos para que un hallazgo no oculte el resultado de Maestro.
+      - name: MobSF (análisis del APK)
+        if: success() || failure()
+        run: >-
+          bash scripts/security/mobsf-scan.sh
+          apps/mobile/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/e2e"
+          apps/mobile/android/app/build/outputs/mapping/release/mapping.txt
 
       - name: Resultados
         if: always()
