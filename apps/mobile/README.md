@@ -264,6 +264,23 @@ garantiza SQLCipher y se comprueba en el dispositivo.
 - Si una cuenta quedaría en rojo, el Resumen lo avisa con la fecha y el monto; "Ver proyección"
   abre Reportes en el gráfico de esa cuenta, con lo programado y el punto más bajo.
 
+## Importar CSV y Excel
+
+- Ajustes → "Importar CSV o Excel" (`app/import/index.tsx`). Lee CSV (`;`, `,` o tabulador; UTF-8
+  o Latin-1) y la primera hoja de un .xlsx con `fflate` y un lector propio del XML
+  (`src/import/table.ts`), sin librerías de Excel. Hasta 5.000 filas.
+- Columnas: busca el encabezado en las primeras 15 filas (los bancos ponen títulos arriba) y
+  adivina fecha, descripción, valor con signo o débito/crédito y categoría; la persona puede
+  cambiar cada una. Fechas día/mes (o mes/día), ISO, número de Excel y "15 nov 2026"; montos
+  "$ 1.234.567,89", "1,234.56", "(12.000)" y "12.000-", sin punto flotante (`src/import/columns.ts`).
+- Sin duplicados (`src/import/import.ts`): un movimiento ya está si en esa cuenta hay otro del mismo
+  día, valor y descripción. Se cuentan repeticiones (dos tintos iguales son dos), así que importar
+  dos veces el mismo archivo no agrega nada. Si coincide día y valor pero no la descripción
+  (registrado a mano), queda como "¿Duplicado?" y no se importa salvo que la persona lo marque.
+- La categoría sale de la columna del archivo si coincide con una existente; si no, de las reglas y
+  el historial del comercio; si no, "Otros gastos" u "Otros ingresos". Todo entra en una sola
+  transacción con `source = 'import'`.
+
 ## Pruebas de extremo a extremo y rendimiento
 
 - Flujos de [Maestro](https://maestro.dev) en `.maestro/`: primer uso, registrar un gasto,
