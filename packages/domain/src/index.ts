@@ -39,6 +39,16 @@ export {
   isCurrencyCode,
 } from "./currency";
 export { DomainError } from "./errors";
+export {
+  cleanFeedback,
+  FEEDBACK_KINDS,
+  FEEDBACK_MAX_LENGTH,
+  FEEDBACK_MIN_LENGTH,
+  type FeedbackKind,
+  isFeedbackKind,
+  maskCardNumbers,
+  passesLuhn,
+} from "./feedback";
 export { type BaseTotal, type RateTable, sumInBase, toBase } from "./fx";
 export { isUuidV7, type RandomSource, uuidv7, uuidv7Timestamp } from "./id";
 export {
