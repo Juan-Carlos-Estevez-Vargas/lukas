@@ -266,7 +266,7 @@ garantiza SQLCipher y se comprueba en el dispositivo.
 
 ## Importar CSV y Excel
 
-- Ajustes → "Importar CSV o Excel" (`app/import/index.tsx`). Lee CSV (`;`, `,` o tabulador; UTF-8
+- Ajustes → "Importar extracto (PDF, CSV o Excel)" (`app/import/index.tsx`). Lee CSV (`;`, `,` o tabulador; UTF-8
   o Latin-1) y la primera hoja de un .xlsx con `fflate` y un lector propio del XML
   (`src/import/table.ts`), sin librerías de Excel. Hasta 5.000 filas.
 - Columnas: busca el encabezado en las primeras 15 filas (los bancos ponen títulos arriba) y
@@ -280,6 +280,27 @@ garantiza SQLCipher y se comprueba en el dispositivo.
 - La categoría sale de la columna del archivo si coincide con una existente; si no, de las reglas y
   el historial del comercio; si no, "Otros gastos" u "Otros ingresos". Todo entra en una sola
   transacción con `source = 'import'`.
+
+## Extractos en PDF
+
+- Misma pantalla: si el archivo es PDF se lee con un lector propio (`src/import/pdf/`), sin
+  librerías de PDF ni servidor, igual en el teléfono y en la web. Soporta flujos comprimidos
+  (Flate, LZW, ASCII85/Hex), flujos de objetos, fuentes simples y compuestas (ToUnicode, Identity-H)
+  y PDFs con clave (RC4, AES-128 y AES-256). La clave se pide en pantalla, vive solo en memoria y no
+  se guarda ni se registra.
+- El texto se agrupa en líneas y celdas por posición; `src/import/statements/parse.ts` busca la
+  cabecera de la tabla (fecha, descripción, valor o cargos/abonos, saldo) y asigna cada celda a su
+  columna. Sin cabecera reconocible: fecha al inicio y montos al final. El signo sale de la columna
+  (cargo/abono), del signo del monto ("-", "(…)", "…-"), de la diferencia de saldos o, en último
+  caso, de palabras como "abono" o "nómina". En extractos de tarjeta las compras son gastos.
+- Reconoce Bancolombia, Davivienda, BBVA, Nu y Nequi por la cabecera; el año de fechas como "28 sep"
+  sale del periodo del extracto. Verifica que saldo inicial + movimientos = saldo final y lo dice.
+- Los números de cuenta o tarjeta de las descripciones se recortan a los últimos 4 dígitos.
+- Conciliación: se usa la misma comparación que en CSV, así que lo registrado a mano aparece como
+  "¿Duplicado?" y lo ya importado no se repite.
+- Los extractos de prueba (`src/import/statements/fixtures/`) son inventados y se regeneran con
+  `generate.mjs` (Chromium) y `generate.py` (reportlab y pypdf). Imitan la estructura de cada banco;
+  hay que reemplazarlos por extractos reales anonimizados cuando estén disponibles.
 
 ## Pruebas de extremo a extremo y rendimiento
 

@@ -405,9 +405,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-209 · Extractos PDF de 5 bancos
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Parsers Bancolombia, Davivienda, BBVA, Nu, Nequi
-- [ ] Fixtures anonimizados
-- [ ] Conciliación con lo registrado
+- [x] Parsers Bancolombia, Davivienda, BBVA, Nu, Nequi
+- [x] Fixtures anonimizados
+- [x] Conciliación con lo registrado
 
 **Hecho cuando:** Un extracto real se concilia sin edición manual en el 90 % de líneas.
 

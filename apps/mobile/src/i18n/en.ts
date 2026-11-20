@@ -406,14 +406,14 @@ export const en: Messages = {
   "projection.a11y": "Projected balance of {account} for the next 90 days. {detail}",
   "projection.empty": "There are no cash, bank or wallet accounts to project.",
   "projection.today": "Today",
-  "import.manage": "Import CSV or Excel",
+  "import.manage": "Import statement (PDF, CSV or Excel)",
   "import.title": "Import transactions",
   "import.intro":
-    "Choose the CSV or Excel file you downloaded from your bank. The file isn't uploaded anywhere: it's read here and only the transactions you import are saved.",
+    "Choose the PDF, CSV or Excel statement you downloaded from your bank. The file isn't uploaded anywhere: it's read here and only the transactions you import are saved.",
   "import.pick": "Choose file",
   "import.another": "Choose another file",
   "import.file": "{name}: {rows} rows",
-  "import.unreadable": "The file couldn't be read. It must be CSV or Excel (.xlsx).",
+  "import.unreadable": "The file couldn't be read. It must be PDF, CSV or Excel (.xlsx).",
   "import.account": "Which account do they go to?",
   "import.columns": "Columns",
   "import.field.date": "Date",
@@ -438,4 +438,19 @@ export const en: Messages = {
   "import.go": "Import {count} transactions",
   "import.done": "Done: {count} transactions imported.",
   "import.failed": "Nothing was imported: {reason}",
+  "import.pdf.password":
+    "This PDF has a password (usually your ID number). Type it to open it: it isn't saved.",
+  "import.pdf.wrongPassword": "That password doesn't open the PDF. Check it and try again.",
+  "import.pdf.passwordLabel": "PDF password",
+  "import.pdf.open": "Open",
+  "import.pdf.empty":
+    "The PDF has no transactions we can read. If it's a scanned photo, download the digital statement from your bank's app.",
+  "import.pdf.unreadable": "We couldn't read this PDF.",
+  "import.pdf.bank": "your bank",
+  "import.pdf.read": "{bank} statement: {count} transactions.",
+  "import.pdf.balanced":
+    "✓ It adds up: opening balance plus transactions equals the closing balance.",
+  "import.pdf.unbalanced":
+    "Heads up: the balance doesn't add up. Check the transactions before importing.",
+  "import.pdf.skipped": "{count} lines couldn't be read ({rate}% were read).",
 };

@@ -406,14 +406,14 @@ export const es = {
   "projection.a11y": "Saldo proyectado de {account} para los próximos 90 días. {detail}",
   "projection.empty": "No hay cuentas de efectivo, banco o billetera para proyectar.",
   "projection.today": "Hoy",
-  "import.manage": "Importar CSV o Excel",
+  "import.manage": "Importar extracto (PDF, CSV o Excel)",
   "import.title": "Importar movimientos",
   "import.intro":
-    "Elige el CSV o Excel que descargaste de tu banco. El archivo no se sube a ningún lado: se lee aquí y solo se guardan los movimientos que importes.",
+    "Elige el extracto en PDF, CSV o Excel que descargaste de tu banco. El archivo no se sube a ningún lado: se lee aquí y solo se guardan los movimientos que importes.",
   "import.pick": "Elegir archivo",
   "import.another": "Elegir otro archivo",
   "import.file": "{name}: {rows} filas",
-  "import.unreadable": "No se pudo leer el archivo. Debe ser CSV o Excel (.xlsx).",
+  "import.unreadable": "No se pudo leer el archivo. Debe ser PDF, CSV o Excel (.xlsx).",
   "import.account": "¿A qué cuenta van?",
   "import.columns": "Columnas",
   "import.field.date": "Fecha",
@@ -439,6 +439,19 @@ export const es = {
   "import.go": "Importar {count} movimientos",
   "import.done": "Listo: se importaron {count} movimientos.",
   "import.failed": "No se importó nada: {reason}",
+  "import.pdf.password":
+    "Este PDF tiene clave (casi siempre es tu cédula). Escríbela para abrirlo: no se guarda.",
+  "import.pdf.wrongPassword": "Esa clave no abre el PDF. Revísala e inténtalo de nuevo.",
+  "import.pdf.passwordLabel": "Clave del PDF",
+  "import.pdf.open": "Abrir",
+  "import.pdf.empty":
+    "El PDF no tiene movimientos que podamos leer. Si es una foto escaneada, descarga el extracto digital desde la app del banco.",
+  "import.pdf.unreadable": "No pudimos leer este PDF.",
+  "import.pdf.bank": "tu banco",
+  "import.pdf.read": "Extracto de {bank}: {count} movimientos.",
+  "import.pdf.balanced": "✓ Cuadra: saldo inicial más movimientos da el saldo final.",
+  "import.pdf.unbalanced": "Ojo: el saldo no cuadra. Revisa los movimientos antes de importar.",
+  "import.pdf.skipped": "{count} líneas no se pudieron leer (se leyó el {rate} %).",
 } as const;
 
 export type MessageKey = keyof typeof es;
