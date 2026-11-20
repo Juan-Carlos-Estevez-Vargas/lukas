@@ -9,6 +9,8 @@ import {
   billingEvents,
   categories,
   changes,
+  couponRedemptions,
+  coupons,
   entries,
   exchangeRates,
   householdMembers,
@@ -499,5 +501,21 @@ describe("suscripciones", () => {
       }),
     );
     expect(duplicate).toMatch(/duplicate key|billing_events_provider_event_id_pk/);
+  });
+});
+
+describe("cupones", () => {
+  it("son solo del servidor y no aceptan códigos raros ni más canjes que el tope", async () => {
+    await db.insert(coupons).values({ code: "BETA-2026", days: 30, maxRedemptions: 1 });
+    for (const table of [coupons, couponRedemptions]) {
+      const message = await failure(withUser(db, ANA, (tx) => tx.select().from(table)));
+      expect(message).toMatch(/permission denied/);
+    }
+    const lower = await failure(db.insert(coupons).values({ code: "beta", days: 30 }));
+    expect(lower).toMatch(/coupons_code_shape/);
+    const over = await failure(
+      db.update(coupons).set({ redemptions: 2 }).where(eq(coupons.code, "BETA-2026")),
+    );
+    expect(over).toMatch(/coupons_redemptions/);
   });
 });
