@@ -149,6 +149,14 @@ export async function isOnboarded(db: SqlConnection): Promise<boolean> {
   return (await sqlitePreferences(db).get("onboarding.completedAt")) !== null;
 }
 
+/**
+ * En la web la preferencia no existe (la base es nueva en cada visita): basta con que el sync haya
+ * traído alguna cuenta.
+ */
+export async function hasAccounts(db: SqlConnection): Promise<boolean> {
+  return (await db.get<{ one: number }>("SELECT 1 AS one FROM accounts LIMIT 1")) !== null;
+}
+
 /** Borra los datos de ejemplo sin tocar nada de lo que el usuario registró. */
 export async function removeSampleData(db: SqlConnection): Promise<void> {
   await db.transaction(async (tx) => {

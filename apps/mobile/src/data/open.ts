@@ -21,6 +21,8 @@ export interface OpenDeps {
 export interface LocalDatabase {
   readonly db: SqlConnection;
   readonly migrated: MigrationResult;
+  /** `false` en la web: la base vive en memoria y se pierde al cerrar la pestaña. */
+  readonly persistent: boolean;
   close(): Promise<void>;
 }
 
@@ -78,5 +80,22 @@ export async function openLocalDatabase(deps: OpenDeps): Promise<LocalDatabase> 
   await raw.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL;");
   const db = createConnection(raw);
   const migrated = await migrate(db, deps.migrations);
-  return { db, migrated, close: () => raw.close() };
+  return { db, migrated, persistent: true, close: () => raw.close() };
+}
+
+export const MEMORY_DATABASE = ":memory:";
+
+/**
+ * Base solo en memoria para la web: el navegador no tiene dónde guardar la clave de forma segura,
+ * así que no se escribe nada en disco. Se llena con el sync al entrar y se borra al cerrar.
+ */
+export async function openMemoryDatabase(
+  open: OpenDeps["open"],
+  migrations: readonly Migration[],
+): Promise<LocalDatabase> {
+  const raw = await open(MEMORY_DATABASE);
+  await raw.exec("PRAGMA foreign_keys = ON;");
+  const db = createConnection(raw);
+  const migrated = await migrate(db, migrations);
+  return { db, migrated, persistent: false, close: () => raw.close() };
 }

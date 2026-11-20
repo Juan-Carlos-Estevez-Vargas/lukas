@@ -16,6 +16,7 @@
     "e2e",
     "app.config.ts",
     "app.config.test.ts",
+    "pwa.test.ts",
     "vitest.config.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"

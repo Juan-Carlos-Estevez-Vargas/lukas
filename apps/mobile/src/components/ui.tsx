@@ -6,16 +6,23 @@ import {
   Text,
   TextInput,
   type TextInputProps,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { CONTENT_MAX_WIDTH, isDesktop } from "../display/layout";
 import { useTheme } from "../theme/theme";
 
 export function Screen({ children }: { readonly children: ReactNode }) {
   const { colors, space } = useTheme();
+  const { width } = useWindowDimensions();
+  // En escritorio el contenido va centrado y con ancho de lectura.
+  const desktop = isDesktop(width)
+    ? { width: "100%" as const, maxWidth: CONTENT_MAX_WIDTH, alignSelf: "center" as const }
+    : null;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <View style={{ flex: 1, padding: space.lg, gap: space.md }}>{children}</View>
+      <View style={[{ flex: 1, padding: space.lg, gap: space.md }, desktop]}>{children}</View>
     </SafeAreaView>
   );
 }

@@ -21,23 +21,23 @@ export default function RootLayout() {
         <I18nProvider>
           <SessionProvider>
             <LocalDatabaseProvider>
-              <OnboardingProvider>
-                <DiscreetProvider>
-                  <CardRemindersProvider>
-                    <BudgetAlertsProvider>
-                      <RecurringProvider>
-                        <SyncProvider>
+              <SyncProvider>
+                <OnboardingProvider>
+                  <DiscreetProvider>
+                    <CardRemindersProvider>
+                      <BudgetAlertsProvider>
+                        <RecurringProvider>
                           <AppLockProvider>
                             <StatusBar style="auto" />
                             <Stack screenOptions={{ headerShown: false }} />
                             <LockGate />
                           </AppLockProvider>
-                        </SyncProvider>
-                      </RecurringProvider>
-                    </BudgetAlertsProvider>
-                  </CardRemindersProvider>
-                </DiscreetProvider>
-              </OnboardingProvider>
+                        </RecurringProvider>
+                      </BudgetAlertsProvider>
+                    </CardRemindersProvider>
+                  </DiscreetProvider>
+                </OnboardingProvider>
+              </SyncProvider>
             </LocalDatabaseProvider>
           </SessionProvider>
         </I18nProvider>
