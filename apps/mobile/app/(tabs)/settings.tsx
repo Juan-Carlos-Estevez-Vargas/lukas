@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { ScrollView } from "react-native";
 import { assistantEnabled, setAssistantEnabled } from "../../src/assistant/settings";
 import { useSession } from "../../src/auth/session";
+import { forgetEntitlements } from "../../src/billing/entitlements";
+import { useEntitlements } from "../../src/billing/use-entitlements";
 import { notificationReader } from "../../src/capture/reader";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
 import { apiUrl } from "../../src/config";
@@ -31,6 +33,7 @@ const devices = createDeviceClient(apiUrl);
 export default function Settings() {
   const { t, locale } = useI18n();
   const { signOut, state: session } = useSession();
+  const { entitlements } = useEntitlements();
   const sync = useSync();
   const syncLine = describeSync(t, locale, sync);
   const { discreet, setDiscreet } = useDiscreet();
@@ -196,11 +199,15 @@ export default function Settings() {
             // Que el teléfono no siga recibiendo resúmenes de esta cuenta.
             const forget =
               db && session.status === "signedIn"
-                ? forgetDevice(db, devices, session.token).catch(() => undefined)
+                ? Promise.all([
+                    forgetDevice(db, devices, session.token).catch(() => undefined),
+                    forgetEntitlements(db).catch(() => undefined),
+                  ])
                 : Promise.resolve();
             void forget.then(() => signOut());
           }}
         />
+        <Body muted>{t("settings.plan", { plan: t(`plan.${entitlements.plan}`) })}</Body>
         <Body muted>
           {t("settings.version", { version: Constants.expoConfig?.version ?? "?" })}
         </Body>

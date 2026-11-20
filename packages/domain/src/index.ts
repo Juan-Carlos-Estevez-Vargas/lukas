@@ -1,4 +1,29 @@
 export {
+  type Entitlements,
+  entitlementsOf,
+  FEATURES,
+  type Feature,
+  hasFeature,
+  isFeature,
+  isPlan,
+  PLANS,
+  type Plan,
+} from "./billing/plans";
+export {
+  applyBillingEvent,
+  BILLING_PROVIDERS,
+  type BillingEvent,
+  type BillingProvider,
+  currentEntitlements,
+  GRACE_DAYS,
+  isEntitled,
+  SUBSCRIPTION_STATUSES,
+  type Subscription,
+  type SubscriptionCommand,
+  type SubscriptionStatus,
+  type Transition,
+} from "./billing/subscription";
+export {
   CURRENCIES,
   type Currency,
   type CurrencyCode,

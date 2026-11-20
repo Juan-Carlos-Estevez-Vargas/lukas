@@ -12,6 +12,7 @@ export interface ReceiptReading {
 export type ReadError =
   | { readonly kind: "signed_out" }
   | { readonly kind: "quota" }
+  | { readonly kind: "premium" }
   | { readonly kind: "unreadable" }
   | { readonly kind: "unavailable" }
   | { readonly kind: "network" }
@@ -29,6 +30,7 @@ type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 const ERRORS: Record<number, ReadError> = {
   401: { kind: "signed_out" },
+  402: { kind: "premium" },
   422: { kind: "unreadable" },
   429: { kind: "quota" },
   503: { kind: "unavailable" },

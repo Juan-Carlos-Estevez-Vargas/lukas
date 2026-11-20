@@ -6,6 +6,7 @@ import {
   accounts,
   aiUsage,
   auditLog,
+  billingEvents,
   categories,
   changes,
   entries,
@@ -15,6 +16,7 @@ import {
   idempotencyKeys,
   outbox,
   pushDevices,
+  subscriptions,
   transactionEmbeddings,
   transactions,
 } from "./schema";
@@ -437,5 +439,65 @@ describe("embeddings de movimientos", () => {
         FROM app.transaction_embeddings`),
     ).then((r) => (r as unknown as { rows: { transaction_id: string; d: number }[] }).rows);
     expect(nearest).toMatchObject({ transaction_id: ids.anaTx, d: 0 });
+  });
+});
+
+describe("suscripciones", () => {
+  it("cada quien lee su plan pero nadie se lo cambia desde su sesión", async () => {
+    const periodEnd = new Date("2026-12-01T00:00:00Z");
+    await db.insert(subscriptions).values({
+      userId: ANA,
+      plan: "premium",
+      status: "active",
+      provider: "manual",
+      periodEnd,
+      lastEventAt: new Date("2026-11-01T00:00:00Z"),
+    });
+    const [own] = await withUser(db, ANA, (tx) => tx.select().from(subscriptions));
+    expect(own).toMatchObject({ userId: ANA, plan: "premium", status: "active" });
+    expect(await withUser(db, CARLA, (tx) => tx.select().from(subscriptions))).toEqual([]);
+    const selfUpgrade = await failure(
+      withUser(db, CARLA, (tx) =>
+        tx.insert(subscriptions).values({
+          userId: CARLA,
+          plan: "premium",
+          status: "active",
+          provider: "manual",
+          periodEnd,
+          lastEventAt: periodEnd,
+        }),
+      ),
+    );
+    expect(selfUpgrade).toMatch(/permission denied/);
+    const extend = await failure(
+      withUser(db, ANA, (tx) =>
+        tx.update(subscriptions).set({ periodEnd: new Date("2099-01-01") }),
+      ),
+    );
+    expect(extend).toMatch(/permission denied/);
+    const audited = await db.select().from(auditLog).where(eq(auditLog.entity, "subscriptions"));
+    expect(audited.some((row) => row.actor === "system" && row.userId === ANA)).toBe(true);
+  });
+
+  it("los eventos de facturación son solo del servidor", async () => {
+    await db.insert(billingEvents).values({
+      provider: "wompi",
+      eventId: "evt_1",
+      userId: ANA,
+      type: "payment_succeeded",
+      outcome: "changed",
+    });
+    const message = await failure(withUser(db, ANA, (tx) => tx.select().from(billingEvents)));
+    expect(message).toMatch(/permission denied/);
+    const duplicate = await failure(
+      db.insert(billingEvents).values({
+        provider: "wompi",
+        eventId: "evt_1",
+        userId: ANA,
+        type: "payment_succeeded",
+        outcome: "changed",
+      }),
+    );
+    expect(duplicate).toMatch(/duplicate key|billing_events_provider_event_id_pk/);
   });
 });

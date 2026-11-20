@@ -1,11 +1,13 @@
 import { createRoute, z } from "@hono/zod-openapi";
+import type { Feature } from "@lukas/domain";
 import { createRouter, problemContent } from "../../http/openapi";
 import { HttpProblem } from "../../http/problem";
 import { requireUser } from "../auth/session";
+import { requireFeature } from "../billing/gate";
 import { runAgent } from "./agent";
 import type { AgentBackend, AgentFactory } from "./factory";
 import type { EmbedderFactory, ModelFactory } from "./model";
-import { colombiaDay, DAILY_REQUESTS, DAILY_TOKENS, exceeded } from "./quota";
+import { colombiaDay, exceeded } from "./quota";
 import { readReceipt } from "./receipt";
 import type { SearchHit as Hit } from "./search";
 
@@ -29,7 +31,8 @@ const chatRoute = createRoute({
   path: "/agent/chat",
   tags: ["Agente"],
   summary: "Conversa con el asistente",
-  description: `Respuesta en streaming (UI message stream del AI SDK). Cuota diaria: ${DAILY_TOKENS} tokens y ${DAILY_REQUESTS} mensajes por persona. Las propuestas llegan como resultados de herramientas y no se guardan hasta que la persona las aprueba.`,
+  description:
+    "Respuesta en streaming (UI message stream del AI SDK). La cuota diaria depende del plan (ver /billing/entitlements). Las propuestas llegan como resultados de herramientas y no se guardan hasta que la persona las aprueba.",
   middleware: [requireUser] as const,
   request: { body: { content: { "application/json": { schema: ChatRequest } } } },
   responses: {
@@ -39,6 +42,7 @@ const chatRoute = createRoute({
     },
     400: { description: "Cuerpo inválido", content: problemContent },
     401: { description: "Sin sesión", content: problemContent },
+    402: { description: "El plan no incluye esta función", content: problemContent },
     429: { description: "Cuota diaria agotada", content: problemContent },
     503: { description: "Agente no disponible", content: problemContent },
   },
@@ -81,6 +85,7 @@ const receiptRoute = createRoute({
     400: { description: "Cuerpo inválido", content: problemContent },
     401: { description: "Sin sesión", content: problemContent },
     422: { description: "No se pudo leer el recibo", content: problemContent },
+    402: { description: "El plan no incluye esta función", content: problemContent },
     429: { description: "Cuota diaria agotada", content: problemContent },
     503: { description: "Lectura no disponible", content: problemContent },
   },
@@ -114,14 +119,18 @@ const searchRoute = createRoute({
     },
     400: { description: "Cuerpo inválido", content: problemContent },
     401: { description: "Sin sesión", content: problemContent },
+    402: { description: "El plan no incluye esta función", content: problemContent },
     429: { description: "Cuota diaria agotada", content: problemContent },
     503: { description: "Búsqueda no disponible", content: problemContent },
   },
 });
 
-/** Revisa la cuota del día y cuenta la petición. */
-async function chargeRequest(backend: AgentBackend, userId: string, day: string) {
-  if (exceeded(await backend.quota.usage(userId, day))) {
+/** Revisa que el plan incluya la función y que quede cuota del día, y cuenta la petición. */
+async function chargeRequest(backend: AgentBackend, userId: string, now: Date, feature: Feature) {
+  const entitlements = await backend.entitlements(userId, now);
+  requireFeature(entitlements, feature);
+  const day = colombiaDay(now);
+  if (exceeded(await backend.quota.usage(userId, day), entitlements)) {
     throw new HttpProblem(
       429,
       "agent_quota",
@@ -150,9 +159,10 @@ export const agentRoutes = (
         throw new HttpProblem(503, "agent_unavailable", "La búsqueda no está disponible");
       }
       const userId = c.get("userId") ?? "";
-      const day = colombiaDay(new Date());
+      const now = new Date();
+      const day = colombiaDay(now);
       try {
-        await chargeRequest(backend, userId, day);
+        await chargeRequest(backend, userId, now, "semanticSearch");
         let found: { hits: Hit[]; tokens: number };
         let indexedTokens = 0;
         try {
@@ -179,7 +189,7 @@ export const agentRoutes = (
       const now = new Date();
       const day = colombiaDay(now);
       try {
-        await chargeRequest(backend, userId, day);
+        await chargeRequest(backend, userId, now, "receiptReading");
         let read: Awaited<ReturnType<typeof readReceipt>>;
         try {
           read = await readReceipt({ model, image, mediaType, now });
@@ -220,7 +230,7 @@ export const agentRoutes = (
       const now = new Date();
       const day = colombiaDay(now);
       try {
-        await chargeRequest(backend, userId, day);
+        await chargeRequest(backend, userId, now, "assistant");
       } catch (error) {
         close();
         throw error;

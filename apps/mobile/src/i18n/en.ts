@@ -23,6 +23,9 @@ export const en: Messages = {
   "budgets.empty": "Create your first budget to keep your spending in check.",
   "settings.signOut": "Sign out",
   "settings.version": "Version {version}",
+  "settings.plan": "Your plan: {plan}",
+  "plan.free": "Free",
+  "plan.premium": "Premium",
   "onboarding.step": "Step {step} of 3",
   "onboarding.welcome.title": "Your money, on your phone",
   "onboarding.welcome.body":
@@ -547,6 +550,7 @@ export const en: Messages = {
   "assistant.proposal.failed":
     "Couldn't save it. It may already exist or the data changed; open it with Edit.",
   "assistant.error.signedOut": "Your session expired. Sign in again to use the assistant.",
+  "assistant.error.premium": "This feature is part of Lukas Premium.",
   "assistant.error.quota": "You've reached today's limit. You can keep asking tomorrow.",
   "assistant.error.unavailable": "The assistant isn't available right now.",
   "assistant.error.network": "We couldn't reach Lukas. Check your connection.",

@@ -35,6 +35,7 @@ export default defineConfig({
         "src/sync/**/*.ts",
         "src/assistant/**/*.ts",
         "src/notifications/**/*.ts",
+        "src/billing/**/*.ts",
         "app.config.ts",
         "e2e/perf.ts",
       ],

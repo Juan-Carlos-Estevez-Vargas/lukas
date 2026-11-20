@@ -1,7 +1,9 @@
 import type { AgentData } from "@lukas/ai-tools";
+import type { Entitlements } from "@lukas/domain";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import type { Env } from "../../env";
+import { postgresBilling } from "../billing/store";
 import { postgresAgentData } from "./data";
 import { postgresQuota, type QuotaStore } from "./quota";
 import { postgresSearch, type SearchStore } from "./search";
@@ -10,6 +12,8 @@ export interface AgentBackend {
   /** Datos de una persona, limitados por RLS. */
   data(userId: string): AgentData;
   readonly quota: QuotaStore;
+  /** Plan de la persona: qué funciones del agente puede usar y cuánta cuota tiene. */
+  entitlements(userId: string, now: Date): Promise<Entitlements>;
   /** Búsqueda semántica sobre los movimientos de la persona (pgvector + RLS). */
   readonly search?: SearchStore;
   /** Libera la conexión cuando termina la respuesta (el streaming puede durar varios segundos). */
@@ -25,6 +29,7 @@ export const neonAgentFactory: AgentFactory = (env) => {
   return {
     data: (userId) => postgresAgentData(db, userId),
     quota: postgresQuota(db),
+    entitlements: postgresBilling(db).entitlements,
     search: postgresSearch(db),
     close: () => pool.end(),
   };

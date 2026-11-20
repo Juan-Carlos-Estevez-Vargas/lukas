@@ -22,6 +22,9 @@ export const es = {
   "budgets.empty": "Crea tu primer presupuesto para controlar tus gastos.",
   "settings.signOut": "Cerrar sesión",
   "settings.version": "Versión {version}",
+  "settings.plan": "Tu plan: {plan}",
+  "plan.free": "Gratis",
+  "plan.premium": "Premium",
   "onboarding.step": "Paso {step} de 3",
   "onboarding.welcome.title": "Tus finanzas, en tu teléfono",
   "onboarding.welcome.body":
@@ -543,6 +546,7 @@ export const es = {
   "assistant.proposal.failed":
     "No se pudo guardar. Puede que ya exista o que los datos hayan cambiado; ábrelo con Editar.",
   "assistant.error.signedOut": "Tu sesión venció. Vuelve a entrar para usar el asistente.",
+  "assistant.error.premium": "Esta función es de Lukas Premium.",
   "assistant.error.quota": "Llegaste al límite de hoy. Mañana puedes seguir preguntando.",
   "assistant.error.unavailable": "El asistente no está disponible en este momento.",
   "assistant.error.network": "No pudimos conectar con Lukas. Revisa tu conexión.",
