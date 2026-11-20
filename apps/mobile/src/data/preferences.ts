@@ -9,7 +9,8 @@ export type PreferenceKey =
   | "movements.lastAccount"
   | "reports.views"
   | "insights.dismissed"
-  | "assistant.enabled";
+  | "assistant.enabled"
+  | "notifications.weekly";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;

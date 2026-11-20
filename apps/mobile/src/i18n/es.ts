@@ -551,6 +551,9 @@ export const es = {
   "receipt.read.review":
     "Listo: llené monto, comercio y fecha con lo que leí. Revísalos y elige la categoría antes de guardar.",
   "receipt.read.unreadable": "No pude leer el recibo. Intenta con una foto más nítida y derecha.",
+  "notifications.weekly": "Resumen de la semana (domingos)",
+  "notifications.denied": "Sin permiso de notificaciones. Actívalo en los ajustes del teléfono.",
+  "notifications.offline": "No pudimos conectar con Lukas. Intenta de nuevo.",
 } as const;
 
 export type MessageKey = keyof typeof es;

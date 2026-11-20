@@ -14,6 +14,7 @@ import {
   households,
   idempotencyKeys,
   outbox,
+  pushDevices,
   transactions,
 } from "./schema";
 import { createTestDatabase, insertUsers, newId } from "./test/database";
@@ -386,5 +387,29 @@ describe("uso del agente de IA", () => {
       ),
     );
     expect(negative).toMatch(/ai_usage_counts/);
+  });
+});
+
+describe("teléfonos para avisos", () => {
+  it("cada quien registra y ve solo sus teléfonos", async () => {
+    const token = "ExponentPushToken[ana-telefono]";
+    await withUser(db, ANA, (tx) =>
+      tx.insert(pushDevices).values({ userId: ANA, token, platform: "android" }),
+    );
+    const forged = await failure(
+      withUser(db, CARLA, (tx) =>
+        tx.insert(pushDevices).values({ userId: ANA, token: `${token}2`, platform: "android" }),
+      ),
+    );
+    expect(forged).toMatch(/row-level security/);
+    expect(await withUser(db, CARLA, (tx) => tx.select().from(pushDevices))).toEqual([]);
+    await withUser(db, CARLA, (tx) => tx.delete(pushDevices));
+    expect(await withUser(db, ANA, (tx) => tx.select().from(pushDevices))).toHaveLength(1);
+    const short = await failure(
+      withUser(db, ANA, (tx) =>
+        tx.insert(pushDevices).values({ userId: ANA, token: "x", platform: "ios" }),
+      ),
+    );
+    expect(short).toMatch(/push_devices_token_shape/);
   });
 });

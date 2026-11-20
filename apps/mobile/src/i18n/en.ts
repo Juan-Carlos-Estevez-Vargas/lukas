@@ -555,4 +555,7 @@ export const en: Messages = {
   "receipt.read.review":
     "Done: I filled in amount, merchant and date from the receipt. Check them and pick a category before saving.",
   "receipt.read.unreadable": "I couldn't read the receipt. Try a sharper, straighter photo.",
+  "notifications.weekly": "Weekly summary (Sundays)",
+  "notifications.denied": "Notifications are off. Turn them on in your phone settings.",
+  "notifications.offline": "We couldn't reach Lukas. Try again.",
 };
