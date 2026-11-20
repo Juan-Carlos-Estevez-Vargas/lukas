@@ -597,9 +597,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-408 · Beta cerrada
 
 - Tipo: `chore` · Tamaño: S
-- [ ] APK firmado y PWA
-- [ ] Formulario de feedback en la app
-- [ ] Guía de instalación
+- [x] APK firmado y PWA (`eas.yml` y Pages; reparto en `docs/beta.md`)
+- [x] Formulario de feedback en la app (Ajustes → Enviar comentarios, `POST /v1/feedback`)
+- [x] Guía de instalación (`docs/beta.md`)
 
 **Hecho cuando:** 10 personas usan la beta una semana.
 

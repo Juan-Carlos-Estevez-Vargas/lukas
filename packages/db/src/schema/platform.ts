@@ -184,3 +184,28 @@ export const legalConsents = app.table(
     check("legal_consents_version", sql`${t.version} ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'`),
   ],
 );
+
+export const feedbackKind = app.enum("feedback_kind", ["bug", "idea", "other"]);
+
+/**
+ * Comentarios de la beta (FIN-408). La persona solo puede agregar los suyos; leerlos es cosa del
+ * equipo, con el rol dueño. El texto llega limpio de tarjetas (`cleanFeedback`).
+ */
+export const feedback = app.table(
+  "feedback",
+  {
+    id: bigserial("id", { mode: "bigint" }).primaryKey(),
+    userId: userId(),
+    kind: feedbackKind("kind").notNull(),
+    message: text("message").notNull(),
+    appVersion: text("app_version").notNull(),
+    platform: text("platform").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check("feedback_message_length", sql`char_length(${t.message}) between 5 and 2000`),
+    check("feedback_platform", sql`${t.platform} in ('android', 'ios', 'web')`),
+    check("feedback_app_version", sql`char_length(${t.appVersion}) <= 32`),
+    index("feedback_created_at").on(t.createdAt),
+  ],
+);
