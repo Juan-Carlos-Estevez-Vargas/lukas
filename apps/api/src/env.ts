@@ -18,6 +18,13 @@ export interface Env {
   readonly TURNSTILE_SECRET_KEY?: string;
   /** Límite estricto para login, registro y recuperación de cuenta. */
   readonly AUTH_LIMITER?: RateLimit;
+  /** Cuenta de Cloudflare para la API compatible con OpenAI de Workers AI. */
+  readonly CLOUDFLARE_ACCOUNT_ID?: string;
+  /** Token con permiso de Workers AI (`wrangler secret put`); sin él el agente está apagado. */
+  readonly AI_API_KEY?: string;
+  /** Otro proveedor compatible con OpenAI (opcional). */
+  readonly AI_BASE_URL?: string;
+  readonly AI_MODEL?: string;
 }
 
 export interface AppContext {

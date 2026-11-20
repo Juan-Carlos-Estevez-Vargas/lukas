@@ -5,6 +5,9 @@ import { notFound, problemResponse } from "./http/problem";
 import { rateLimit } from "./http/rate-limit";
 import { log, requestContext } from "./http/request-context";
 import { corsPolicy, securityHeaders } from "./http/security";
+import { type AgentFactory, neonAgentFactory } from "./modules/agent/factory";
+import { type ModelFactory, openAiCompatibleModel } from "./modules/agent/model";
+import { agentRoutes } from "./modules/agent/routes";
 import { type AuthFactory, neonAuthFactory } from "./modules/auth/factory";
 import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
@@ -22,18 +25,25 @@ export interface AppDeps {
   readonly rates?: RatesFactory;
   /** Almacén del sync (en pruebas, PGlite). */
   readonly sync?: SyncFactory;
+  /** Datos y cuota del agente (en pruebas, PGlite o memoria). */
+  readonly agent?: AgentFactory;
+  /** Modelo de lenguaje (en pruebas, uno simulado). */
+  readonly model?: ModelFactory;
 }
 
 export const createApp = ({
   auth = neonAuthFactory,
   rates = defaultRatesFactory,
   sync = neonSyncFactory,
+  agent = neonAgentFactory,
+  model = openAiCompatibleModel,
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
     .route("/", meRoutes)
     .route("/", ratesRoutes(rates))
-    .route("/", syncRoutes(sync));
+    .route("/", syncRoutes(sync))
+    .route("/", agentRoutes(agent, model));
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {
