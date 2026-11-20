@@ -369,7 +369,7 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-205 · Reportes básicos
 
 - Tipo: `feat` · Tamaño: L
-- [x] Paquete charts sobre Skia
+- [x] Paquete charts (dibujado con react-native-svg; Skia se descartó por el peso del APK)
 - [x] Flujo de caja, por categoría, patrimonio
 - [x] ECharts en web
 

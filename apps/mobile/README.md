@@ -236,7 +236,8 @@ garantiza SQLCipher y se comprueba en el dispositivo.
 - Tocar una barra abre Movimientos filtrado por ese mes y, si se tocó la barra, por ingresos o
   gastos; tocar una categoría filtra por mes y categoría. El filtro se quita con su ✕.
 - Gráficos: la geometría (escalas, barras, líneas y qué se tocó) vive en `@lukas/charts`, sin
-  dependencias. En el teléfono se dibuja con Skia (`src/charts/*.tsx`) y en la web con ECharts en
+  dependencias. En el teléfono se dibuja con `react-native-svg` (`src/charts/*.tsx`; Skia pesaba ~15 MB
+  en el APK) y en la web con ECharts en
   SVG (`src/charts/*.web.tsx`), importado pieza por pieza para no cargar todo ECharts.
 - `metro.config.js` resuelve `tslib` a su versión ES: la que elige Metro por defecto deja a ECharts
   sin `__extends` en la web.

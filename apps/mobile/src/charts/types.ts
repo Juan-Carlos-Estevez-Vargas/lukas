@@ -1,4 +1,4 @@
-/** Contrato común de los gráficos: Skia en el teléfono (`*.tsx`) y ECharts en la web (`*.web.tsx`). */
+/** Contrato común de los gráficos: SVG en el teléfono (`*.tsx`) y ECharts en la web (`*.web.tsx`). */
 
 export interface ChartSeries {
   readonly key: string;

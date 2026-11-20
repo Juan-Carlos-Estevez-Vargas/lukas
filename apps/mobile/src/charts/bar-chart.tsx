@@ -1,10 +1,10 @@
 import { hitBar, layoutBars } from "@lukas/charts";
-import { Canvas, Line, Rect, vec } from "@shopify/react-native-skia";
 import { useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import Svg, { Line, Rect } from "react-native-svg";
 import type { BarChartProps } from "./types";
 
-/** Barras agrupadas dibujadas con Skia. Las etiquetas son texto nativo (accesible y nítido). */
+/** Barras agrupadas dibujadas con SVG. Las etiquetas son texto nativo (accesible y nítido). */
 export function BarChart(props: BarChartProps) {
   const { labels, series, height, description, onSelect, gridColor, textColor, testID } = props;
   const [width, setWidth] = useState(0);
@@ -25,7 +25,7 @@ export function BarChart(props: BarChartProps) {
         }}
       >
         {width > 0 ? (
-          <Canvas style={{ width, height }}>
+          <Svg width={width} height={height}>
             {layout.ticks.map((tick) => {
               const y =
                 height -
@@ -33,9 +33,11 @@ export function BarChart(props: BarChartProps) {
               return (
                 <Line
                   key={String(tick)}
-                  p1={vec(0, y)}
-                  p2={vec(width, y)}
-                  color={gridColor}
+                  x1={0}
+                  y1={y}
+                  x2={width}
+                  y2={y}
+                  stroke={gridColor}
                   strokeWidth={1}
                 />
               );
@@ -47,10 +49,10 @@ export function BarChart(props: BarChartProps) {
                 y={bar.y}
                 width={bar.width}
                 height={bar.height}
-                color={series[bar.series]?.color ?? textColor}
+                fill={series[bar.series]?.color ?? textColor}
               />
             ))}
-          </Canvas>
+          </Svg>
         ) : (
           <View style={{ height }} />
         )}
