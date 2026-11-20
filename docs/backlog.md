@@ -428,10 +428,10 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-301 · Pipeline de ingestión
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Normalización común
-- [ ] Huella de deduplicación
-- [ ] Asociación por últimos 4 dígitos
-- [ ] Bandeja por revisar
+- [x] Normalización común
+- [x] Huella de deduplicación
+- [x] Asociación por últimos 4 dígitos
+- [x] Bandeja por revisar
 
 **Hecho cuando:** La misma compra capturada por dos vías aparece una vez.
 
