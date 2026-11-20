@@ -378,9 +378,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-206 · Reportes avanzados
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Sankey
-- [ ] Mapa de calor por día
-- [ ] Comparativos y vistas guardadas
+- [x] Sankey
+- [x] Mapa de calor por día
+- [x] Comparativos y vistas guardadas
 
 **Hecho cuando:** Se compara octubre contra septiembre en un toque.
 
