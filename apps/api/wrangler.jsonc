@@ -38,8 +38,9 @@
         "ENVIRONMENT": "staging",
         "CORS_ORIGINS": "https://staging.lukas-web-e7j.pages.dev"
       },
-      // TRM diaria a las 8:00 de Bogotá (13:00 UTC), ya publicada por la Superfinanciera.
-      "triggers": { "crons": ["0 13 * * *"] },
+      // TRM diaria a las 8:00 de Bogotá (13:00 UTC), ya publicada por la Superfinanciera, y
+      // resumen semanal el domingo a las 18:00 de Bogotá.
+      "triggers": { "crons": ["0 13 * * *", "0 23 * * SUN"] },
       "ratelimits": [
         { "name": "API_LIMITER", "namespace_id": "2001", "simple": { "limit": 120, "period": 60 } },
         { "name": "AUTH_LIMITER", "namespace_id": "2002", "simple": { "limit": 5, "period": 60 } }
@@ -50,7 +51,7 @@
       "preview_urls": false,
       "observability": { "enabled": true, "head_sampling_rate": 0.2 },
       "vars": { "ENVIRONMENT": "production", "CORS_ORIGINS": "https://lukas-web-e7j.pages.dev" },
-      "triggers": { "crons": ["0 13 * * *"] },
+      "triggers": { "crons": ["0 13 * * *", "0 23 * * SUN"] },
       "ratelimits": [
         { "name": "API_LIMITER", "namespace_id": "3001", "simple": { "limit": 120, "period": 60 } },
         { "name": "AUTH_LIMITER", "namespace_id": "3002", "simple": { "limit": 5, "period": 60 } }

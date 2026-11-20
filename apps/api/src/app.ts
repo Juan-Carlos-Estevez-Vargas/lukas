@@ -16,6 +16,11 @@ import { type AuthFactory, neonAuthFactory } from "./modules/auth/factory";
 import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
 import { healthRoutes } from "./modules/health/routes";
+import {
+  type NotificationsFactory,
+  neonNotificationsFactory,
+} from "./modules/notifications/factory";
+import { notificationRoutes } from "./modules/notifications/routes";
 import { defaultRatesFactory, type RatesFactory } from "./modules/rates/factory";
 import { ratesRoutes } from "./modules/rates/routes";
 import { securityTxtRoutes } from "./modules/security/routes";
@@ -35,6 +40,8 @@ export interface AppDeps {
   readonly model?: ModelFactory;
   /** Modelo de visión para recibos (en pruebas, uno simulado). */
   readonly vision?: ModelFactory;
+  /** Teléfonos para avisos push (en pruebas, PGlite). */
+  readonly notifications?: NotificationsFactory;
 }
 
 export const createApp = ({
@@ -44,13 +51,15 @@ export const createApp = ({
   agent = neonAgentFactory,
   model = openAiCompatibleModel,
   vision = openAiCompatibleVisionModel,
+  notifications = neonNotificationsFactory,
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
     .route("/", meRoutes)
     .route("/", ratesRoutes(rates))
     .route("/", syncRoutes(sync))
-    .route("/", agentRoutes(agent, model, vision));
+    .route("/", agentRoutes(agent, model, vision))
+    .route("/", notificationRoutes(notifications));
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {

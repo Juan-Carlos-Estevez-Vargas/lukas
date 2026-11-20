@@ -1,6 +1,7 @@
 import { createApp } from "./app";
 import type { Env } from "./env";
 import { log } from "./http/request-context";
+import { WEEKLY_CRON, weeklyCron } from "./modules/notifications/factory";
 import { defaultRatesFactory } from "./modules/rates/factory";
 import { refreshTrm } from "./modules/rates/trm";
 
@@ -8,8 +9,23 @@ const app = createApp();
 
 export default {
   fetch: app.fetch,
-  /** Cron diario (wrangler.jsonc): guarda la TRM del día desde datos abiertos. */
-  scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+  /**
+   * Crons (wrangler.jsonc): el diario guarda la TRM del día desde datos abiertos; el del domingo
+   * manda el resumen de la semana.
+   */
+  scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+    if (controller.cron === WEEKLY_CRON) {
+      ctx.waitUntil(
+        weeklyCron(env, new Date()).then(
+          (r) => log("info", "weekly_summary_sent", r),
+          (error: unknown) =>
+            log("error", "weekly_summary_failed", {
+              message: error instanceof Error ? error.message : String(error),
+            }),
+        ),
+      );
+      return;
+    }
     const { source, store } = defaultRatesFactory(env);
     ctx.waitUntil(
       refreshTrm(source, store, new Date()).then(
