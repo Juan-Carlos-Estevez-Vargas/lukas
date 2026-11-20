@@ -498,9 +498,9 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-308 · Lectura de recibos
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Foto y compresión
-- [ ] Extracción con modelo de visión
-- [ ] Revisión antes de guardar
+- [x] Foto y compresión
+- [x] Extracción con modelo de visión
+- [x] Revisión antes de guardar
 
 **Hecho cuando:** Una factura de supermercado se lee con monto y comercio.
 
