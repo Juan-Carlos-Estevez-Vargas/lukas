@@ -448,10 +448,10 @@ La mayoría de los gastos entran solos y el asistente responde preguntas reales.
 #### FIN-303 · Parsers de notificaciones
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Nequi y Daviplata
-- [ ] Bancolombia y Davivienda
-- [ ] Nu y otros
-- [ ] Fixtures por banco
+- [x] Nequi y Daviplata
+- [x] Bancolombia y Davivienda
+- [x] Nu y otros
+- [x] Fixtures por banco
 
 **Hecho cuando:** Cada parser pasa sus fixtures en CI.
 
