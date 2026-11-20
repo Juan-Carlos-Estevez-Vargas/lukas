@@ -402,7 +402,7 @@ export const en: Messages = {
   "projection.averageIn": "Outside of recurring items, on average {amount} comes in per day.",
   "projection.next": "Scheduled",
   "projection.how":
-    "Adds this account's recurring items and the average of everything else over the last 90 days. It doesn't guess transfers or card payments.",
+    "Adds this account's recurring items and the average of everything else over the last 90 days (or since you created it). It doesn't guess transfers or card payments.",
   "projection.a11y": "Projected balance of {account} for the next 90 days. {detail}",
   "projection.empty": "There are no cash, bank or wallet accounts to project.",
   "projection.today": "Today",

@@ -387,9 +387,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-207 · Proyección de saldo a 90 días
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Recurrentes y promedios
-- [ ] Gráfico de proyección
-- [ ] Aviso de saldo negativo futuro
+- [x] Recurrentes y promedios
+- [x] Gráfico de proyección
+- [x] Aviso de saldo negativo futuro
 
 **Hecho cuando:** Avisa si una cuenta quedará en rojo.
 

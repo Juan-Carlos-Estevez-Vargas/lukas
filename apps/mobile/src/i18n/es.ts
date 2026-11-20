@@ -402,7 +402,7 @@ export const es = {
   "projection.averageIn": "Fuera de los recurrentes entran en promedio {amount} al día.",
   "projection.next": "Lo programado",
   "projection.how":
-    "Suma tus recurrentes de esta cuenta y el promedio de lo demás de los últimos 90 días. No adivina transferencias ni pagos de tarjeta.",
+    "Suma los recurrentes de esta cuenta y el promedio de lo demás de los últimos 90 días (o desde que la creaste). No adivina transferencias ni pagos de tarjeta.",
   "projection.a11y": "Saldo proyectado de {account} para los próximos 90 días. {detail}",
   "projection.empty": "No hay cuentas de efectivo, banco o billetera para proyectar.",
   "projection.today": "Hoy",
