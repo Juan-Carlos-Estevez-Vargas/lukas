@@ -353,6 +353,29 @@ INSERT INTO sync_outbox (entity, entity_id)
   SELECT 'transactions', id FROM transactions ORDER BY created_at;
 `;
 
+/**
+ * Conflictos (FIN-203): se guarda la última versión del servidor de cada registro (`base`) para
+ * fusionar campo por campo, y cada campo editado en dos lados queda registrado con ambos valores.
+ */
+const v13 = `
+ALTER TABLE sync_versions ADD COLUMN base TEXT;
+
+-- Id propio del teléfono: el opId lo incluye para que dos teléfonos nunca generen el mismo.
+ALTER TABLE sync_state ADD COLUMN device_id TEXT NOT NULL DEFAULT '';
+UPDATE sync_state SET device_id = lower(hex(randomblob(16)));
+
+CREATE TABLE sync_conflicts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entity TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  field TEXT NOT NULL,
+  local_value TEXT,
+  server_value TEXT,
+  kept TEXT NOT NULL CHECK (kept IN ('local', 'server')),
+  detected_at TEXT NOT NULL
+) STRICT;
+`;
+
 export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "libro contable", sql: v1 },
   { version: 2, name: "preferencias", sql: v2 },
@@ -366,4 +389,5 @@ export const LOCAL_MIGRATIONS: readonly Migration[] = [
   { version: 10, name: "metas de ahorro", sql: v10 },
   { version: 11, name: "tasas de cambio", sql: v11 },
   { version: 12, name: "sincronización", sql: v12 },
+  { version: 13, name: "conflictos de sincronización", sql: v13 },
 ];

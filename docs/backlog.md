@@ -349,9 +349,9 @@ Los datos viajan entre teléfono y web; reportes de verdad e importación de ext
 #### FIN-203 · Conflictos y pruebas de sync
 
 - Tipo: `test` · Tamaño: M
-- [ ] Resolución por campo y versión
-- [ ] Registro de conflictos
-- [ ] Tests con dos dispositivos simulados
+- [x] Resolución por campo y versión
+- [x] Registro de conflictos
+- [x] Tests con dos dispositivos simulados
 
 **Hecho cuando:** Editar lo mismo en dos dispositivos no pierde datos.
 
