@@ -1,11 +1,12 @@
-import type { Money } from "@lukas/domain";
+import { Money } from "@lukas/domain";
 import type { ReactNode } from "react";
 import { Text, View } from "react-native";
-import { Body } from "../components/ui";
+import { Body, Button } from "../components/ui";
 import { useDiscreet } from "../display/discreet";
 import { formatCivilDate } from "../format/date";
 import { formatMoney } from "../format/money";
 import { useI18n } from "../i18n/i18n";
+import type { AccountProjection } from "../projection/projection";
 import { useTheme } from "../theme/theme";
 import type { CategorySpend, MonthAvailable, UpcomingPayment } from "./home";
 
@@ -120,6 +121,37 @@ export function UpcomingCard({ data }: { readonly data: readonly UpcomingPayment
           warn={p.overdue}
         />
       ))}
+    </Card>
+  );
+}
+
+/** Aviso de saldo negativo futuro. No se muestra si ninguna cuenta queda en rojo. */
+export function ProjectionAlertCard({
+  data,
+  onOpen,
+}: {
+  readonly data: readonly AccountProjection[];
+  readonly onOpen: (accountId: string) => void;
+}) {
+  const { t, locale } = useI18n();
+  const { colors, fontSize } = useTheme();
+  const money = useMoney();
+  const first = data[0];
+  if (!first) return null;
+  return (
+    <Card title={t("projection.title")}>
+      {data.map((p) =>
+        p.firstNegative ? (
+          <Text key={p.id} style={{ color: colors.warning, fontSize: fontSize.body }}>
+            {`⚠ ${t("projection.alert", {
+              account: p.name,
+              date: formatCivilDate(p.firstNegative.date, locale),
+              amount: money(Money.ofMinor(p.firstNegative.balance, p.currency)),
+            })}`}
+          </Text>
+        ) : null,
+      )}
+      <Button label={t("projection.see")} variant="plain" onPress={() => onOpen(first.id)} />
     </Card>
   );
 }

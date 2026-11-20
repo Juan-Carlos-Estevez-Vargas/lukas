@@ -391,6 +391,21 @@ export const es = {
   "reports.dailyHint": "Toca un día para ver cuánto gastaste.",
   "reports.dayDetail": "{date}: {amount}",
   "reports.weekdays": "L,M,M,J,V,S,D",
+  "projection.title": "Saldo en 90 días",
+  "projection.alert": "{account} quedaría en rojo el {date}: {amount}.",
+  "projection.see": "Ver proyección",
+  "projection.ok":
+    "Con lo programado y tu gasto promedio, ninguna cuenta queda en rojo en los próximos 90 días.",
+  "projection.lowest": "Hoy: {today}. Lo más bajo: {amount} el {date}.",
+  "projection.negative": "Quedaría en rojo el {date}.",
+  "projection.averageOut": "Fuera de los recurrentes salen en promedio {amount} al día.",
+  "projection.averageIn": "Fuera de los recurrentes entran en promedio {amount} al día.",
+  "projection.next": "Lo programado",
+  "projection.how":
+    "Suma tus recurrentes de esta cuenta y el promedio de lo demás de los últimos 90 días. No adivina transferencias ni pagos de tarjeta.",
+  "projection.a11y": "Saldo proyectado de {account} para los próximos 90 días. {detail}",
+  "projection.empty": "No hay cuentas de efectivo, banco o billetera para proyectar.",
+  "projection.today": "Hoy",
 } as const;
 
 export type MessageKey = keyof typeof es;
