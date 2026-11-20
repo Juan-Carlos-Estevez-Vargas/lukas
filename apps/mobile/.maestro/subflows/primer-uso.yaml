@@ -11,6 +11,9 @@ appId: co.lukas.app
     id: "signin-email"
 - inputText: "e2e@lukas.test"
 - hideKeyboard
+# Autorización de datos (Ley 1581): sin ella no se envía el código.
+- tapOn:
+    id: "signin-accept"
 - tapOn: "Enviar código"
 - tapOn:
     id: "signin-code"
