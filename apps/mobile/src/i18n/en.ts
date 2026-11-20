@@ -551,4 +551,8 @@ export const en: Messages = {
   "assistant.error.unavailable": "The assistant isn't available right now.",
   "assistant.error.network": "We couldn't reach Lukas. Check your connection.",
   "assistant.error.unexpected": "Something went wrong with the answer. Try again.",
+  "receipt.read": "Read the receipt with AI",
+  "receipt.read.review":
+    "Done: I filled in amount, merchant and date from the receipt. Check them and pick a category before saving.",
+  "receipt.read.unreadable": "I couldn't read the receipt. Try a sharper, straighter photo.",
 };

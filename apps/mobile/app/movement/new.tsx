@@ -2,14 +2,20 @@ import { type Account, type MovementKind, parseTags } from "@lukas/domain";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text } from "react-native";
+import { civilDate } from "../../src/accounts/credit-card";
 import { accountErrorKey } from "../../src/accounts/messages";
+import { assistantEnabled } from "../../src/assistant/settings";
+import { useSession } from "../../src/auth/session";
 import { useBudgetAlerts } from "../../src/budgets/use-budget-alerts";
 import { Chip, ChipRow, Keypad } from "../../src/components/quick";
 import { Body, Button, Field, Screen, Toggle } from "../../src/components/ui";
+import { apiUrl, e2eMode } from "../../src/config";
 import { newId } from "../../src/data/ids";
 import { sqliteAccounts } from "../../src/data/ledger-sqlite";
 import { useLocalDatabase } from "../../src/data/provider";
+import { formatCivilDate } from "../../src/format/date";
 import { formatMoney } from "../../src/format/money";
+import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
 import { occurredAtFor } from "../../src/movements/dates";
 import { keypadAmount, pressKey } from "../../src/movements/keypad";
@@ -22,13 +28,31 @@ import {
   suggestCategory,
 } from "../../src/movements/movements";
 import { recentTags } from "../../src/movements/tags";
+import { compressForReading } from "../../src/receipts/compress";
 import { pickReceipt, type ReceiptSource } from "../../src/receipts/pick";
+import {
+  createReceiptReader,
+  e2eReceiptReader,
+  patchFromReading,
+  type ReadError,
+} from "../../src/receipts/reading";
 import { receiptStore } from "../../src/receipts/receipt-store";
 import type { StoredReceipt } from "../../src/receipts/store";
 import { useCardReminders } from "../../src/reminders/use-card-reminders";
 import { useTheme } from "../../src/theme/theme";
 
 const DAYS = [0, 1, 2] as const;
+
+const READ_ERRORS: Record<ReadError["kind"], MessageKey> = {
+  signed_out: "assistant.error.signedOut",
+  quota: "assistant.error.quota",
+  unreadable: "receipt.read.unreadable",
+  unavailable: "assistant.error.unavailable",
+  network: "assistant.error.network",
+  unexpected: "assistant.error.unexpected",
+};
+
+const reader = e2eMode ? e2eReceiptReader() : createReceiptReader(apiUrl);
 
 /**
  * Registro rápido: monto con el teclado propio, comercio con autocompletar y categoría sugerida.
@@ -63,6 +87,12 @@ export default function NewMovement() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [daysAgo, setDaysAgo] = useState(0);
+  // Fecha más vieja que anteayer, cuando la trae un recibo leído.
+  const [otherDate, setOtherDate] = useState<Date | null>(null);
+  const [canRead, setCanRead] = useState(false);
+  const [reading, setReading] = useState(false);
+  const [readNote, setReadNote] = useState<MessageKey | null>(null);
+  const { state: session } = useSession();
   const [note, setNote] = useState(params.note?.slice(0, 200) ?? "");
   const [split, setSplit] = useState(false);
   const [parts, setParts] = useState<Record<string, string>>({});
@@ -85,6 +115,8 @@ export default function NewMovement() {
         else void defaultAccountId(db).then(setAccountId);
       });
     void recentTags(db).then(setKnownTags);
+    // Leer recibos usa el asistente: solo si la persona lo encendió.
+    void assistantEnabled(db).then(setCanRead);
   }, [db, params.account]);
 
   useEffect(() => {
@@ -149,6 +181,30 @@ export default function NewMovement() {
     }
   };
 
+  const readReceipt = async () => {
+    if (!receipt || session.status !== "signedIn") return;
+    setReading(true);
+    setReadNote(null);
+    try {
+      const image = await compressForReading(receiptStore.uriOf(receipt.fileName));
+      const res = await reader.read(session.token, image);
+      if (!res.ok) return setReadNote(READ_ERRORS[res.error.kind]);
+      const patch = patchFromReading(res.value, new Date());
+      if (patch.digits) setDigits(patch.digits);
+      if (patch.merchant) setMerchant(patch.merchant);
+      if (patch.daysAgo !== undefined) {
+        setDaysAgo(patch.daysAgo);
+        setOtherDate(null);
+      }
+      if (patch.date) setOtherDate(patch.date);
+      setReadNote("receipt.read.review");
+    } catch {
+      setReadNote("receipt.read.unreadable");
+    } finally {
+      setReading(false);
+    }
+  };
+
   const cancel = () => {
     if (receipt) void receiptStore.remove(receipt.fileName);
     router.back();
@@ -176,7 +232,7 @@ export default function NewMovement() {
           // Solo hay corrección que aprender si hubo comercio y una sugerencia (o ninguna).
           ...(merchant.trim() ? { suggestedCategoryId: suggestedId } : {}),
           receipt,
-          occurredAt: occurredAtFor(daysAgo, new Date()),
+          occurredAt: otherDate ?? occurredAtFor(daysAgo, new Date()),
           merchant,
           note,
         },
@@ -297,10 +353,20 @@ export default function NewMovement() {
             <Chip
               key={d}
               label={t(`movement.day.${d}`)}
-              selected={daysAgo === d}
-              onPress={() => setDaysAgo(d)}
+              selected={!otherDate && daysAgo === d}
+              onPress={() => {
+                setDaysAgo(d);
+                setOtherDate(null);
+              }}
             />
           ))}
+          {otherDate ? (
+            <Chip
+              label={formatCivilDate(civilDate(otherDate), locale)}
+              selected
+              onPress={() => {}}
+            />
+          ) : null}
         </ChipRow>
         <Field label={t("movement.note")} value={note} onChangeText={setNote} />
         <Field
@@ -326,6 +392,17 @@ export default function NewMovement() {
           receipt ? (
             <>
               <Body>{t("movement.receipt.attached")}</Body>
+              {canRead ? (
+                <Button
+                  label={t("receipt.read")}
+                  busy={reading}
+                  onPress={() => void readReceipt()}
+                />
+              ) : null}
+              {readNote === "receipt.read.review" ? <Body>{t(readNote)}</Body> : null}
+              {readNote && readNote !== "receipt.read.review" ? (
+                <Body tone="error">{t(readNote)}</Body>
+              ) : null}
               <Button
                 label={t("movement.receipt.remove")}
                 variant="plain"
