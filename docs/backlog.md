@@ -558,9 +558,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-404 · Paywall y prueba de 14 días
 
 - Tipo: `feat` · Tamaño: S
-- [ ] Pantalla de planes
-- [ ] Prueba gratuita
-- [ ] Cupones
+- [x] Pantalla de planes
+- [x] Prueba gratuita
+- [x] Cupones
 
 **Hecho cuando:** La prueba vence sola a los 14 días.
 
