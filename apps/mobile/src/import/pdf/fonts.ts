@@ -24,7 +24,7 @@ export interface Font {
 }
 
 // Windows-1252 en 0x80–0x9F; el resto coincide con Latin-1.
-const CP1252: Record<number, string> = {
+export const CP1252: Record<number, string> = {
   128: "€",
   130: "‚",
   131: "ƒ",
@@ -150,7 +150,7 @@ const HELVETICA = [
   222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
 ];
 
-const standardWidth = (baseFont: string, code: number): number => {
+export const standardWidth = (baseFont: string, code: number): number => {
   if (/courier/i.test(baseFont)) return 600;
   return HELVETICA[code - 32] ?? 556;
 };
