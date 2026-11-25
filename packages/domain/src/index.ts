@@ -183,6 +183,20 @@ export * from "./result";
 export { divideRounded, type ExactDecimal, parseDecimal, type RoundingMode } from "./rounding";
 export { allOf, anyOf, not, type Specification, spec } from "./specification";
 export {
+  type CriterionCheck,
+  DECLARATION_LIMITS,
+  type DeclarationCheck,
+  type DeclarationCriterion,
+  declarationCheck,
+  GMF_EXEMPT_UVT,
+  GMF_RATE,
+  gmfForMonth,
+  type TaxYearFigures,
+  UVT,
+  uvtFor,
+  uvtToCop,
+} from "./taxes";
+export {
   ANALYTICS_EVENTS,
   type AnalyticsEvent,
   type AnalyticsProperties,
