@@ -34,6 +34,7 @@ import { ratesRoutes } from "./modules/rates/routes";
 import { securityTxtRoutes } from "./modules/security/routes";
 import { neonSyncFactory, type SyncFactory } from "./modules/sync/factory";
 import { syncRoutes } from "./modules/sync/routes";
+import { debugRoutes } from "./observability/debug-routes";
 import { type ErrorReporterFactory, sentryReporter } from "./observability/errors";
 
 export interface AppDeps {
@@ -86,7 +87,8 @@ export const createApp = ({
     .route("/", notificationRoutes(notifications))
     .route("/", billingRoutes(billing))
     .route("/", legalRoutes(legal))
-    .route("/", feedbackRoutes(feedback));
+    .route("/", feedbackRoutes(feedback))
+    .route("/", debugRoutes);
   v1.doc31("/openapi.json", (c) => ({
     openapi: "3.1.0",
     info: {
