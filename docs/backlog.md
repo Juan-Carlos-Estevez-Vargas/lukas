@@ -744,9 +744,9 @@ Funciones que diferencian la app.
 #### FIN-604 · Ayuda tributaria Colombia
 
 - Tipo: `feat` · Tamaño: M
-- [ ] 4×1000
-- [ ] Topes de renta en UVT
-- [ ] Resumen para la declaración
+- [x] 4×1000
+- [x] Topes de renta en UVT
+- [x] Resumen para la declaración
 
 **Hecho cuando:** Indica si debes declarar renta.
 
