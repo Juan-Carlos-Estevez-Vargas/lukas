@@ -630,9 +630,9 @@ Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
 #### FIN-502 · Correo transaccional
 
 - Tipo: `feat` · Tamaño: S · Pago: Gratis con dominio
-- [ ] Resend con dominio verificado
-- [ ] Verificación de correo
-- [ ] Recuperación por correo
+- [x] Envío del código con Resend detrás del puerto `Mailer` (`docs/correo.md`)
+- [ ] Dominio verificado en Resend (depende de FIN-501)
+- [x] Verificación y recuperación: el mismo código por correo, sin contraseña (ADR 0003)
 
 **Hecho cuando:** Llega el correo de verificación.
 
