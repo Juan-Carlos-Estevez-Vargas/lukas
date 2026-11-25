@@ -10,6 +10,7 @@ import { Body, Button, Field, Screen, Title } from "../../src/components/ui";
 import { useLocalDatabase } from "../../src/data/provider";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { markStep } from "../../src/tutorial/tutorial";
 
 type Busy = "backup" | "restore" | "csv" | null;
 
@@ -56,6 +57,7 @@ export default function Backup() {
       const now = new Date();
       const contents = await createBackup(db, password, getRandomBytes, now);
       await backupFiles.share(backupFileName(now, "lukas"), contents, "application/json");
+      await markStep(db, "backup").catch(() => undefined);
       setPassword("");
       setConfirm("");
       return t("backup.done");

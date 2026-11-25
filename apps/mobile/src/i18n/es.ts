@@ -85,6 +85,40 @@ export const es = {
   "premium.signedOut": "Entra a tu cuenta para probar premium o canjear un cupón.",
   "settings.plans": "Ver planes",
   "settings.feedback": "Enviar comentarios",
+  "tutorial.title": "Primeros pasos ({done} de {total})",
+  "tutorial.step.movement": "Registra tu primer gasto",
+  "tutorial.step.budget": "Crea un presupuesto",
+  "tutorial.step.goal": "Ponte una meta de ahorro",
+  "tutorial.step.recurring": "Programa un pago fijo",
+  "tutorial.step.lock": "Protege la app con PIN o huella",
+  "tutorial.step.backup": "Haz un respaldo cifrado",
+  "tutorial.hint.movement":
+    "Toca + en el Resumen: monto, categoría y listo. Lukas lo resta de la cuenta al instante.",
+  "tutorial.hint.budget":
+    "Un presupuesto pone un tope por categoría al mes y te avisa al 80 % y al 100 %.",
+  "tutorial.hint.goal": "Una meta te dice cuánto ahorrar cada mes para llegar a la fecha.",
+  "tutorial.hint.recurring":
+    "Arriendo, servicios o suscripciones: Lukas los registra solo y te recuerda antes de pagar.",
+  "tutorial.hint.lock": "En Ajustes, activa el bloqueo para que nadie vea tus finanzas.",
+  "tutorial.hint.backup":
+    "Tus datos viven en el teléfono. Un respaldo cifrado con tu contraseña te protege si lo pierdes.",
+  "tutorial.hide": "Ocultar primeros pasos",
+  "tutorial.tipTitle": "Consejo",
+  "tutorial.gotIt": "Entendido",
+  "tutorial.tip.summary":
+    "Este es tu Resumen: cuánto te queda este mes, tus cuentas y lo que viene. Toca una cuenta para ver sus movimientos.",
+  "tutorial.tip.transactions":
+    "Aquí están todos tus movimientos. Busca por comercio, filtra por cuenta o categoría y toca uno para editarlo.",
+  "tutorial.tip.budgets":
+    "Pon un tope por categoría. La barra cambia de color cuando te acercas al límite.",
+  "tutorial.tip.reports":
+    "Mira en qué se va la plata, compara meses y revisa la proyección de tus cuentas.",
+  "tutorial.tip.settings":
+    "Desde aquí proteges la app, haces respaldos, importas extractos y ajustas los avisos.",
+  "tutorial.tip.capture":
+    "Lukas puede leer los avisos de tu banco y proponerte el movimiento. Nada se guarda sin que lo apruebes.",
+  "tutorial.restart": "Ver el tutorial otra vez",
+  "tutorial.restarted": "Listo: los primeros pasos y los consejos vuelven a aparecer.",
   "settings.deleteAccount": "Borrar mi cuenta",
   "deleteAccount.title": "Borrar mi cuenta",
   "deleteAccount.intro":
