@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  addPeriod,
   entitlementsOf,
   FEATURES,
+  findPrice,
   hasFeature,
   isFeature,
   isPlan,
@@ -187,5 +189,27 @@ describe("prueba gratis, cupones y precios", () => {
     expect(month?.amount.currencyCode).toBe("COP");
     expect(month && year && year.amount.amountMinor < month.amount.amountMinor * 12n).toBe(true);
     expect(TRIAL_DAYS).toBe(14);
+  });
+});
+
+describe("periodos pagados", () => {
+  it("busca precios por id", () => {
+    expect(findPrice("premium-month")?.period).toBe("month");
+    expect(findPrice("gratis")).toBeUndefined();
+  });
+
+  it("suma un mes o un año y se queda en el último día si el mes es corto", () => {
+    expect(addPeriod(new Date("2026-03-15T10:00:00Z"), "month").toISOString()).toBe(
+      "2026-04-15T10:00:00.000Z",
+    );
+    expect(addPeriod(new Date("2026-01-31T10:00:00Z"), "month").toISOString()).toBe(
+      "2026-02-28T10:00:00.000Z",
+    );
+    expect(addPeriod(new Date("2026-12-20T00:00:00Z"), "month").toISOString()).toBe(
+      "2027-01-20T00:00:00.000Z",
+    );
+    expect(addPeriod(new Date("2028-02-29T00:00:00Z"), "year").toISOString()).toBe(
+      "2029-02-28T00:00:00.000Z",
+    );
   });
 });
