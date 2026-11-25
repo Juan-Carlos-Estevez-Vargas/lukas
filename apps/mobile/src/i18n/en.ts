@@ -66,6 +66,20 @@ export const en: Messages = {
   "premium.signedOut": "Sign in to try premium or redeem a coupon.",
   "settings.plans": "See plans",
   "settings.feedback": "Send feedback",
+  "settings.deleteAccount": "Delete my account",
+  "deleteAccount.title": "Delete my account",
+  "deleteAccount.intro":
+    "Your account and all your data are deleted forever: on the server and on this phone. This cannot be undone.",
+  "deleteAccount.backup": "If you want to keep a copy, make a backup first.",
+  "deleteAccount.subscription":
+    "If you pay for premium through Google Play, also cancel the subscription in the Play Store: deleting your account does not cancel it.",
+  "deleteAccount.confirm": "Type BORRAR to confirm",
+  "deleteAccount.word": "BORRAR",
+  "deleteAccount.submit": "Delete my account forever",
+  "deleteAccount.stale":
+    "For your security, sign out, sign back in with the code and repeat this step.",
+  "deleteAccount.error": "We couldn't delete the account. Check your connection and try again.",
+  "deleteAccount.signedOut": "Sign in to delete your account.",
   "feedback.title": "Tell us",
   "feedback.intro":
     "You're on the Lukas beta. Tell us what's broken, what you'd like, or anything else. We read everything.",
