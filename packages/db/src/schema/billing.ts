@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { check, index, integer, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  bigint,
+  char,
+  check,
+  index,
+  integer,
+  primaryKey,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { app, userId } from "./common";
 
 export const plan = app.enum("plan", ["free", "premium"]);
@@ -96,4 +105,26 @@ export const couponRedemptions = app.table(
     redeemedAt: timestamp("redeemed_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.code, t.userId] })],
+);
+
+/**
+ * Pagos iniciados en el checkout web de Wompi (FIN-402). La referencia es aleatoria; el webhook
+ * la usa para saber de quién es el pago y verificar que el monto sea el del precio. Solo el
+ * servidor la lee y la escribe: la app no tiene permisos sobre esta tabla.
+ */
+export const paymentCheckouts = app.table(
+  "payment_checkouts",
+  {
+    reference: text("reference").primaryKey(),
+    userId: userId(),
+    priceId: text("price_id").notNull(),
+    amountMinor: bigint("amount_minor", { mode: "bigint" }).notNull(),
+    currency: char("currency", { length: 3 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("payment_checkouts_user_idx").on(t.userId, t.createdAt),
+    check("payment_checkouts_reference_shape", sql`${t.reference} ~ '^lk[0-9a-z]{24}$'`),
+    check("payment_checkouts_amount_positive", sql`${t.amountMinor} > 0`),
+  ],
 );
