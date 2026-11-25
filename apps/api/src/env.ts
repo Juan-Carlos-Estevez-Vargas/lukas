@@ -31,6 +31,10 @@ export interface Env {
   readonly AI_EMBEDDING_MODEL?: string;
   /** Token de acceso de Expo para enviar push (opcional; solo si el proyecto lo exige). */
   readonly EXPO_ACCESS_TOKEN?: string;
+  /** API key de Resend para enviar el código de acceso (secreto). Sin ella no se envían correos. */
+  readonly RESEND_API_KEY?: string;
+  /** Remitente, p. ej. `Lukas <acceso@tudominio.co>`. Por defecto, el de pruebas de Resend. */
+  readonly MAIL_FROM?: string;
 }
 
 export interface AppContext {
