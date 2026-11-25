@@ -91,12 +91,14 @@ const isRecord = (v: unknown): v is Record<string, unknown> =>
 
 /** Valor de `data` en la ruta "transaction.amount_in_cents", como texto para el checksum. */
 function valueAt(data: unknown, path: string): string | undefined {
-  let current: unknown = data;
-  for (const key of path.split(".")) {
-    if (!isRecord(current)) return undefined;
-    current = current[key];
-  }
-  return typeof current === "string" || typeof current === "number" ? String(current) : undefined;
+  // Solo propiedades propias: una ruta como "__proto__.x" no llega a ningún lado.
+  const value = path
+    .split(".")
+    .reduce<unknown>(
+      (node, key) => (isRecord(node) && Object.hasOwn(node, key) ? node[key] : undefined),
+      data,
+    );
+  return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
 }
 
 const safeEqual = (a: string, b: string) => {

@@ -144,6 +144,9 @@ describe("firmas de Wompi", () => {
     expect(await verifyEvent({ signature: { properties: [], checksum: "x" } }, config)).toBeNull();
     const other = { ...(await signedEvent(tx)), event: "nequi_token.updated" };
     expect(await verifyEvent(other, config)).toEqual({ kind: "other" });
+    const proto = await signedEvent(tx);
+    proto.signature.properties = ["__proto__.toString"];
+    expect(await verifyEvent(proto, config)).toBeNull();
     const broken = await signedEvent({ ...tx, currency: 7 });
     expect(await verifyEvent(broken, config)).toBeNull();
   });
