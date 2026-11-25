@@ -69,7 +69,7 @@ export async function saveTerms(
 
 /** Tasa escrita por la persona ("28,99" o "28.99") a puntos básicos. `null` si no es válida. */
 export function parseRate(text: string): number | null {
-  const clean = text.trim().replace(",", ".").replace("%", "");
+  const clean = text.trim().replace(/,/g, ".").replace(/%/g, "");
   if (!/^\d{1,3}(\.\d{1,2})?$/.test(clean)) return null;
   const [whole = "0", decimals = ""] = clean.split(".");
   const bp = Number(whole) * 100 + Number(decimals.padEnd(2, "0"));
