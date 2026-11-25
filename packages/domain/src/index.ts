@@ -66,6 +66,25 @@ export {
 export { type BaseTotal, type RateTable, sumInBase, toBase } from "./fx";
 export { isUuidV7, type RandomSource, uuidv7, uuidv7Timestamp } from "./id";
 export {
+  annualizedReturnBp,
+  CDT_WITHHOLDING_BP,
+  type CdtInput,
+  type CdtResult,
+  INVESTMENT_KINDS,
+  type InvestmentKind,
+  isInvestmentKind,
+  MAX_UNIT_DECIMALS,
+  MIN_DAYS_TO_ANNUALIZE,
+  type PortfolioSlice,
+  type PortfolioSummary,
+  type Position,
+  portfolioSummary,
+  positionValue,
+  simpleReturnBp,
+  simulateCdt,
+  validUnits,
+} from "./investments";
+export {
   ACCOUNT_TYPES,
   type Account,
   type AccountChanges,
