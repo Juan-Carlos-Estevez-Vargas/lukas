@@ -762,8 +762,8 @@ Funciones que diferencian la app.
 #### FIN-605 · Evaluar open finance
 
 - Tipo: `docs` · Tamaño: S
-- [ ] Comparar Belvo y Prometeo
-- [ ] Costos y requisitos legales
-- [ ] ADR de decisión
+- [x] Comparar Belvo y Prometeo
+- [x] Costos y requisitos legales
+- [x] ADR de decisión
 
-**Hecho cuando:** Decisión documentada.
+**Hecho cuando:** Decisión documentada. Ver [ADR 0007](adr/0007-open-finance.md): se revisa cuando la SFC publique el cronograma de APIs obligatorias.
