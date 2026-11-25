@@ -236,6 +236,11 @@ export default function Settings() {
         <Button label={t("settings.debts")} variant="plain" onPress={() => router.push("/debts")} />
         <Button label={t("settings.taxes")} variant="plain" onPress={() => router.push("/taxes")} />
         <Button
+          label={t("settings.investments")}
+          variant="plain"
+          onPress={() => router.push("/investments")}
+        />
+        <Button
           label={t("settings.plans")}
           variant="plain"
           onPress={() => router.push("/premium")}
