@@ -639,6 +639,15 @@ teléfono.
 
 **Hecho cuando:** Una persona nueva sabe qué hacer después del onboarding sin leer una guía.
 
+#### FIN-413 · Captcha en la app
+
+- Tipo: `feat` · Tamaño: S
+- [x] Página de Turnstile en la web con su propia CSP
+- [x] WebView en Android e iOS y ventana emergente en la web
+- [x] El token viaja en `x-captcha-response` al pedir el código
+
+**Hecho cuando:** Con `TURNSTILE_SECRET_KEY` en la API se puede seguir entrando desde la app y la web.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
