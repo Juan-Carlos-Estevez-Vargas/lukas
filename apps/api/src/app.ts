@@ -18,6 +18,7 @@ import { type AuthFactory, neonAuthFactory } from "./modules/auth/factory";
 import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
 import { type BillingFactory, neonBillingFactory } from "./modules/billing/factory";
+import { revenueCatRoutes } from "./modules/billing/revenuecat-routes";
 import { billingRoutes } from "./modules/billing/routes";
 import { wompiRoutes } from "./modules/billing/wompi-routes";
 import { type FeedbackFactory, neonFeedbackFactory } from "./modules/feedback/factory";
@@ -83,6 +84,7 @@ export const createApp = ({
     .route("/", notificationRoutes(notifications))
     .route("/", billingRoutes(billing))
     .route("/", wompiRoutes(billing))
+    .route("/", revenueCatRoutes(billing))
     .route("/", legalRoutes(legal))
     .route("/", feedbackRoutes(feedback));
   v1.doc31("/openapi.json", (c) => ({

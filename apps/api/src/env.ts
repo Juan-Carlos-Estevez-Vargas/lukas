@@ -39,6 +39,8 @@ export interface Env {
   readonly WOMPI_INTEGRITY_SECRET?: string;
   /** Secreto de eventos de Wompi para verificar los webhooks (`wrangler secret put`). */
   readonly WOMPI_EVENTS_SECRET?: string;
+  /** Valor del encabezado Authorization de los webhooks de RevenueCat (`wrangler secret put`). */
+  readonly REVENUECAT_WEBHOOK_SECRET?: string;
 }
 
 export interface AppContext {
