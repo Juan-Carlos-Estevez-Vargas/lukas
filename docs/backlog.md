@@ -603,6 +603,15 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 
 **Hecho cuando:** 10 personas usan la beta una semana.
 
+#### FIN-409 · Auto-merge de PRs de bots
+
+- Tipo: `ci` · Tamaño: S
+- [x] Dependabot se fusiona cuando todo su CI pasa
+- [x] El PR de versiones se fusiona una vez al día
+- [x] Después de fusionar se disparan staging y releases
+
+**Hecho cuando:** los PRs de bots llegan a `main` sin intervención.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
