@@ -18,7 +18,8 @@ export type PreferenceKey =
   | "telemetry.installId"
   | "telemetry.firsts"
   | "tutorial.state"
-  | "debts.terms";
+  | "debts.terms"
+  | "taxes.gmfExempt";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;
