@@ -13,7 +13,10 @@ export type PreferenceKey =
   | "notifications.weekly"
   | "security.allowScreenshots"
   | "billing.entitlements"
-  | "legal.accepted";
+  | "legal.accepted"
+  | "telemetry.enabled"
+  | "telemetry.installId"
+  | "telemetry.firsts";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;

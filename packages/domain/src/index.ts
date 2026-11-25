@@ -170,3 +170,16 @@ export { Money } from "./money";
 export * from "./result";
 export { divideRounded, type ExactDecimal, parseDecimal, type RoundingMode } from "./rounding";
 export { allOf, anyOf, not, type Specification, spec } from "./specification";
+export {
+  ANALYTICS_EVENTS,
+  type AnalyticsEvent,
+  type AnalyticsProperties,
+  cleanProperties,
+  type ErrorContext,
+  parseDsn,
+  type SentryDsn,
+  scrubText,
+  scrubUrl,
+  sentryEnvelope,
+  sentryRequest,
+} from "./telemetry";

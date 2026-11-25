@@ -2,8 +2,8 @@ name: EAS
 
 # Compila el APK firmado de Android con EAS Build.
 #   - En PRs que tocan la app: solo revisa que el proyecto de Expo esté vinculado (sin gastar builds).
-#   - A mano (Actions → EAS → Run workflow): compila el APK (production o development) y deja el
-#     enlace en el resumen.
+#   - A mano (Actions → EAS → Run workflow): compila el APK (production o development) o el AAB
+#     para Google Play (play) y deja el enlace en el resumen.
 #   - Desde release.yml: compila el APK de la versión publicada y lo sube a su GitHub Release.
 #
 # eas-cli se ejecuta con `pnpm dlx` y versión fija en vez de ir en el lockfile: fija dependencias
@@ -18,9 +18,9 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Perfil de eas.json (development es el build de desarrollo con expo-dev-client)
+        description: Perfil de eas.json (development = build de desarrollo; play = AAB para Google Play)
         type: choice
-        options: [production, development]
+        options: [production, development, play]
         default: production
   workflow_call:
     inputs:
@@ -105,10 +105,12 @@ jobs:
           if [ -z "$url" ]; then echo "::error::EAS no devolvió el APK"; exit 1; fi
           version=$(jq -r '.[0].appVersion' "$RUNNER_TEMP/build.json")
           code=$(jq -r '.[0].appBuildVersion' "$RUNNER_TEMP/build.json")
-          curl -fsSL -o "$RUNNER_TEMP/lukas-$version.apk" "$url"
-          echo "file=$RUNNER_TEMP/lukas-$version.apk" >> "$GITHUB_OUTPUT"
+          # El perfil play compila un AAB (lo que pide Google Play); los demás, un APK instalable.
+          ext=apk; if [ "$PROFILE" = play ]; then ext=aab; fi
+          curl -fsSL -o "$RUNNER_TEMP/lukas-$version.$ext" "$url"
+          echo "file=$RUNNER_TEMP/lukas-$version.$ext" >> "$GITHUB_OUTPUT"
           {
-            echo "### APK Android"
+            echo "### Android ($ext)"
             echo "- Versión: $version (build $code)"
             echo "- Descarga (EAS): $url"
           } >> "$GITHUB_STEP_SUMMARY"

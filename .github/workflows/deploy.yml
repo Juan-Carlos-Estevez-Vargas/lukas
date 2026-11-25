@@ -90,6 +90,10 @@ jobs:
         id: web
         env:
           EXPO_PUBLIC_API_URL: ${{ steps.names.outputs.api_url }}
+          # Telemetría (FIN-406): variables del environment de GitHub; ninguna es secreta.
+          EXPO_PUBLIC_ENVIRONMENT: ${{ inputs.environment || 'staging' }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.POSTHOG_KEY }}
           WEB_HOST: ${{ steps.names.outputs.web_host }}
           CI: "1"
         run: |
@@ -112,6 +116,9 @@ jobs:
           # Llave pública de Wompi (variable del repo, no secreto). Las privadas van con
           # `wrangler secret put` y se conservan entre despliegues.
           WOMPI_PUBLIC_KEY: ${{ vars.WOMPI_PUBLIC_KEY }}
+          # Errores 5xx a Sentry (FIN-406) y remitente del correo (FIN-502); ninguno es secreto.
+          SENTRY_DSN_API: ${{ vars.SENTRY_DSN_API }}
+          MAIL_FROM: ${{ vars.MAIL_FROM }}
         run: |
           umask 077
           secrets="$RUNNER_TEMP/secrets.env"
@@ -125,6 +132,8 @@ jobs:
           version=$(jq -r .version package.json)
           extra=()
           if [ -n "$WOMPI_PUBLIC_KEY" ]; then extra+=(--var "WOMPI_PUBLIC_KEY:$WOMPI_PUBLIC_KEY"); fi
+          if [ -n "$SENTRY_DSN_API" ]; then extra+=(--var "SENTRY_DSN:$SENTRY_DSN_API"); fi
+          if [ -n "$MAIL_FROM" ]; then extra+=(--var "MAIL_FROM:$MAIL_FROM"); fi
           for attempt in 1 2 3; do
             if pnpm exec wrangler deploy --env "$TARGET" \
               --var "AUTH_URL:$API_URL" \

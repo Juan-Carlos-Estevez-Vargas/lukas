@@ -40,6 +40,7 @@ import {
 import { receiptStore } from "../../src/receipts/receipt-store";
 import type { StoredReceipt } from "../../src/receipts/store";
 import { useCardReminders } from "../../src/reminders/use-card-reminders";
+import { useTelemetry } from "../../src/telemetry/use-telemetry";
 import { useTheme } from "../../src/theme/theme";
 
 const DAYS = [0, 1, 2] as const;
@@ -62,6 +63,7 @@ const reader = e2eMode ? e2eReceiptReader() : createReceiptReader(apiUrl);
  */
 export default function NewMovement() {
   const { t, locale } = useI18n();
+  const telemetry = useTelemetry();
   const { colors, fontSize, fontWeight } = useTheme();
   const database = useLocalDatabase();
   const reminders = useCardReminders();
@@ -244,6 +246,8 @@ export default function NewMovement() {
       if (!res.ok) return setError(t(accountErrorKey(res.error)));
       if (account?.type === "credit_card") reminders.resync();
       budgets.check();
+      telemetry.track("movement_created", { kind });
+      telemetry.trackFirst("first_movement", { kind });
       router.back();
     } catch {
       setError(t("movement.error.generic"));

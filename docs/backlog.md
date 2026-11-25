@@ -579,9 +579,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-406 · Sentry y PostHog
 
 - Tipo: `chore` · Tamaño: S · Requiere cuenta: Sentry, PostHog
-- [ ] Errores con scrubbing de PII
-- [ ] Feature flags
-- [ ] Embudo de activación
+- [x] Errores con scrubbing de PII (API y app, sin SDKs; ver `docs/observabilidad.md`)
+- [x] Feature flags (`useTelemetry().flag`)
+- [x] Embudo de activación
 
 **Hecho cuando:** Un error forzado aparece en Sentry sin datos personales.
 
@@ -621,6 +621,14 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 
 **Hecho cuando:** Una persona borra su cuenta desde la app y no queda nada suyo en Neon ni en el
 teléfono.
+
+#### FIN-411 · Guía y build para producción
+
+- Tipo: `docs` · Tamaño: S
+- [x] Perfil `play` de EAS que compila el AAB para Google Play
+- [x] Guía de paso a producción con solo los pasos del dueño (`docs/produccion.md`)
+
+**Hecho cuando:** El dueño puede seguir una sola guía para encender todo y pasar a producción.
 
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 

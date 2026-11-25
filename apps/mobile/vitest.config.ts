@@ -38,6 +38,7 @@ export default defineConfig({
         "src/security/**/*.ts",
         "src/billing/**/*.ts",
         "src/legal/**/*.ts",
+        "src/telemetry/telemetry.ts",
         "app.config.ts",
         "plugins/**/*.ts",
         "e2e/perf.ts",

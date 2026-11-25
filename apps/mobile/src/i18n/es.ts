@@ -21,6 +21,9 @@ export const es = {
   "transactions.empty": "Tus ingresos y gastos aparecerán aquí.",
   "budgets.empty": "Crea tu primer presupuesto para controlar tus gastos.",
   "security.screenshots": "Permitir capturas de pantalla",
+  "telemetry.setting": "Enviar errores y estadísticas anónimas",
+  "telemetry.help":
+    "Nos ayuda a arreglar fallas y saber qué partes de Lukas se usan. Nunca incluye tus montos, comercios, correo ni datos de tus cuentas.",
   "security.rooted":
     "Tu teléfono tiene root. Otras apps podrían leer tus datos de Lukas: no guardes aquí nada que no quieras exponer.",
   "legal.privacy": "Política de tratamiento de datos",

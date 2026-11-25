@@ -8,7 +8,7 @@ import { forgetEntitlements } from "../../src/billing/entitlements";
 import { useEntitlements } from "../../src/billing/use-entitlements";
 import { notificationReader } from "../../src/capture/reader";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
-import { apiUrl } from "../../src/config";
+import { apiUrl, e2eMode } from "../../src/config";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useDiscreet } from "../../src/display/discreet";
 import { useI18n } from "../../src/i18n/i18n";
@@ -28,6 +28,7 @@ import { useCardReminders } from "../../src/reminders/use-card-reminders";
 import { useDeviceSecurity } from "../../src/security/use-device-security";
 import { syncLine as describeSync } from "../../src/sync/text";
 import { useSync } from "../../src/sync/use-sync";
+import { useTelemetry } from "../../src/telemetry/use-telemetry";
 
 const devices = createDeviceClient(apiUrl);
 
@@ -35,6 +36,7 @@ export default function Settings() {
   const { t, locale } = useI18n();
   const { signOut, state: session } = useSession();
   const security = useDeviceSecurity();
+  const telemetry = useTelemetry();
   const { entitlements } = useEntitlements();
   const sync = useSync();
   const syncLine = describeSync(t, locale, sync);
@@ -70,6 +72,16 @@ export default function Settings() {
             value={security.screenshotsAllowed}
             onChange={security.setScreenshotsAllowed}
           />
+        ) : null}
+        {db && !e2eMode ? (
+          <>
+            <Toggle
+              label={t("telemetry.setting")}
+              value={telemetry.enabled}
+              onChange={telemetry.setEnabled}
+            />
+            <Body muted>{t("telemetry.help")}</Body>
+          </>
         ) : null}
         {db ? (
           <Toggle

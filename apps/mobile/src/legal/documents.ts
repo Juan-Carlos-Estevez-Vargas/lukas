@@ -45,6 +45,7 @@ const privacy: LegalText = {
         "Si activas la captura automática, el texto de los avisos de tus bancos y billeteras. Se lee en tu teléfono y solo se guarda lo que apruebas.",
         "Si activas el asistente con IA, tus preguntas, cifras resumidas y las fotos de recibos que decidas leer.",
         "Datos técnicos mínimos: tipo de teléfono, versión de la app y registros de errores sin datos personales.",
+        "Si no lo apagas en Ajustes, reportes de errores y estadísticas de uso anónimas (qué pantallas y funciones se usan), con un identificador aleatorio de la instalación. Nunca incluyen montos, comercios, tu correo ni datos de tus cuentas.",
         "Los comentarios que nos envías desde la app, con la versión y el tipo de teléfono.",
         "Lukas nunca pide, registra ni guarda números de tarjeta, CVV, claves ni credenciales bancarias.",
       ],
@@ -64,7 +65,7 @@ const privacy: LegalText = {
     {
       title: "4. Encargados y transferencias internacionales",
       paragraphs: [
-        "Para operar usamos proveedores que tratan datos por nuestra cuenta, con servidores fuera de Colombia: Cloudflare (servidores de la API, web y modelos de IA) y Neon (base de datos), en Estados Unidos y la Unión Europea. Con tu autorización aceptas esta transmisión y transferencia internacional de datos, en los términos del artículo 26 de la Ley 1581 de 2012.",
+        "Para operar usamos proveedores que tratan datos por nuestra cuenta, con servidores fuera de Colombia: Cloudflare (servidores de la API, web y modelos de IA), Neon (base de datos), Sentry (reportes de errores) y PostHog (estadísticas de uso), en Estados Unidos y la Unión Europea. Para pagar premium intervienen Wompi (Colombia) en la web y Google Play y RevenueCat (Estados Unidos) en Android; ellos tratan los datos de pago y Lukas no los recibe. Con tu autorización aceptas esta transmisión y transferencia internacional de datos, en los términos del artículo 26 de la Ley 1581 de 2012.",
         "Los datos viajan cifrados (HTTPS) y, en tu teléfono, la base local está cifrada.",
       ],
     },

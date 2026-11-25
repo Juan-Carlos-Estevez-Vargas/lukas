@@ -13,6 +13,7 @@ import {
 } from "../../src/feedback/client";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { useTelemetry } from "../../src/telemetry/use-telemetry";
 import { useTheme } from "../../src/theme/theme";
 
 const ERRORS: Record<FeedbackError, MessageKey> = {
@@ -31,6 +32,7 @@ const platform: FeedbackPlatform =
 export default function Feedback() {
   const { t } = useI18n();
   const { space } = useTheme();
+  const telemetry = useTelemetry();
   const { state: session } = useSession();
   const client = useMemo(
     () =>
@@ -63,6 +65,7 @@ export default function Feedback() {
     if (!res.ok) return setError(ERRORS[res.error]);
     setMessage("");
     setSent(true);
+    telemetry.track("feedback_sent", { kind });
   };
 
   return (

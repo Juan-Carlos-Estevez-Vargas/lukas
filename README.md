@@ -6,7 +6,7 @@ App móvil y web de finanzas personales para Colombia: presupuestos, gastos, ing
 
 ## Estado
 
-En construcción, Fase 0 (cimientos). El trabajo se organiza en [`docs/backlog.md`](docs/backlog.md): cada tarea `FIN-xxx` es un PR y cada subtarea un commit.
+Beta cerrada: el código de las fases 0 a 4 está listo y se enciende con llaves. Lo que falta para producción está en [`docs/produccion.md`](docs/produccion.md). El trabajo se organiza en [`docs/backlog.md`](docs/backlog.md): cada tarea `FIN-xxx` es un PR y cada subtarea un commit.
 
 ## Principios
 
