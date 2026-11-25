@@ -622,6 +622,14 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 **Hecho cuando:** Una persona borra su cuenta desde la app y no queda nada suyo en Neon ni en el
 teléfono.
 
+#### FIN-411 · Guía y build para producción
+
+- Tipo: `docs` · Tamaño: S
+- [x] Perfil `play` de EAS que compila el AAB para Google Play
+- [x] Guía de paso a producción con solo los pasos del dueño (`docs/produccion.md`)
+
+**Hecho cuando:** El dueño puede seguir una sola guía para encender todo y pasar a producción.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.

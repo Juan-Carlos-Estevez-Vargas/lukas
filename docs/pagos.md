@@ -92,7 +92,7 @@ Sin la llave en la app, la pantalla muestra "pronto". Sin el secreto en la API, 
 responde 503.
 
 1. **Google Play Console** (cuenta de desarrollador; Google cobra un pago único de registro):
-   crear la app `co.lukas.app` y subir un primer APK/AAB a la pista de prueba interna. Luego
+   crear la app `co.lukas.app` y subir un primer AAB (**Actions → EAS → `play`**) a la pista de prueba interna. Luego
    crear dos suscripciones, por ejemplo `premium_mensual` y `premium_anual`, con los precios en
    COP.
 2. **RevenueCat** ([app.revenuecat.com](https://app.revenuecat.com), gratis hasta cierto nivel de
