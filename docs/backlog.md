@@ -718,9 +718,9 @@ Funciones que diferencian la app.
 #### FIN-601 · Inversiones
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Posiciones y precios
-- [ ] Simulador de CDT
-- [ ] Rentabilidad y asignación
+- [x] Posiciones y precios
+- [x] Simulador de CDT
+- [x] Rentabilidad y asignación
 
 **Hecho cuando:** El portafolio muestra rentabilidad anual.
 
