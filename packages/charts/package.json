@@ -1,6 +1,6 @@
 {
   "name": "@lukas/charts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Geometría de gráficos (barras, líneas, escalas y toques) que dibujan react-native-svg en el teléfono y ECharts en la web",
   "type": "module",
