@@ -1,5 +1,11 @@
 # @lukas/db
 
+## 0.4.0
+
+### Minor Changes
+
+- 1f3f409: Pago de premium con Wompi desde la web: checkout firmado, webhook con checksum verificado e idempotente, y el periodo pagado se suma al vigente. Queda apagado hasta configurar las llaves de Wompi.
+
 ## 0.3.0
 
 ### Minor Changes

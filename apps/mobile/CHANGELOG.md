@@ -1,5 +1,28 @@
 # @lukas/mobile
 
+## 0.5.0
+
+### Minor Changes
+
+- 6c7c10c: Ajustes → Borrar mi cuenta: borra la cuenta y todos los datos del servidor y del teléfono. Pide una sesión de menos de un día.
+- c219de2: Captcha de Turnstile antes de pedir el código de acceso: en Android dentro de la app y en la web en una ventana emergente. Solo aparece cuando hay llave configurada.
+- b8f1f05: Suscripción a premium en Android con Google Play a través de RevenueCat: compra, restaurar compras y webhook que activa, renueva, cancela o vence premium. Queda apagado hasta configurar la llave de RevenueCat.
+- 64a77b7: Deudas: con la tasa E.A. y el pago mínimo de cada tarjeta o préstamo, Lukas muestra la fecha de libertad con avalancha o bola de nieve y cuánto se ahorra abonando a capital.
+- 6020caa: Ayuda tributaria: con los movimientos del año, Lukas compara patrimonio, ingresos, compras, consumos con tarjeta y consignaciones contra los topes en UVT y dice si probablemente debes declarar renta. También estima el 4×1000 del mes y deja marcar la cuenta exenta.
+- c4c4514: Inversiones: registra CDT, fondos, acciones, ETF o cripto con su precio, mira la rentabilidad anual y la asignación del portafolio, y simula un CDT con la retención en la fuente.
+- 1f3f409: Pago de premium con Wompi desde la web: checkout firmado, webhook con checksum verificado e idempotente, y el periodo pagado se suma al vigente. Queda apagado hasta configurar las llaves de Wompi.
+- 2ca3719: Reporte de errores a Sentry y estadísticas de uso anónimas en PostHog, con limpieza de datos personales y un interruptor en Ajustes para apagarlo. Se enciende al configurar las llaves.
+- d364dd8: Tutorial guiado: "Primeros pasos" en el Resumen con seis tareas que se marcan solas al hacerlas, un consejo la primera vez que se abre cada pantalla y la opción de verlo otra vez desde Ajustes.
+
+### Patch Changes
+
+- Updated dependencies [64a77b7]
+- Updated dependencies [6020caa]
+- Updated dependencies [c4c4514]
+- Updated dependencies [1f3f409]
+- Updated dependencies [2ca3719]
+  - @lukas/domain@0.4.0
+
 ## 0.4.0
 
 ### Minor Changes

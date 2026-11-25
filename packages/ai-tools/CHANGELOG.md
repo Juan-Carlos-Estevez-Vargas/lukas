@@ -1,5 +1,16 @@
 # @lukas/ai-tools
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [64a77b7]
+- Updated dependencies [6020caa]
+- Updated dependencies [c4c4514]
+- Updated dependencies [1f3f409]
+- Updated dependencies [2ca3719]
+  - @lukas/domain@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes
