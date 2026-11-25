@@ -26,6 +26,13 @@
         "EXPO_PUBLIC_API_URL": "https://lukas-api.juank2001estevezvargas.workers.dev",
         "EXPO_PUBLIC_ENVIRONMENT": "production"
       }
+    },
+    "play": {
+      "extends": "production",
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   }
 }
