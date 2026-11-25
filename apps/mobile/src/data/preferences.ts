@@ -19,7 +19,8 @@ export type PreferenceKey =
   | "telemetry.firsts"
   | "tutorial.state"
   | "debts.terms"
-  | "taxes.gmfExempt";
+  | "taxes.gmfExempt"
+  | "investments.positions";
 
 export interface Preferences {
   get(key: PreferenceKey): Promise<string | null>;
