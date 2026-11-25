@@ -549,9 +549,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-403 · RevenueCat en modo de prueba
 
 - Tipo: `feat` · Tamaño: M · Requiere cuenta: RevenueCat
-- [ ] SDK en la app
-- [ ] Webhook a Billing
-- [ ] Restaurar compras
+- [x] SDK en la app (`react-native-purchases`; se enciende con la llave, ver `docs/pagos.md`)
+- [x] Webhook a Billing (`POST /v1/billing/revenuecat/events`)
+- [x] Restaurar compras
 
 **Hecho cuando:** Una compra de prueba activa premium en Android.
 
