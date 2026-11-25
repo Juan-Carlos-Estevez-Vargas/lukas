@@ -119,7 +119,7 @@ jobs:
           if [ -z "$sub" ]; then echo "::error::No se encontró el proyecto lukas-web en Pages"; exit 1; fi
           echo "url=https://pr-$PR.$sub" >> "$GITHUB_OUTPUT"
 
-      # Turnstile no se activa en previews hasta que la app envíe el token del widget.
+      # Turnstile no se activa en previews: su llave solo admite los dominios de staging y producción.
       - name: Desplegar Worker
         id: worker
         working-directory: apps/api
