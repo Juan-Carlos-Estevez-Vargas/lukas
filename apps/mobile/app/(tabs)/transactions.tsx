@@ -19,6 +19,7 @@ import { type Period, periodRange } from "../../src/movements/periods";
 import { recentTags } from "../../src/movements/tags";
 import { type Month, monthRange, parseMonth } from "../../src/reports/reports";
 import { useTheme } from "../../src/theme/theme";
+import { TipCard } from "../../src/tutorial/tutorial-cards";
 
 type Item =
   | { readonly type: "header"; readonly section: DaySection }
@@ -138,6 +139,7 @@ export default function Transactions() {
   return (
     <Screen>
       <Title>{t("tabs.transactions")}</Title>
+      <TipCard db={db} tip="transactions" />
       <Field
         label={t("list.search")}
         value={text}

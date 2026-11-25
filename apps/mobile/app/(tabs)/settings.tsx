@@ -29,6 +29,8 @@ import { useDeviceSecurity } from "../../src/security/use-device-security";
 import { syncLine as describeSync } from "../../src/sync/text";
 import { useSync } from "../../src/sync/use-sync";
 import { useTelemetry } from "../../src/telemetry/use-telemetry";
+import { restartTutorial } from "../../src/tutorial/tutorial";
+import { TipCard } from "../../src/tutorial/tutorial-cards";
 
 const devices = createDeviceClient(apiUrl);
 
@@ -51,6 +53,7 @@ export default function Settings() {
   const [weekly, setWeekly] = useState(false);
   const [weeklyBusy, setWeeklyBusy] = useState(false);
   const [weeklyNote, setWeeklyNote] = useState<WeeklyResult | null>(null);
+  const [tutorialNote, setTutorialNote] = useState(false);
   const db = database.status === "ready" ? database.db : null;
 
   useFocusEffect(
@@ -65,6 +68,7 @@ export default function Settings() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 16 }} keyboardShouldPersistTaps="handled">
         <Title>{t("tabs.settings")}</Title>
+        <TipCard db={db} tip="settings" />
         <Toggle label={t("settings.discreet")} value={discreet} onChange={setDiscreet} />
         {security.available ? (
           <Toggle
@@ -239,6 +243,19 @@ export default function Settings() {
           variant="plain"
           onPress={() => router.push("/feedback")}
         />
+        {db ? (
+          <Button
+            label={t("tutorial.restart")}
+            variant="plain"
+            onPress={() =>
+              void restartTutorial(db).then(
+                () => setTutorialNote(true),
+                () => undefined,
+              )
+            }
+          />
+        ) : null}
+        {tutorialNote ? <Body muted>{t("tutorial.restarted")}</Body> : null}
         <Button
           label={t("settings.deleteAccount")}
           variant="plain"

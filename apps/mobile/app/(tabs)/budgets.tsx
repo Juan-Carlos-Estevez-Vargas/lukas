@@ -19,6 +19,7 @@ import { formatMoney } from "../../src/format/money";
 import { type GoalView, goalViews } from "../../src/goals/goals";
 import { goalLine } from "../../src/goals/text";
 import { useI18n } from "../../src/i18n/i18n";
+import { TipCard } from "../../src/tutorial/tutorial-cards";
 
 export default function Budgets() {
   const { t, locale } = useI18n();
@@ -60,6 +61,7 @@ export default function Budgets() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 16 }}>
         <Title>{t("tabs.budgets")}</Title>
+        <TipCard db={db} tip="budgets" />
         {views.length === 0 ? <Body muted>{t("budgets.empty")}</Body> : null}
         {views.map(({ budget, category, status }) => (
           <View key={budget.id} style={{ gap: 6 }}>

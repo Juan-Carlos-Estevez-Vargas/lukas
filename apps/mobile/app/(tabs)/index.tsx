@@ -41,6 +41,7 @@ import { parseCivil } from "../../src/recurring/recurring";
 import { useRecurring } from "../../src/recurring/use-recurring";
 import { useDeviceSecurity } from "../../src/security/use-device-security";
 import { useSync } from "../../src/sync/use-sync";
+import { FirstStepsCard, TipCard } from "../../src/tutorial/tutorial-cards";
 import { updateWidgets } from "../../src/widgets/bridge";
 import { availableSnapshot } from "../../src/widgets/snapshot";
 
@@ -155,6 +156,12 @@ export default function Summary() {
     <Screen>
       <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 80 }}>
         {rooted ? <Body tone="error">{t("security.rooted")}</Body> : null}
+        {database.status === "ready" ? (
+          <>
+            <TipCard db={database.db} tip="summary" />
+            <FirstStepsCard db={database.db} reload={version + synced + captured + loads} />
+          </>
+        ) : null}
         <InboxCard count={pending} onOpen={() => router.push("/inbox")} />
         <Button
           label={t("assistant.open")}

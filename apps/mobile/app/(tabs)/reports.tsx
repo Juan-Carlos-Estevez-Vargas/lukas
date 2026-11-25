@@ -47,6 +47,7 @@ import {
 import { loadViews, removeView, type SavedView, saveView } from "../../src/reports/views";
 import { useSync } from "../../src/sync/use-sync";
 import { useTheme } from "../../src/theme/theme";
+import { TipCard } from "../../src/tutorial/tutorial-cards";
 
 const MONTHS = 6;
 const CHART_HEIGHT = 160;
@@ -260,6 +261,7 @@ export default function Reports() {
     <Screen>
       <Title>{t("tabs.reports")}</Title>
       <ScrollView ref={scroll} contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
+        <TipCard db={database.status === "ready" ? database.db : null} tip="reports" />
         <ChipRow testID="report-months">
           {months.map((m) => (
             <Chip

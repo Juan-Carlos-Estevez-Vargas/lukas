@@ -4,8 +4,10 @@ import { AppState, ScrollView, Text, View } from "react-native";
 import { CAPTURE_APPS } from "../../src/capture/apps";
 import { notificationReader as reader } from "../../src/capture/reader";
 import { Body, Button, Screen, Title, Toggle } from "../../src/components/ui";
+import { useLocalDatabase } from "../../src/data/provider";
 import { useI18n } from "../../src/i18n/i18n";
 import { useTheme } from "../../src/theme/theme";
+import { TipCard } from "../../src/tutorial/tutorial-cards";
 
 const POINTS = [
   "capture.point.apps",
@@ -18,6 +20,7 @@ const POINTS = [
 export default function CaptureSettings() {
   const { t } = useI18n();
   const { colors, space, fontSize } = useTheme();
+  const database = useLocalDatabase();
   const [access, setAccess] = useState(false);
   const [allowed, setAllowed] = useState<readonly string[]>([]);
 
@@ -47,6 +50,7 @@ export default function CaptureSettings() {
     <Screen>
       <Title>{t("capture.title")}</Title>
       <ScrollView contentContainerStyle={{ gap: space.md, paddingBottom: space.xl }}>
+        <TipCard db={database.status === "ready" ? database.db : null} tip="capture" />
         <Body>{t("capture.intro")}</Body>
         <View style={{ gap: space.sm }}>
           {POINTS.map((key) => (

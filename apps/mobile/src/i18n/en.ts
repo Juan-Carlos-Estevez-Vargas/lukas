@@ -84,6 +84,39 @@ export const en: Messages = {
   "premium.signedOut": "Sign in to try premium or redeem a coupon.",
   "settings.plans": "See plans",
   "settings.feedback": "Send feedback",
+  "tutorial.title": "First steps ({done} of {total})",
+  "tutorial.step.movement": "Record your first expense",
+  "tutorial.step.budget": "Create a budget",
+  "tutorial.step.goal": "Set a savings goal",
+  "tutorial.step.recurring": "Schedule a fixed payment",
+  "tutorial.step.lock": "Protect the app with a PIN or fingerprint",
+  "tutorial.step.backup": "Make an encrypted backup",
+  "tutorial.hint.movement":
+    "Tap + on the Summary: amount, category, done. Lukas updates the account right away.",
+  "tutorial.hint.budget":
+    "A budget sets a monthly limit per category and warns you at 80% and 100%.",
+  "tutorial.hint.goal": "A goal tells you how much to save each month to get there on time.",
+  "tutorial.hint.recurring":
+    "Rent, utilities or subscriptions: Lukas records them for you and reminds you before paying.",
+  "tutorial.hint.lock": "In Settings, turn on the lock so nobody else sees your finances.",
+  "tutorial.hint.backup":
+    "Your data lives on your phone. An encrypted backup protects you if you lose it.",
+  "tutorial.hide": "Hide first steps",
+  "tutorial.tipTitle": "Tip",
+  "tutorial.gotIt": "Got it",
+  "tutorial.tip.summary":
+    "This is your Summary: what is left this month, your accounts and what is coming. Tap an account to see its activity.",
+  "tutorial.tip.transactions":
+    "All your transactions are here. Search by merchant, filter by account or category and tap one to edit it.",
+  "tutorial.tip.budgets": "Set a limit per category. The bar changes color as you get close to it.",
+  "tutorial.tip.reports":
+    "See where your money goes, compare months and check your accounts' projection.",
+  "tutorial.tip.settings":
+    "Here you protect the app, make backups, import statements and tune your reminders.",
+  "tutorial.tip.capture":
+    "Lukas can read your bank's notifications and suggest the transaction. Nothing is saved until you approve it.",
+  "tutorial.restart": "Show the tutorial again",
+  "tutorial.restarted": "Done: first steps and tips will show up again.",
   "settings.deleteAccount": "Delete my account",
   "deleteAccount.title": "Delete my account",
   "deleteAccount.intro":

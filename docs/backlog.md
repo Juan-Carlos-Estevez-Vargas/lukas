@@ -630,6 +630,15 @@ teléfono.
 
 **Hecho cuando:** El dueño puede seguir una sola guía para encender todo y pasar a producción.
 
+#### FIN-412 · Tutorial guiado
+
+- Tipo: `feat` · Tamaño: S
+- [x] "Primeros pasos" en el Resumen: primer gasto, presupuesto, meta, pago fijo, bloqueo y respaldo
+- [x] Un consejo la primera vez que se abre cada pantalla
+- [x] Ajustes → Ver el tutorial otra vez
+
+**Hecho cuando:** Una persona nueva sabe qué hacer después del onboarding sin leer una guía.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
