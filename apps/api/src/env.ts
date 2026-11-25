@@ -41,6 +41,10 @@ export interface Env {
   readonly WOMPI_EVENTS_SECRET?: string;
   /** Valor del encabezado Authorization de los webhooks de RevenueCat (`wrangler secret put`). */
   readonly REVENUECAT_WEBHOOK_SECRET?: string;
+  /** API key de Resend para enviar el código de acceso (secreto). Sin ella no se envían correos. */
+  readonly RESEND_API_KEY?: string;
+  /** Remitente, p. ej. `Lukas <acceso@tudominio.co>`. Por defecto, el de pruebas de Resend. */
+  readonly MAIL_FROM?: string;
 }
 
 export interface AppContext {

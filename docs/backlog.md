@@ -603,6 +603,15 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 
 **Hecho cuando:** 10 personas usan la beta una semana.
 
+#### FIN-409 · Auto-merge de PRs de bots
+
+- Tipo: `ci` · Tamaño: S
+- [x] Dependabot se fusiona cuando todo su CI pasa
+- [x] El PR de versiones se fusiona una vez al día
+- [x] Después de fusionar se disparan staging y releases
+
+**Hecho cuando:** los PRs de bots llegan a `main` sin intervención.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
@@ -621,9 +630,9 @@ Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
 #### FIN-502 · Correo transaccional
 
 - Tipo: `feat` · Tamaño: S · Pago: Gratis con dominio
-- [ ] Resend con dominio verificado
-- [ ] Verificación de correo
-- [ ] Recuperación por correo
+- [x] Envío del código con Resend detrás del puerto `Mailer` (`docs/correo.md`)
+- [ ] Dominio verificado en Resend (depende de FIN-501)
+- [x] Verificación y recuperación: el mismo código por correo, sin contraseña (ADR 0003)
 
 **Hecho cuando:** Llega el correo de verificación.
 

@@ -1,0 +1,55 @@
+name: Auto-merge
+
+# Fusiona solos los PRs de bots (FIN-409), siempre con merge normal:
+#   - Dependabot: cuando termina cada workflow de su PR, si ya todo el CI de ese commit pasó.
+#   - Versiones (changesets): una vez al día, para no gastar un build de EAS por cada PR.
+# Corre con el código de main, nunca con el del PR, así que el permiso de escritura es seguro.
+
+on:
+  workflow_run:
+    workflows: [CI, Seguridad, E2E, EAS, Preview]
+    types: [completed]
+  schedule:
+    # 03:00 hora Colombia.
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  checks: read
+
+concurrency: auto-merge
+
+jobs:
+  dependabot:
+    name: Fusionar Dependabot
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: bash scripts/ci/auto-merge.sh deps "$SHA"
+
+  release:
+    name: Fusionar versiones
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/auto-merge.sh release
