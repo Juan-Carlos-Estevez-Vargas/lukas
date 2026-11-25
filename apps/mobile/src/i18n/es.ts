@@ -67,6 +67,20 @@ export const es = {
   "premium.signedOut": "Entra a tu cuenta para probar premium o canjear un cupón.",
   "settings.plans": "Ver planes",
   "settings.feedback": "Enviar comentarios",
+  "settings.deleteAccount": "Borrar mi cuenta",
+  "deleteAccount.title": "Borrar mi cuenta",
+  "deleteAccount.intro":
+    "Se borran para siempre tu cuenta y todos tus datos: los del servidor y los de este teléfono. No se puede deshacer.",
+  "deleteAccount.backup": "Si quieres guardar una copia, haz un respaldo antes.",
+  "deleteAccount.subscription":
+    "Si pagas premium por Google Play, cancela también la suscripción en Play Store: borrar la cuenta no la cancela.",
+  "deleteAccount.confirm": "Escribe BORRAR para confirmar",
+  "deleteAccount.word": "BORRAR",
+  "deleteAccount.submit": "Borrar mi cuenta para siempre",
+  "deleteAccount.stale":
+    "Por seguridad, sal de la cuenta, vuelve a entrar con el código y repite este paso.",
+  "deleteAccount.error": "No pudimos borrar la cuenta. Revisa tu conexión e inténtalo de nuevo.",
+  "deleteAccount.signedOut": "Entra a tu cuenta para borrarla.",
   "feedback.title": "Cuéntanos",
   "feedback.intro":
     "Estás en la beta de Lukas. Dinos qué falla, qué te gustaría o cualquier otra cosa. Lo leemos todo.",

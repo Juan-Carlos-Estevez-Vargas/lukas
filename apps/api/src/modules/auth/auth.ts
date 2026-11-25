@@ -48,6 +48,10 @@ export const createAuth = ({ db, env, mailer }: AuthDeps) => {
       },
     }),
     emailAndPassword: { enabled: false },
+    // Borrar la cuenta (Ley 1581 y Google Play): `POST /v1/auth/delete-user`. Sin contraseña, Better
+    // Auth exige una sesión fresca (`freshAge`, 1 día por defecto): si es más vieja, hay que volver
+    // a entrar con el código. Las llaves foráneas borran en cascada todos los datos de la persona.
+    user: { deleteUser: { enabled: true } },
     session: {
       expiresIn: 30 * DAY,
       // Renueva la sesión una vez al día de uso: si nadie la usa en 30 días, expira.

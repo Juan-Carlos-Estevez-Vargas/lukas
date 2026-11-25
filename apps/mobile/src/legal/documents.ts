@@ -72,7 +72,7 @@ const privacy: LegalText = {
       title: "5. Tus derechos",
       paragraphs: [
         "Como titular puedes: conocer, actualizar y rectificar tus datos; pedir prueba de la autorización que nos diste; saber cómo los usamos; revocar la autorización o pedir que los borremos cuando no haya un deber legal de conservarlos; presentar quejas ante la Superintendencia de Industria y Comercio después de agotar el trámite con nosotros; y acceder gratis a tus datos.",
-        `Desde la app puedes exportar tus datos. Para borrar tu cuenta y todos tus datos del servidor, escríbenos a ${c.email} y lo hacemos en máximo 15 días hábiles.`,
+        `Desde la app puedes exportar tus datos y borrar tu cuenta (Ajustes → Borrar mi cuenta): al confirmar se borran en el momento todos tus datos del servidor y del teléfono. Si ya no puedes entrar, escríbenos a ${c.email} y lo hacemos en máximo 15 días hábiles.`,
       ],
     },
     {

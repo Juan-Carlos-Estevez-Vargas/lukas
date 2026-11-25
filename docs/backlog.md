@@ -612,6 +612,16 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 
 **Hecho cuando:** los PRs de bots llegan a `main` sin intervención.
 
+#### FIN-410 · Borrar la cuenta desde la app
+
+- Tipo: `feat` · Tamaño: S
+- [x] Borrar la cuenta en la API (`POST /v1/auth/delete-user`, cascada en Neon)
+- [x] Pantalla en Ajustes con confirmación
+- [x] Dejar el teléfono como recién instalado después de borrar
+
+**Hecho cuando:** Una persona borra su cuenta desde la app y no queda nada suyo en Neon ni en el
+teléfono.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
