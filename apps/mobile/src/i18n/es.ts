@@ -55,6 +55,10 @@ export const es = {
   "premium.trial.start": "Probar {days} días gratis",
   "premium.trial.started": "Listo, ya tienes premium. La prueba vence sola.",
   "premium.pay.soon": "Pronto podrás pagar con tarjeta, Nequi o PSE desde aquí.",
+  "premium.pay.wompi": "Pagar {amount} con Wompi",
+  "premium.pay.wompiNote":
+    "Pagas en la página segura de Wompi con tarjeta, PSE, Nequi o Bancolombia. Lukas no ve los datos de tu tarjeta. Al volver, premium se activa en unos segundos.",
+  "premium.pay.unavailable": "Los pagos aún no están disponibles. Vuelve pronto.",
   "premium.coupon.label": "¿Tienes un cupón?",
   "premium.coupon.redeem": "Canjear cupón",
   "premium.coupon.redeemed": "Cupón canjeado. Ya tienes premium.",

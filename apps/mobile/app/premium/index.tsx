@@ -1,12 +1,13 @@
 import { PRICES, TRIAL_DAYS } from "@lukas/domain";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView } from "react-native";
+import { Linking, Platform, ScrollView } from "react-native";
 import { civilDate } from "../../src/accounts/credit-card";
 import { useSession } from "../../src/auth/session";
 import {
   type BillingError,
   type BillingStatus,
   createBillingClient,
+  createCheckout,
   rememberEntitlements,
 } from "../../src/billing/plans";
 import { useEntitlements } from "../../src/billing/use-entitlements";
@@ -52,7 +53,7 @@ export default function Premium() {
   const [error, setError] = useState<MessageKey | null>(null);
   const [notice, setNotice] = useState<MessageKey | null>(null);
   const [code, setCode] = useState("");
-  const [busy, setBusy] = useState<"trial" | "coupon" | null>(null);
+  const [busy, setBusy] = useState<"trial" | "coupon" | `pay:${string}` | null>(null);
   const token = session.status === "signedIn" && !e2eMode ? session.token : null;
 
   const apply = useCallback(
@@ -86,6 +87,19 @@ export default function Premium() {
     setNotice(kind === "trial" ? "premium.trial.started" : "premium.coupon.redeemed");
   };
 
+  // Wompi solo en la web: en Android las compras digitales van por la tienda (RevenueCat).
+  const pay = async (priceId: string) => {
+    if (!token || busy) return;
+    setBusy(`pay:${priceId}`);
+    setError(null);
+    const res = await createCheckout(apiUrl, token, priceId);
+    setBusy(null);
+    if (!res.ok) {
+      return setError(res.error === "unavailable" ? "premium.pay.unavailable" : ERRORS[res.error]);
+    }
+    await Linking.openURL(res.url);
+  };
+
   const sub = status?.subscription ?? null;
   const until = sub ? formatCivilDate(civilDate(sub.periodEnd), locale) : "";
 
@@ -112,7 +126,23 @@ export default function Premium() {
             onPress={() => void run("trial")}
           />
         ) : null}
-        <Body muted>{t("premium.pay.soon")}</Body>
+        {Platform.OS === "web" && token ? (
+          <>
+            {PRICES.map((price) => (
+              <Button
+                key={price.id}
+                label={t("premium.pay.wompi", {
+                  amount: formatMoney(price.amount, { locale, discreet: false }),
+                })}
+                busy={busy === `pay:${price.id}`}
+                onPress={() => void pay(price.id)}
+              />
+            ))}
+            <Body muted>{t("premium.pay.wompiNote")}</Body>
+          </>
+        ) : (
+          <Body muted>{t("premium.pay.soon")}</Body>
+        )}
         <Field
           label={t("premium.coupon.label")}
           value={code}

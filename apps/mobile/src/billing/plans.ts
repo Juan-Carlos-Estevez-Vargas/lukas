@@ -104,6 +104,38 @@ export function createBillingClient(apiUrl: string, fetchImpl: Fetch = fetch) {
 
 export type BillingClient = ReturnType<typeof createBillingClient>;
 
+export type CheckoutOutcome =
+  | { readonly ok: true; readonly url: string }
+  | { readonly ok: false; readonly error: "signed_out" | "unavailable" | "network" | "unexpected" };
+
+/**
+ * Abre un pago de premium en Wompi (solo web; en Android se paga con la tienda). Devuelve la URL
+ * del checkout, que solo puede ser la de Wompi: cualquier otra respuesta se trata como error.
+ */
+export async function createCheckout(
+  apiUrl: string,
+  session: string,
+  priceId: string,
+  fetchImpl: Fetch = fetch,
+): Promise<CheckoutOutcome> {
+  let res: Response;
+  try {
+    res = await fetchImpl(`${apiUrl}/v1/billing/wompi/checkout`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      body: JSON.stringify({ priceId }),
+    });
+  } catch {
+    return { ok: false, error: "network" };
+  }
+  if (res.status === 401) return { ok: false, error: "signed_out" };
+  if (res.status === 503) return { ok: false, error: "unavailable" };
+  const json = (await res.json().catch(() => null)) as { url?: unknown } | null;
+  const url = res.ok && typeof json?.url === "string" ? json.url : "";
+  if (!url.startsWith("https://checkout.wompi.co/")) return { ok: false, error: "unexpected" };
+  return { ok: true, url };
+}
+
 /** Guarda el plan nuevo para que el resto de la app lo vea sin esperar a la red. */
 export async function rememberEntitlements(db: SqlConnection, entitlements: Entitlements) {
   await sqlitePreferences(db).set("billing.entitlements", JSON.stringify(entitlements));

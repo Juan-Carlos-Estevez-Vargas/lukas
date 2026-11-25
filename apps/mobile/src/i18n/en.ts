@@ -54,6 +54,10 @@ export const en: Messages = {
   "premium.trial.start": "Try {days} days free",
   "premium.trial.started": "Done, you have premium. The trial ends on its own.",
   "premium.pay.soon": "Soon you'll be able to pay with card, Nequi or PSE from here.",
+  "premium.pay.wompi": "Pay {amount} with Wompi",
+  "premium.pay.wompiNote":
+    "You pay on Wompi's secure page with a card, PSE, Nequi or Bancolombia. Lukas never sees your card details. When you come back, premium turns on within seconds.",
+  "premium.pay.unavailable": "Payments aren't available yet. Check back soon.",
   "premium.coupon.label": "Have a coupon?",
   "premium.coupon.redeem": "Redeem coupon",
   "premium.coupon.redeemed": "Coupon redeemed. You have premium now.",
