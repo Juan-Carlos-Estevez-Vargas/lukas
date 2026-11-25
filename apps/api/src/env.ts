@@ -31,6 +31,8 @@ export interface Env {
   readonly AI_EMBEDDING_MODEL?: string;
   /** Token de acceso de Expo para enviar push (opcional; solo si el proyecto lo exige). */
   readonly EXPO_ACCESS_TOKEN?: string;
+  /** DSN de Sentry para errores 5xx (no es secreto). Sin él no se reporta nada. */
+  readonly SENTRY_DSN?: string;
 }
 
 export interface AppContext {

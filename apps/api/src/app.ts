@@ -34,6 +34,7 @@ import { ratesRoutes } from "./modules/rates/routes";
 import { securityTxtRoutes } from "./modules/security/routes";
 import { neonSyncFactory, type SyncFactory } from "./modules/sync/factory";
 import { syncRoutes } from "./modules/sync/routes";
+import { type ErrorReporterFactory, sentryReporter } from "./observability/errors";
 
 export interface AppDeps {
   /** Permite inyectar la autenticación (p. ej. con PGlite en pruebas). */
@@ -58,6 +59,8 @@ export interface AppDeps {
   readonly legal?: LegalFactory;
   /** Comentarios de la beta (en pruebas, PGlite). */
   readonly feedback?: FeedbackFactory;
+  /** Reporte de errores 5xx (en pruebas, uno que guarda en memoria). */
+  readonly errors?: ErrorReporterFactory;
 }
 
 export const createApp = ({
@@ -72,6 +75,7 @@ export const createApp = ({
   billing = neonBillingFactory,
   legal = neonLegalFactory,
   feedback = neonFeedbackFactory,
+  errors = sentryReporter(),
 }: AppDeps = {}) => {
   const v1 = createRouter()
     .route("/", healthRoutes)
@@ -116,7 +120,21 @@ export const createApp = ({
       name: error.name,
       message: error.message,
     });
-    return problemResponse(c, error);
+    const response = problemResponse(c, error);
+    const report = response.status >= 500 ? errors(c.env) : undefined;
+    if (report) {
+      const sent = report(error, {
+        where: `${c.req.method} ${c.req.routePath}`,
+        requestId: c.get("requestId"),
+      });
+      // En Workers, terminar de enviar después de responder; en pruebas no hay executionCtx.
+      try {
+        c.executionCtx.waitUntil(sent);
+      } catch {
+        void sent;
+      }
+    }
+    return response;
   });
 
   return app;
