@@ -98,7 +98,7 @@ export default function Investments() {
       id: p.id,
       name: p.name,
       kind: p.kind,
-      units: p.units.replace(".", ","),
+      units: p.units.replace(/\./g, ","),
       price: pesosText(p.unitPrice),
       invested: pesosText(p.invested),
       openedOn: civilText(p.openedOn),

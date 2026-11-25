@@ -132,13 +132,13 @@ export async function removePosition(db: SqlConnection, id: string): Promise<voi
  */
 export function parseUnits(text: string): string | null {
   const t = text.trim();
-  const units = t.includes(",") ? t.replace(/\./g, "").replace(",", ".") : t;
+  const units = t.includes(",") ? t.replace(/\./g, "").replace(/,/g, ".") : t;
   return /^\d+(\.\d+)?$/.test(units) && validUnits(units) ? units : null;
 }
 
 /** Precio por unidad en pesos, con centavos opcionales ("12.345,67"). */
 export function parseUnitPrice(text: string): Money | null {
-  const clean = text.trim().replace(/\./g, "").replace(",", ".");
+  const clean = text.trim().replace(/\./g, "").replace(/,/g, ".");
   if (!/^\d+(\.\d{1,2})?$/.test(clean)) return null;
   const res = Money.parse(clean, "COP");
   return res.ok ? res.value : null;
