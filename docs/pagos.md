@@ -103,7 +103,7 @@ responde 503.
      **Annual** apuntando a las dos suscripciones;
    - copiar la API key pública de Android (`goog_…`).
 3. En `apps/mobile/eas.json`, agregar `"EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_…"` al `env`
-   de los perfiles `preview` y `production`. No es secreta: va dentro del APK.
+   de los perfiles `development` y `production`. No es secreta: va dentro del APK.
 4. En RevenueCat, **Integrations → Webhooks**:
    - URL: `https://<api>/v1/billing/revenuecat/events`;
    - Authorization header: un valor largo y aleatorio, por ejemplo `openssl rand -hex 32`.
