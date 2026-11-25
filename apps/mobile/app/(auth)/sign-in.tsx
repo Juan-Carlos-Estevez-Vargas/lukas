@@ -1,14 +1,19 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { type AuthError, isSixDigitCode, looksLikeEmail } from "../../src/api/auth-client";
+import { Captcha } from "../../src/auth/captcha";
 import { useSession } from "../../src/auth/session";
 import { Body, Button, Field, Screen, Title, Toggle } from "../../src/components/ui";
+import { turnstileSiteKey, webUrl } from "../../src/config";
 import { useLocalDatabase } from "../../src/data/provider";
 import { useI18n } from "../../src/i18n/i18n";
 import type { Translate } from "../../src/i18n/translator";
 import { rememberAcceptance } from "../../src/legal/consent";
 import { useTelemetry } from "../../src/telemetry/use-telemetry";
+
+/** En el móvil el captcha necesita la web donde vive su página; en la web es el mismo origen. */
+const siteKey = turnstileSiteKey && (Platform.OS === "web" || webUrl) ? turnstileSiteKey : null;
 
 const describe = (t: Translate, error: AuthError): string => {
   switch (error.kind) {
@@ -24,7 +29,7 @@ const describe = (t: Translate, error: AuthError): string => {
 /** Acceso sin contraseña: correo → código de 6 dígitos. */
 export default function SignIn() {
   const telemetry = useTelemetry();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { client, signIn } = useSession();
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -34,15 +39,24 @@ export default function SignIn() {
   // Autorización previa, expresa e informada (Ley 1581, art. 9): sin aceptarla no se registra.
   const [accepted, setAccepted] = useState(false);
   const database = useLocalDatabase();
+  // Cada token de Turnstile sirve una sola vez: tras usarlo se monta un widget nuevo.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaRound, setCaptchaRound] = useState(0);
+  const onCaptcha = useCallback((token: string | null) => setCaptchaToken(token), []);
 
   const sendCode = async () => {
     const address = email.trim().toLowerCase();
     if (!looksLikeEmail(address)) return setError(t("signIn.invalidEmail"));
     if (!accepted) return setError(t("legal.signIn.required"));
+    if (siteKey && !captchaToken) return setError(t("signIn.captchaRequired"));
     setBusy(true);
     setError(null);
-    const result = await client.sendCode(address);
+    const result = await client.sendCode(address, captchaToken);
     setBusy(false);
+    if (siteKey) {
+      setCaptchaToken(null);
+      setCaptchaRound((n) => n + 1);
+    }
     if (!result.ok) return setError(describe(t, result.error));
     setEmail(address);
     setStep("code");
@@ -101,6 +115,9 @@ export default function SignIn() {
               label={t("legal.terms")}
               onPress={() => router.push("/legal/terms")}
             />
+            {siteKey ? (
+              <Captcha key={captchaRound} siteKey={siteKey} lang={locale} onToken={onCaptcha} />
+            ) : null}
             {error ? <Body tone="error">{error}</Body> : null}
             <Button label={t("signIn.sendCode")} onPress={sendCode} busy={busy} />
           </>

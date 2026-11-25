@@ -15,7 +15,8 @@ export interface Me {
 }
 
 export interface AuthClient {
-  sendCode(email: string): Promise<AuthResult<void>>;
+  /** `captchaToken` es el token de Turnstile cuando la API lo exige. */
+  sendCode(email: string, captchaToken?: string | null): Promise<AuthResult<void>>;
   /** Devuelve el token bearer de la sesión nueva. */
   verifyCode(email: string, code: string): Promise<AuthResult<string>>;
   me(token: string): Promise<AuthResult<Me | null>>;
@@ -64,11 +65,15 @@ export const createAuthClient = (baseUrl: string, fetchImpl: Fetch = fetch): Aut
   });
 
   return {
-    sendCode: async (email) => {
-      const res = await call(
-        "/v1/auth/email-otp/send-verification-otp",
-        json({ email, type: "sign-in" }),
-      );
+    sendCode: async (email, captchaToken) => {
+      const init = json({ email, type: "sign-in" });
+      const res = await call("/v1/auth/email-otp/send-verification-otp", {
+        ...init,
+        headers: {
+          ...(init.headers as Record<string, string>),
+          ...(captchaToken ? { "x-captcha-response": captchaToken } : {}),
+        },
+      });
       return res.ok ? { ok: true, value: undefined } : res;
     },
     verifyCode: async (email, code) => {

@@ -25,6 +25,16 @@ describe("cliente de autenticación", () => {
       email: "ana@lukas.co",
       type: "sign-in",
     });
+    const headers = calls[0]?.init?.headers as Record<string, string>;
+    expect(headers["x-captcha-response"]).toBeUndefined();
+  });
+
+  it("envía el token de Turnstile cuando lo hay", async () => {
+    const { impl, calls } = fakeFetch(() => new Response("{}", { status: 200 }));
+    await createAuthClient(API, impl).sendCode("ana@lukas.co", "0.token-de-prueba");
+    const headers = calls[0]?.init?.headers as Record<string, string>;
+    expect(headers["x-captcha-response"]).toBe("0.token-de-prueba");
+    expect(headers["Content-Type"]).toBe("application/json");
   });
 
   it("devuelve el token bearer al verificar el código", async () => {
