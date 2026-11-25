@@ -94,6 +94,8 @@ jobs:
           EXPO_PUBLIC_ENVIRONMENT: ${{ inputs.environment || 'staging' }}
           EXPO_PUBLIC_SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
           EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.POSTHOG_KEY }}
+          # Captcha (FIN-413): llave pública del widget de Turnstile.
+          EXPO_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
           WEB_HOST: ${{ steps.names.outputs.web_host }}
           CI: "1"
         run: |

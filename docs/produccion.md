@@ -22,12 +22,13 @@ Reglas que no cambian:
 | 4   | Sentry y PostHog                     | Gratis               | Ver errores y el embudo              |
 | 5   | Asistente de IA (Workers AI)         | Gratis               | Asistente, recibos y búsqueda        |
 | 6   | Avisos push (Firebase)               | Gratis               | Resumen de los domingos              |
-| 7   | Pagos en la web (Wompi)              | 💰 comisión por pago | Cobrar premium en la web             |
-| 8   | Google Play y RevenueCat             | 💰 USD 25 una vez    | Publicar en Play y cobrar en Android |
-| 9   | Probar todo en staging               | Gratis               | Aprobar producción                   |
-| 10  | Aprobar producción (API, web y app)  | Gratis               | —                                    |
+| 7   | Captcha (Turnstile)                  | Gratis               | Frenar bots que piden códigos        |
+| 8   | Pagos en la web (Wompi)              | 💰 comisión por pago | Cobrar premium en la web             |
+| 9   | Google Play y RevenueCat             | 💰 USD 25 una vez    | Publicar en Play y cobrar en Android |
+| 10  | Probar todo en staging               | Gratis               | Aprobar producción                   |
+| 11  | Aprobar producción (API, web y app)  | Gratis               | —                                    |
 
-Los pasos 1 y 4 a 6 se pueden hacer ya, en cualquier orden. Sin el paso 1 nadie puede entrar en
+Los pasos 1 y 4 a 7 se pueden hacer ya, en cualquier orden. Sin el paso 1 nadie puede entrar en
 staging ni en producción.
 
 ## 1. Correo del código (Resend)
@@ -90,7 +91,22 @@ El plan gratis da 10 000 neuronas al día; la API además limita el uso por pers
    **sí es secreta**: súbela tú en expo.dev → proyecto lukas → **Credentials → Android → FCM V1
    service account key**.
 
-## 7. 💰 Pagos en la web (Wompi)
+## 7. Captcha (Turnstile)
+
+Antes de pedir el código, la app muestra el captcha gratis de Cloudflare (en Android dentro de la
+app; en la web, en una ventanita).
+
+1. Cloudflare → **Turnstile → Add widget**, nombre "Lukas", modo _Managed_. En **Hostnames** agrega
+   `lukas-web-e7j.pages.dev` y `staging.lukas-web-e7j.pages.dev` (y tu dominio cuando lo tengas).
+2. Copia la **Site key** (pública) y créala como variable `TURNSTILE_SITE_KEY` en los environments
+   `staging` y `production` de GitHub, y como `EXPO_PUBLIC_TURNSTILE_SITE_KEY` en expo.dev →
+   proyecto lukas → **Environment variables**.
+3. Despliega la web y compila un APK nuevo **antes** de subir el secreto: así la app ya envía el
+   token cuando la API empiece a exigirlo.
+4. Sube la **Secret key**: `npx wrangler secret put TURNSTILE_SECRET_KEY --env staging` (y luego
+   `--env production`).
+
+## 8. 💰 Pagos en la web (Wompi)
 
 Guía: [pagos.md](pagos.md), sección Wompi.
 
@@ -102,7 +118,7 @@ Guía: [pagos.md](pagos.md), sección Wompi.
    repite con las llaves `pub_prod_` en el environment `production`. Wompi cobra una comisión por
    pago aprobado; no hay mensualidad.
 
-## 8. 💰 Google Play y RevenueCat
+## 9. 💰 Google Play y RevenueCat
 
 Guía: [pagos.md](pagos.md), sección RevenueCat.
 
@@ -128,11 +144,11 @@ Guía: [pagos.md](pagos.md), sección RevenueCat.
 6. Webhook de RevenueCat y el secreto `REVENUECAT_WEBHOOK_SECRET` con `--env staging` (y luego
    `--env production`).
 
-## 9. Probar todo en staging
+## 10. Probar todo en staging
 
 Con la web de staging y un APK del perfil `development` o de la prueba interna:
 
-- [ ] Entrar con el código del correo y crear una passkey.
+- [ ] Pasar el captcha, entrar con el código del correo y crear una passkey.
 - [ ] Onboarding, crear cuentas, registrar gastos y una transferencia; sincronizar entre el
       teléfono y la web.
 - [ ] Respaldo cifrado: exportar y restaurar.
@@ -142,12 +158,12 @@ Con la web de staging y un APK del perfil `development` o de la prueba interna:
 - [ ] `POST /v1/debug/error` y ver el error en Sentry sin el correo.
 - [ ] Enviar un comentario y borrar una cuenta de prueba.
 
-## 10. Aprobar producción
+## 11. Aprobar producción
 
 Cuando todo lo anterior esté bien, el paso a producción son tres acciones tuyas:
 
 1. **Secretos de producción**: repite con `--env production` cada `wrangler secret put` de los
-   pasos 1, 5, 7 y 8, y crea las variables del environment `production` en GitHub.
+   pasos 1, 5, 7, 8 y 9, y crea las variables del environment `production` en GitHub.
 2. **API, web y migraciones:** GitHub → **Actions → Deploy → Run workflow → `production`**. La
    prueba de humo final debe quedar en verde.
 3. **App:** el PR de versiones se fusiona solo una vez al día y compila el APK firmado. Para Play,
@@ -156,9 +172,3 @@ Cuando todo lo anterior esté bien, el paso a producción son tres acciones tuya
 
 Después del lanzamiento, revisa una vez por semana las cuotas gratuitas
 ([cuotas-gratuitas.md](cuotas-gratuitas.md)) y los comentarios de la beta ([beta.md](beta.md)).
-
-## Pendiente conocido
-
-- **Turnstile:** la API ya lo valida, pero la app todavía no muestra el captcha. No subas
-  `TURNSTILE_SECRET_KEY` hasta que eso esté listo, o nadie podrá pedir el código. Mientras tanto
-  frenan el abuso los límites por IP.

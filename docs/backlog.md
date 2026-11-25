@@ -639,6 +639,15 @@ teléfono.
 
 **Hecho cuando:** Una persona nueva sabe qué hacer después del onboarding sin leer una guía.
 
+#### FIN-413 · Captcha en la app
+
+- Tipo: `feat` · Tamaño: S
+- [x] Página de Turnstile en la web con su propia CSP
+- [x] WebView en Android e iOS y ventana emergente en la web
+- [x] El token viaja en `x-captcha-response` al pedir el código
+
+**Hecho cuando:** Con `TURNSTILE_SECRET_KEY` en la API se puede seguir entrando desde la app y la web.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
@@ -718,17 +727,17 @@ Funciones que diferencian la app.
 #### FIN-601 · Inversiones
 
 - Tipo: `feat` · Tamaño: L
-- [ ] Posiciones y precios
-- [ ] Simulador de CDT
-- [ ] Rentabilidad y asignación
+- [x] Posiciones y precios
+- [x] Simulador de CDT
+- [x] Rentabilidad y asignación
 
 **Hecho cuando:** El portafolio muestra rentabilidad anual.
 
 #### FIN-602 · Deudas
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Bola de nieve y avalancha
-- [ ] Simulador de abonos a capital
+- [x] Bola de nieve y avalancha (`packages/domain/src/debts.ts`)
+- [x] Simulador de abonos a capital (Ajustes → Deudas y fecha de libertad)
 
 **Hecho cuando:** Muestra la fecha de libertad de deudas.
 
@@ -744,17 +753,17 @@ Funciones que diferencian la app.
 #### FIN-604 · Ayuda tributaria Colombia
 
 - Tipo: `feat` · Tamaño: M
-- [ ] 4×1000
-- [ ] Topes de renta en UVT
-- [ ] Resumen para la declaración
+- [x] 4×1000
+- [x] Topes de renta en UVT
+- [x] Resumen para la declaración
 
 **Hecho cuando:** Indica si debes declarar renta.
 
 #### FIN-605 · Evaluar open finance
 
 - Tipo: `docs` · Tamaño: S
-- [ ] Comparar Belvo y Prometeo
-- [ ] Costos y requisitos legales
-- [ ] ADR de decisión
+- [x] Comparar Belvo y Prometeo
+- [x] Costos y requisitos legales
+- [x] ADR de decisión
 
-**Hecho cuando:** Decisión documentada.
+**Hecho cuando:** Decisión documentada. Ver [ADR 0007](adr/0007-open-finance.md): se revisa cuando la SFC publique el cronograma de APIs obligatorias.

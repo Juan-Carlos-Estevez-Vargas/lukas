@@ -40,6 +40,18 @@ export {
   currencyOf,
   isCurrencyCode,
 } from "./currency";
+export {
+  type Debt,
+  type DebtPayoff,
+  type DebtPlan,
+  type DebtStrategy,
+  freedomMonth,
+  MAX_MONTHS,
+  monthlyRateFactor,
+  type PrepaymentResult,
+  planDebts,
+  prepaymentSavings,
+} from "./debts";
 export { DomainError } from "./errors";
 export {
   cleanFeedback,
@@ -53,6 +65,25 @@ export {
 } from "./feedback";
 export { type BaseTotal, type RateTable, sumInBase, toBase } from "./fx";
 export { isUuidV7, type RandomSource, uuidv7, uuidv7Timestamp } from "./id";
+export {
+  annualizedReturnBp,
+  CDT_WITHHOLDING_BP,
+  type CdtInput,
+  type CdtResult,
+  INVESTMENT_KINDS,
+  type InvestmentKind,
+  isInvestmentKind,
+  MAX_UNIT_DECIMALS,
+  MIN_DAYS_TO_ANNUALIZE,
+  type PortfolioSlice,
+  type PortfolioSummary,
+  type Position,
+  portfolioSummary,
+  positionValue,
+  simpleReturnBp,
+  simulateCdt,
+  validUnits,
+} from "./investments";
 export {
   ACCOUNT_TYPES,
   type Account,
@@ -170,6 +201,20 @@ export { Money } from "./money";
 export * from "./result";
 export { divideRounded, type ExactDecimal, parseDecimal, type RoundingMode } from "./rounding";
 export { allOf, anyOf, not, type Specification, spec } from "./specification";
+export {
+  type CriterionCheck,
+  DECLARATION_LIMITS,
+  type DeclarationCheck,
+  type DeclarationCriterion,
+  declarationCheck,
+  GMF_EXEMPT_UVT,
+  GMF_RATE,
+  gmfForMonth,
+  type TaxYearFigures,
+  UVT,
+  uvtFor,
+  uvtToCop,
+} from "./taxes";
 export {
   ANALYTICS_EVENTS,
   type AnalyticsEvent,
