@@ -19,6 +19,7 @@ import { authHandler, meRoutes } from "./modules/auth/routes";
 import { sessionContext } from "./modules/auth/session";
 import { type BillingFactory, neonBillingFactory } from "./modules/billing/factory";
 import { billingRoutes } from "./modules/billing/routes";
+import { wompiRoutes } from "./modules/billing/wompi-routes";
 import { type FeedbackFactory, neonFeedbackFactory } from "./modules/feedback/factory";
 import { feedbackRoutes } from "./modules/feedback/routes";
 import { healthRoutes } from "./modules/health/routes";
@@ -81,6 +82,7 @@ export const createApp = ({
     .route("/", agentRoutes(agent, model, vision, embedder))
     .route("/", notificationRoutes(notifications))
     .route("/", billingRoutes(billing))
+    .route("/", wompiRoutes(billing))
     .route("/", legalRoutes(legal))
     .route("/", feedbackRoutes(feedback));
   v1.doc31("/openapi.json", (c) => ({
