@@ -59,6 +59,17 @@ export const es = {
   "premium.pay.wompiNote":
     "Pagas en la página segura de Wompi con tarjeta, PSE, Nequi o Bancolombia. Lukas no ve los datos de tu tarjeta. Al volver, premium se activa en unos segundos.",
   "premium.pay.unavailable": "Los pagos aún no están disponibles. Vuelve pronto.",
+  "premium.store.month": "Suscribirme por {price} al mes",
+  "premium.store.year": "Suscribirme por {price} al año",
+  "premium.store.note":
+    "Pagas con tu cuenta de Google Play y la renovación se maneja allá. Puedes cancelar cuando quieras desde Play Store.",
+  "premium.store.restore": "Restaurar compras",
+  "premium.store.restored": "Listo: recuperamos tu suscripción.",
+  "premium.store.none": "No encontramos compras en esta cuenta de Google.",
+  "premium.store.failed": "No se pudo completar con Google Play. Inténtalo de nuevo.",
+  "premium.store.pending":
+    "Recibimos tu compra. Premium se activa en unos minutos; vuelve a abrir esta pantalla.",
+  "premium.store.active": "¡Listo! Ya tienes premium.",
   "premium.coupon.label": "¿Tienes un cupón?",
   "premium.coupon.redeem": "Canjear cupón",
   "premium.coupon.redeemed": "Cupón canjeado. Ya tienes premium.",

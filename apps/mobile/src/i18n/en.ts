@@ -58,6 +58,17 @@ export const en: Messages = {
   "premium.pay.wompiNote":
     "You pay on Wompi's secure page with a card, PSE, Nequi or Bancolombia. Lukas never sees your card details. When you come back, premium turns on within seconds.",
   "premium.pay.unavailable": "Payments aren't available yet. Check back soon.",
+  "premium.store.month": "Subscribe for {price} a month",
+  "premium.store.year": "Subscribe for {price} a year",
+  "premium.store.note":
+    "You pay with your Google Play account and renewals are handled there. Cancel anytime from the Play Store.",
+  "premium.store.restore": "Restore purchases",
+  "premium.store.restored": "Done: we recovered your subscription.",
+  "premium.store.none": "We didn't find purchases on this Google account.",
+  "premium.store.failed": "Google Play couldn't finish. Please try again.",
+  "premium.store.pending":
+    "We got your purchase. Premium turns on within a few minutes; reopen this screen.",
+  "premium.store.active": "Done! You have premium now.",
   "premium.coupon.label": "Have a coupon?",
   "premium.coupon.redeem": "Redeem coupon",
   "premium.coupon.redeemed": "Coupon redeemed. You have premium now.",
