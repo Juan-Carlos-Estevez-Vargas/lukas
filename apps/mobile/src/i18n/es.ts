@@ -58,6 +58,21 @@ export const es = {
   "premium.trial.start": "Probar {days} días gratis",
   "premium.trial.started": "Listo, ya tienes premium. La prueba vence sola.",
   "premium.pay.soon": "Pronto podrás pagar con tarjeta, Nequi o PSE desde aquí.",
+  "premium.pay.wompi": "Pagar {amount} con Wompi",
+  "premium.pay.wompiNote":
+    "Pagas en la página segura de Wompi con tarjeta, PSE, Nequi o Bancolombia. Lukas no ve los datos de tu tarjeta. Al volver, premium se activa en unos segundos.",
+  "premium.pay.unavailable": "Los pagos aún no están disponibles. Vuelve pronto.",
+  "premium.store.month": "Suscribirme por {price} al mes",
+  "premium.store.year": "Suscribirme por {price} al año",
+  "premium.store.note":
+    "Pagas con tu cuenta de Google Play y la renovación se maneja allá. Puedes cancelar cuando quieras desde Play Store.",
+  "premium.store.restore": "Restaurar compras",
+  "premium.store.restored": "Listo: recuperamos tu suscripción.",
+  "premium.store.none": "No encontramos compras en esta cuenta de Google.",
+  "premium.store.failed": "No se pudo completar con Google Play. Inténtalo de nuevo.",
+  "premium.store.pending":
+    "Recibimos tu compra. Premium se activa en unos minutos; vuelve a abrir esta pantalla.",
+  "premium.store.active": "¡Listo! Ya tienes premium.",
   "premium.coupon.label": "¿Tienes un cupón?",
   "premium.coupon.redeem": "Canjear cupón",
   "premium.coupon.redeemed": "Cupón canjeado. Ya tienes premium.",
@@ -70,6 +85,20 @@ export const es = {
   "premium.signedOut": "Entra a tu cuenta para probar premium o canjear un cupón.",
   "settings.plans": "Ver planes",
   "settings.feedback": "Enviar comentarios",
+  "settings.deleteAccount": "Borrar mi cuenta",
+  "deleteAccount.title": "Borrar mi cuenta",
+  "deleteAccount.intro":
+    "Se borran para siempre tu cuenta y todos tus datos: los del servidor y los de este teléfono. No se puede deshacer.",
+  "deleteAccount.backup": "Si quieres guardar una copia, haz un respaldo antes.",
+  "deleteAccount.subscription":
+    "Si pagas premium por Google Play, cancela también la suscripción en Play Store: borrar la cuenta no la cancela.",
+  "deleteAccount.confirm": "Escribe BORRAR para confirmar",
+  "deleteAccount.word": "BORRAR",
+  "deleteAccount.submit": "Borrar mi cuenta para siempre",
+  "deleteAccount.stale":
+    "Por seguridad, sal de la cuenta, vuelve a entrar con el código y repite este paso.",
+  "deleteAccount.error": "No pudimos borrar la cuenta. Revisa tu conexión e inténtalo de nuevo.",
+  "deleteAccount.signedOut": "Entra a tu cuenta para borrarla.",
   "feedback.title": "Cuéntanos",
   "feedback.intro":
     "Estás en la beta de Lukas. Dinos qué falla, qué te gustaría o cualquier otra cosa. Lo leemos todo.",

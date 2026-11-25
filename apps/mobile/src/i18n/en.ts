@@ -57,6 +57,21 @@ export const en: Messages = {
   "premium.trial.start": "Try {days} days free",
   "premium.trial.started": "Done, you have premium. The trial ends on its own.",
   "premium.pay.soon": "Soon you'll be able to pay with card, Nequi or PSE from here.",
+  "premium.pay.wompi": "Pay {amount} with Wompi",
+  "premium.pay.wompiNote":
+    "You pay on Wompi's secure page with a card, PSE, Nequi or Bancolombia. Lukas never sees your card details. When you come back, premium turns on within seconds.",
+  "premium.pay.unavailable": "Payments aren't available yet. Check back soon.",
+  "premium.store.month": "Subscribe for {price} a month",
+  "premium.store.year": "Subscribe for {price} a year",
+  "premium.store.note":
+    "You pay with your Google Play account and renewals are handled there. Cancel anytime from the Play Store.",
+  "premium.store.restore": "Restore purchases",
+  "premium.store.restored": "Done: we recovered your subscription.",
+  "premium.store.none": "We didn't find purchases on this Google account.",
+  "premium.store.failed": "Google Play couldn't finish. Please try again.",
+  "premium.store.pending":
+    "We got your purchase. Premium turns on within a few minutes; reopen this screen.",
+  "premium.store.active": "Done! You have premium now.",
   "premium.coupon.label": "Have a coupon?",
   "premium.coupon.redeem": "Redeem coupon",
   "premium.coupon.redeemed": "Coupon redeemed. You have premium now.",
@@ -69,6 +84,20 @@ export const en: Messages = {
   "premium.signedOut": "Sign in to try premium or redeem a coupon.",
   "settings.plans": "See plans",
   "settings.feedback": "Send feedback",
+  "settings.deleteAccount": "Delete my account",
+  "deleteAccount.title": "Delete my account",
+  "deleteAccount.intro":
+    "Your account and all your data are deleted forever: on the server and on this phone. This cannot be undone.",
+  "deleteAccount.backup": "If you want to keep a copy, make a backup first.",
+  "deleteAccount.subscription":
+    "If you pay for premium through Google Play, also cancel the subscription in the Play Store: deleting your account does not cancel it.",
+  "deleteAccount.confirm": "Type BORRAR to confirm",
+  "deleteAccount.word": "BORRAR",
+  "deleteAccount.submit": "Delete my account forever",
+  "deleteAccount.stale":
+    "For your security, sign out, sign back in with the code and repeat this step.",
+  "deleteAccount.error": "We couldn't delete the account. Check your connection and try again.",
+  "deleteAccount.signedOut": "Sign in to delete your account.",
   "feedback.title": "Tell us",
   "feedback.intro":
     "You're on the Lukas beta. Tell us what's broken, what you'd like, or anything else. We read everything.",

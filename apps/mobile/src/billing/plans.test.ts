@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { cardFixture } from "../accounts/card.test-helper";
 import { cachedEntitlements } from "./entitlements";
-import { createBillingClient, rememberEntitlements, toBillingStatus } from "./plans";
+import {
+  createBillingClient,
+  createCheckout,
+  rememberEntitlements,
+  toBillingStatus,
+} from "./plans";
 
 const API = "https://api.lukas.test";
 const trial = {
@@ -92,5 +97,46 @@ describe("pantalla de planes", () => {
     if (!status) throw new Error("estado inválido");
     await rememberEntitlements(db, status.entitlements);
     expect((await cachedEntitlements(db)).plan).toBe("premium");
+  });
+});
+
+describe("checkout de Wompi", () => {
+  const reply = (status: number, body: unknown) =>
+    vi.fn(async () => new Response(JSON.stringify(body), { status }));
+
+  it("devuelve la URL de Wompi y manda el precio", async () => {
+    const url = "https://checkout.wompi.co/p/?reference=lk1";
+    const fetchImpl = reply(200, { url, reference: "lk1" });
+    expect(await createCheckout("https://api.test", "tok", "premium-month", fetchImpl)).toEqual({
+      ok: true,
+      url,
+    });
+    const [called, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
+    expect(called).toBe("https://api.test/v1/billing/wompi/checkout");
+    expect(JSON.parse(String(init.body))).toEqual({ priceId: "premium-month" });
+  });
+
+  it("no abre otra URL que no sea la de Wompi y traduce los errores", async () => {
+    const evil = reply(200, { url: "https://evil.test/pay" });
+    expect(await createCheckout("https://api.test", "tok", "premium-month", evil)).toEqual({
+      ok: false,
+      error: "unexpected",
+    });
+    for (const [status, error] of [
+      [401, "signed_out"],
+      [503, "unavailable"],
+      [500, "unexpected"],
+    ] as const) {
+      expect(
+        await createCheckout("https://api.test", "tok", "premium-month", reply(status, {})),
+      ).toEqual({ ok: false, error });
+    }
+    const offline = vi.fn(async () => {
+      throw new TypeError("sin red");
+    });
+    expect(await createCheckout("https://api.test", "tok", "premium-month", offline)).toEqual({
+      ok: false,
+      error: "network",
+    });
   });
 });

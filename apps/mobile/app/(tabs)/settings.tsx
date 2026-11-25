@@ -239,6 +239,11 @@ export default function Settings() {
           variant="plain"
           onPress={() => router.push("/feedback")}
         />
+        <Button
+          label={t("settings.deleteAccount")}
+          variant="plain"
+          onPress={() => router.push("/account/delete")}
+        />
         <Body muted>
           {t("settings.version", { version: Constants.expoConfig?.version ?? "?" })}
         </Body>

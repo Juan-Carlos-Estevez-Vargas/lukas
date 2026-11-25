@@ -540,18 +540,18 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-402 · Wompi en sandbox (web)
 
 - Tipo: `feat` · Tamaño: M · Requiere cuenta: Wompi sandbox
-- [ ] Checkout de prueba
-- [ ] Webhook con firma verificada
-- [ ] Idempotencia
+- [x] Checkout de prueba (`POST /v1/billing/wompi/checkout`, botón en la web; se enciende con las llaves, ver `docs/pagos.md`)
+- [x] Webhook con firma verificada
+- [x] Idempotencia
 
 **Hecho cuando:** Un pago de prueba activa premium.
 
 #### FIN-403 · RevenueCat en modo de prueba
 
 - Tipo: `feat` · Tamaño: M · Requiere cuenta: RevenueCat
-- [ ] SDK en la app
-- [ ] Webhook a Billing
-- [ ] Restaurar compras
+- [x] SDK en la app (`react-native-purchases`; se enciende con la llave, ver `docs/pagos.md`)
+- [x] Webhook a Billing (`POST /v1/billing/revenuecat/events`)
+- [x] Restaurar compras
 
 **Hecho cuando:** Una compra de prueba activa premium en Android.
 
@@ -612,6 +612,16 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 
 **Hecho cuando:** los PRs de bots llegan a `main` sin intervención.
 
+#### FIN-410 · Borrar la cuenta desde la app
+
+- Tipo: `feat` · Tamaño: S
+- [x] Borrar la cuenta en la API (`POST /v1/auth/delete-user`, cascada en Neon)
+- [x] Pantalla en Ajustes con confirmación
+- [x] Dejar el teléfono como recién instalado después de borrar
+
+**Hecho cuando:** Una persona borra su cuenta desde la app y no queda nada suyo en Neon ni en el
+teléfono.
+
 ## F5 · Paso a servicios pagos (cuando haya presupuesto)
 
 Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
@@ -630,9 +640,9 @@ Cada tarea es independiente; se hacen en el orden que permita el presupuesto.
 #### FIN-502 · Correo transaccional
 
 - Tipo: `feat` · Tamaño: S · Pago: Gratis con dominio
-- [ ] Resend con dominio verificado
-- [ ] Verificación de correo
-- [ ] Recuperación por correo
+- [x] Envío del código con Resend detrás del puerto `Mailer` (`docs/correo.md`)
+- [ ] Dominio verificado en Resend (depende de FIN-501)
+- [x] Verificación y recuperación: el mismo código por correo, sin contraseña (ADR 0003)
 
 **Hecho cuando:** Llega el correo de verificación.
 

@@ -1,10 +1,12 @@
 export {
+  addPeriod,
   BILLING_PERIODS,
   type BillingPeriod,
   type Entitlements,
   entitlementsOf,
   FEATURES,
   type Feature,
+  findPrice,
   hasFeature,
   isFeature,
   isPlan,

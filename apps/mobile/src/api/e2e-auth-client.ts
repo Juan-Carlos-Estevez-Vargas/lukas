@@ -22,4 +22,5 @@ export const e2eAuthClient = (): AuthClient => ({
     value: token === TOKEN ? { userId: "e2e-user", sessionId: "e2e-session" } : null,
   }),
   signOut: async () => ({ ok: true, value: undefined }),
+  deleteAccount: async () => ({ ok: true, value: undefined }),
 });
