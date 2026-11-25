@@ -9,6 +9,7 @@ import type { Env } from "../../env";
 import { testEnv } from "../../test/env";
 import { createAuth } from "../auth/auth";
 import type { Mailer } from "../auth/mailer";
+import { postgresCheckouts } from "./checkouts";
 import { neonBillingFactory } from "./factory";
 import { requireFeature } from "./gate";
 import { postgresBilling } from "./store";
@@ -128,7 +129,13 @@ describe("GET /billing/entitlements", () => {
     createApp({
       auth: () => createAuth({ db, env, mailer }),
       billing: () =>
-        available ? { store: postgresBilling(db), close: async () => undefined } : undefined,
+        available
+          ? {
+              store: postgresBilling(db),
+              checkouts: postgresCheckouts(db),
+              close: async () => undefined,
+            }
+          : undefined,
     });
 
   const call = (
@@ -207,7 +214,11 @@ describe("prueba gratis y cupones", () => {
   const appWith = () =>
     createApp({
       auth: () => createAuth({ db, env, mailer }),
-      billing: () => ({ store: postgresBilling(db), close: async () => undefined }),
+      billing: () => ({
+        store: postgresBilling(db),
+        checkouts: postgresCheckouts(db),
+        close: async () => undefined,
+      }),
     });
 
   const post = (app: ReturnType<typeof createApp>, path: string, token: string, body?: unknown) =>

@@ -19,6 +19,7 @@ import {
   idempotencyKeys,
   legalConsents,
   outbox,
+  paymentCheckouts,
   pushDevices,
   subscriptions,
   transactionEmbeddings,
@@ -509,7 +510,7 @@ describe("suscripciones", () => {
 describe("cupones", () => {
   it("son solo del servidor y no aceptan códigos raros ni más canjes que el tope", async () => {
     await db.insert(coupons).values({ code: "BETA-2026", days: 30, maxRedemptions: 1 });
-    for (const table of [coupons, couponRedemptions]) {
+    for (const table of [coupons, couponRedemptions, paymentCheckouts]) {
       const message = await failure(withUser(db, ANA, (tx) => tx.select().from(table)));
       expect(message).toMatch(/permission denied/);
     }

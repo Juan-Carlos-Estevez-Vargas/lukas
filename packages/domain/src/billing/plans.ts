@@ -77,3 +77,22 @@ export const PRICES: readonly Price[] = [
     amount: Money.ofMinor(14_900_000n, "COP"),
   },
 ];
+
+export const findPrice = (id: string): Price | undefined => PRICES.find((p) => p.id === id);
+
+/**
+ * Fin de un periodo pagado que empieza en `from`: el mismo día del mes (o del año) siguiente. Si
+ * ese día no existe (31 de enero + 1 mes), se queda en el último día del mes.
+ */
+export function addPeriod(from: Date, period: BillingPeriod): Date {
+  const months = period === "month" ? 1 : 12;
+  const target = new Date(from.getTime());
+  const day = target.getUTCDate();
+  target.setUTCDate(1);
+  target.setUTCMonth(target.getUTCMonth() + months);
+  const lastDay = new Date(
+    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  target.setUTCDate(Math.min(day, lastDay));
+  return target;
+}

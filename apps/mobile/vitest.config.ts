@@ -55,6 +55,7 @@ export default defineConfig({
         "src/export/files*.ts",
         "src/capture/reader.ts",
         "src/security/device-security.ts",
+        "src/billing/store-purchases.native.ts",
         "src/reminders/notifications*.ts",
         "src/receipts/receipt-store*.ts",
         "src/receipts/pick*.ts",

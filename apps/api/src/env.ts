@@ -31,6 +31,16 @@ export interface Env {
   readonly AI_EMBEDDING_MODEL?: string;
   /** Token de acceso de Expo para enviar push (opcional; solo si el proyecto lo exige). */
   readonly EXPO_ACCESS_TOKEN?: string;
+  /** URL pública de la web (p. ej. `https://lukas.pages.dev`), para volver del checkout. */
+  readonly WEB_APP_URL?: string;
+  /** Llave pública de Wompi (`pub_test_…` o `pub_prod_…`); no es secreta, va en vars. */
+  readonly WOMPI_PUBLIC_KEY?: string;
+  /** Secreto de integridad de Wompi (`wrangler secret put`). Sin las tres llaves, Wompi está apagado. */
+  readonly WOMPI_INTEGRITY_SECRET?: string;
+  /** Secreto de eventos de Wompi para verificar los webhooks (`wrangler secret put`). */
+  readonly WOMPI_EVENTS_SECRET?: string;
+  /** Valor del encabezado Authorization de los webhooks de RevenueCat (`wrangler secret put`). */
+  readonly REVENUECAT_WEBHOOK_SECRET?: string;
   /** API key de Resend para enviar el código de acceso (secreto). Sin ella no se envían correos. */
   readonly RESEND_API_KEY?: string;
   /** Remitente, p. ej. `Lukas <acceso@tudominio.co>`. Por defecto, el de pruebas de Resend. */

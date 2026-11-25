@@ -109,6 +109,9 @@ jobs:
           WORKER: ${{ steps.names.outputs.worker }}
           API_URL: ${{ steps.names.outputs.api_url }}
           WEB_HOST: ${{ steps.names.outputs.web_host }}
+          # Llave pública de Wompi (variable del repo, no secreto). Las privadas van con
+          # `wrangler secret put` y se conservan entre despliegues.
+          WOMPI_PUBLIC_KEY: ${{ vars.WOMPI_PUBLIC_KEY }}
         run: |
           umask 077
           secrets="$RUNNER_TEMP/secrets.env"
@@ -120,12 +123,16 @@ jobs:
             echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)" >> "$secrets"
           fi
           version=$(jq -r .version package.json)
+          extra=()
+          if [ -n "$WOMPI_PUBLIC_KEY" ]; then extra+=(--var "WOMPI_PUBLIC_KEY:$WOMPI_PUBLIC_KEY"); fi
           for attempt in 1 2 3; do
             if pnpm exec wrangler deploy --env "$TARGET" \
               --var "AUTH_URL:$API_URL" \
+              --var "WEB_APP_URL:https://$WEB_HOST" \
               --var "PASSKEY_RP_ID:$WEB_HOST" \
               --var "CORS_ORIGINS:https://$WEB_HOST" \
               --var "APP_VERSION:$version" \
+              "${extra[@]}" \
               --secrets-file "$secrets"; then
               break
             fi
