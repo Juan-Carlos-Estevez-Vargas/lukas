@@ -3,6 +3,8 @@ name: Release
 on:
   push:
     branches: [main]
+  # Lo dispara Auto-merge después de fusionar un PR de bot (FIN-409).
+  workflow_dispatch:
 
 concurrency: release-${{ github.ref }}
 

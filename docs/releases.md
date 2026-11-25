@@ -16,6 +16,20 @@
 3. Al fusionar ese PR se crean los tags `<paquete>@<versión>` y un GitHub Release por cada uno, con su changelog.
 4. Un release de `@lukas/mobile` dispara el workflow **EAS**, que compila el APK firmado y lo adjunta al GitHub Release. La API y la web pasan a producción a mano (ver Entornos).
 
+## PRs de bots (auto-merge)
+
+El workflow **Auto-merge** (`.github/workflows/auto-merge.yml`, FIN-409) fusiona solo, con merge normal:
+
+- **Dependabot:** cada vez que termina un workflow de su PR revisa todo el CI de ese commit. Si todo
+  pasó, lo fusiona y borra la rama. Si algo falla, el PR queda abierto con un aviso.
+- **Versiones (changesets):** una vez al día, a las 03:00 hora Colombia, fusiona el PR
+  `chore(release): versionar paquetes` si está abierto. Así un día de PRs da un solo release y un
+  solo build de EAS, en vez de uno por PR. También se puede correr a mano (Actions → Auto-merge →
+  Run workflow).
+
+Los merges con el `GITHUB_TOKEN` no disparan los workflows de `push`, así que Auto-merge dispara a
+mano **Deploy** (staging) y **Release** después de cada merge. Producción sigue siendo manual.
+
 ## Previews por PR
 
 El workflow `preview.yml` crea, para cada PR del propio repo:
@@ -34,11 +48,11 @@ sin fallar. El QR de EAS Update se suma en un PR aparte.
 
 ## Entornos
 
-| Entorno | Cuándo se despliega | Web | API | Base de datos |
-| --- | --- | --- | --- | --- |
-| Preview | Cada PR (`preview.yml`) | `pr-<N>.<proyecto>.pages.dev` | `lukas-api-pr-<N>` | Rama `preview/pr-<N>` |
-| Staging | Cada push a `main` (`deploy.yml`) | `staging.<proyecto>.pages.dev` | `lukas-api-staging` | Rama `staging` |
-| Producción | Manual: Actions → Deploy → Run workflow → `production` | `<proyecto>.pages.dev` | `lukas-api` | Rama `main` de Neon |
+| Entorno    | Cuándo se despliega                                    | Web                            | API                 | Base de datos         |
+| ---------- | ------------------------------------------------------ | ------------------------------ | ------------------- | --------------------- |
+| Preview    | Cada PR (`preview.yml`)                                | `pr-<N>.<proyecto>.pages.dev`  | `lukas-api-pr-<N>`  | Rama `preview/pr-<N>` |
+| Staging    | Cada push a `main` (`deploy.yml`)                      | `staging.<proyecto>.pages.dev` | `lukas-api-staging` | Rama `staging`        |
+| Producción | Manual: Actions → Deploy → Run workflow → `production` | `<proyecto>.pages.dev`         | `lukas-api`         | Rama `main` de Neon   |
 
 Producción solo se despliega con aprobación explícita del dueño. El plan gratuito de GitHub no
 permite revisores obligatorios en repos privados, así que la aprobación es el disparo manual.
@@ -60,4 +74,4 @@ Las cuotas de cada servicio están en [cuotas-gratuitas.md](cuotas-gratuitas.md)
 
 ## Requisito del repositorio
 
-En **Settings → Actions → General → Workflow permissions**, activar *Allow GitHub Actions to create and approve pull requests* para que el workflow pueda abrir el PR de versiones.
+En **Settings → Actions → General → Workflow permissions**, activar _Allow GitHub Actions to create and approve pull requests_ para que el workflow pueda abrir el PR de versiones.
