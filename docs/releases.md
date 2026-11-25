@@ -16,6 +16,20 @@
 3. Al fusionar ese PR se crean los tags `<paquete>@<versión>` y un GitHub Release por cada uno, con su changelog.
 4. Un release de `@lukas/mobile` dispara el workflow **EAS**, que compila el APK firmado y lo adjunta al GitHub Release. La API y la web pasan a producción a mano (ver Entornos).
 
+## PRs de bots (auto-merge)
+
+El workflow **Auto-merge** (`.github/workflows/auto-merge.yml`, FIN-409) fusiona solo, con merge normal:
+
+- **Dependabot:** cada vez que termina un workflow de su PR revisa todo el CI de ese commit. Si todo
+  pasó, lo fusiona y borra la rama. Si algo falla, el PR queda abierto con un aviso.
+- **Versiones (changesets):** una vez al día, a las 03:00 hora Colombia, fusiona el PR
+  `chore(release): versionar paquetes` si está abierto. Así un día de PRs da un solo release y un
+  solo build de EAS, en vez de uno por PR. También se puede correr a mano (Actions → Auto-merge →
+  Run workflow).
+
+Los merges con el `GITHUB_TOKEN` no disparan los workflows de `push`, así que Auto-merge dispara a
+mano **Deploy** (staging) y **Release** después de cada merge. Producción sigue siendo manual.
+
 ## Previews por PR
 
 El workflow `preview.yml` crea, para cada PR del propio repo:
