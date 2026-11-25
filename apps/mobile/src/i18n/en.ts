@@ -22,6 +22,9 @@ export const en: Messages = {
   "transactions.empty": "Your income and expenses will show up here.",
   "budgets.empty": "Create your first budget to keep your spending in check.",
   "security.screenshots": "Allow screenshots",
+  "telemetry.setting": "Send anonymous errors and usage stats",
+  "telemetry.help":
+    "Helps us fix bugs and learn which parts of Lukas get used. It never includes your amounts, merchants, email or account details.",
   "security.rooted":
     "Your phone is rooted. Other apps could read your Lukas data: don't keep anything here you wouldn't want exposed.",
   "legal.privacy": "Data processing policy",

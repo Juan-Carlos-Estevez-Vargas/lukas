@@ -8,6 +8,7 @@ import { useLocalDatabase } from "../../src/data/provider";
 import { useI18n } from "../../src/i18n/i18n";
 import type { Translate } from "../../src/i18n/translator";
 import { rememberAcceptance } from "../../src/legal/consent";
+import { useTelemetry } from "../../src/telemetry/use-telemetry";
 
 const describe = (t: Translate, error: AuthError): string => {
   switch (error.kind) {
@@ -22,6 +23,7 @@ const describe = (t: Translate, error: AuthError): string => {
 
 /** Acceso sin contraseña: correo → código de 6 dígitos. */
 export default function SignIn() {
+  const telemetry = useTelemetry();
   const { t } = useI18n();
   const { client, signIn } = useSession();
   const [step, setStep] = useState<"email" | "code">("email");
@@ -57,6 +59,7 @@ export default function SignIn() {
     }
     // Se envía a la API con la sesión (ConsentGate); aquí queda la prueba de este teléfono.
     if (database.status === "ready") await rememberAcceptance(database.db).catch(() => undefined);
+    telemetry.track("signed_in");
     await signIn(result.value);
   };
 

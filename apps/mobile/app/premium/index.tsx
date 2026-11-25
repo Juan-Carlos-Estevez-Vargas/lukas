@@ -17,6 +17,7 @@ import { formatCivilDate } from "../../src/format/date";
 import { formatMoney } from "../../src/format/money";
 import type { MessageKey } from "../../src/i18n/es";
 import { useI18n } from "../../src/i18n/i18n";
+import { useTelemetry } from "../../src/telemetry/use-telemetry";
 import { useTheme } from "../../src/theme/theme";
 
 const ERRORS: Record<BillingError, MessageKey> = {
@@ -44,6 +45,9 @@ const STATUS_TEXT: Record<NonNullable<BillingStatus["subscription"]>["status"], 
 export default function Premium() {
   const { t, locale } = useI18n();
   const { space } = useTheme();
+  const telemetry = useTelemetry();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: una vez por visita a la pantalla.
+  useEffect(() => telemetry.track("premium_viewed"), []);
   const { state: session } = useSession();
   const database = useLocalDatabase();
   const { refresh } = useEntitlements();
@@ -84,6 +88,7 @@ export default function Premium() {
     await apply(res.value);
     setCode("");
     setNotice(kind === "trial" ? "premium.trial.started" : "premium.coupon.redeemed");
+    telemetry.track("premium_started", { source: kind });
   };
 
   const sub = status?.subscription ?? null;

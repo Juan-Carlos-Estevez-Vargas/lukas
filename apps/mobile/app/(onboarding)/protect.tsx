@@ -7,8 +7,10 @@ import { useI18n } from "../../src/i18n/i18n";
 import { PinSetup } from "../../src/lock/pin-setup";
 import { ONBOARDING_TEMPLATES } from "../../src/onboarding/onboarding";
 import { useOnboarding } from "../../src/onboarding/use-onboarding";
+import { useTelemetry } from "../../src/telemetry/use-telemetry";
 
 export default function Protect() {
+  const telemetry = useTelemetry();
   const { t } = useI18n();
   const { complete } = useOnboarding();
   const params = useLocalSearchParams<{ template?: string; balance?: string }>();
@@ -29,6 +31,7 @@ export default function Protect() {
         openingBalance: parsed?.ok ? parsed.value : null,
         sampleData,
       });
+      telemetry.track("onboarding_completed", { template: template.key, sample: sampleData });
       router.replace("/(tabs)");
     } catch {
       setError(t("onboarding.error"));

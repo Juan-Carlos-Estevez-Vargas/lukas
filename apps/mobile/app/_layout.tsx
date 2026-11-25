@@ -17,6 +17,7 @@ import { RecurringProvider } from "../src/recurring/use-recurring";
 import { CardRemindersProvider } from "../src/reminders/use-card-reminders";
 import { DeviceSecurityProvider } from "../src/security/use-device-security";
 import { SyncProvider } from "../src/sync/use-sync";
+import { TelemetryProvider } from "../src/telemetry/use-telemetry";
 import { ThemeProvider } from "../src/theme/theme";
 
 export default function RootLayout() {
@@ -27,30 +28,32 @@ export default function RootLayout() {
         <I18nProvider>
           <SessionProvider>
             <LocalDatabaseProvider>
-              <DeviceSecurityProvider>
-                <SyncProvider>
-                  <EntitlementsProvider>
-                    <OnboardingProvider>
-                      <CaptureProvider>
-                        <DiscreetProvider>
-                          <CardRemindersProvider>
-                            <BudgetAlertsProvider>
-                              <RecurringProvider>
-                                <AppLockProvider>
-                                  <StatusBar style="auto" />
-                                  <Stack screenOptions={{ headerShown: false }} />
-                                  <ConsentGate />
-                                  <LockGate />
-                                </AppLockProvider>
-                              </RecurringProvider>
-                            </BudgetAlertsProvider>
-                          </CardRemindersProvider>
-                        </DiscreetProvider>
-                      </CaptureProvider>
-                    </OnboardingProvider>
-                  </EntitlementsProvider>
-                </SyncProvider>
-              </DeviceSecurityProvider>
+              <TelemetryProvider>
+                <DeviceSecurityProvider>
+                  <SyncProvider>
+                    <EntitlementsProvider>
+                      <OnboardingProvider>
+                        <CaptureProvider>
+                          <DiscreetProvider>
+                            <CardRemindersProvider>
+                              <BudgetAlertsProvider>
+                                <RecurringProvider>
+                                  <AppLockProvider>
+                                    <StatusBar style="auto" />
+                                    <Stack screenOptions={{ headerShown: false }} />
+                                    <ConsentGate />
+                                    <LockGate />
+                                  </AppLockProvider>
+                                </RecurringProvider>
+                              </BudgetAlertsProvider>
+                            </CardRemindersProvider>
+                          </DiscreetProvider>
+                        </CaptureProvider>
+                      </OnboardingProvider>
+                    </EntitlementsProvider>
+                  </SyncProvider>
+                </DeviceSecurityProvider>
+              </TelemetryProvider>
             </LocalDatabaseProvider>
           </SessionProvider>
         </I18nProvider>
