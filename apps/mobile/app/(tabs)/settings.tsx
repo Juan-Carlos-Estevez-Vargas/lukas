@@ -233,6 +233,7 @@ export default function Settings() {
           }}
         />
         <Body muted>{t("settings.plan", { plan: t(`plan.${entitlements.plan}`) })}</Body>
+        <Button label={t("settings.debts")} variant="plain" onPress={() => router.push("/debts")} />
         <Button
           label={t("settings.plans")}
           variant="plain"
