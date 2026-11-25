@@ -98,6 +98,23 @@ describe("cliente de autenticación", () => {
     expect(calls[0]?.url).toBe(`${API}/v1/auth/sign-out`);
     expect(new Headers(calls[0]?.init?.headers).get("authorization")).toBe("Bearer tok");
   });
+
+  it("borra la cuenta con bearer y avisa si la sesión ya no es fresca", async () => {
+    const ok = fakeFetch(() => Response.json({ success: true, message: "User deleted" }));
+    expect(await createAuthClient(API, ok.impl).deleteAccount("tok")).toEqual({
+      ok: true,
+      value: undefined,
+    });
+    expect(ok.calls[0]?.url).toBe(`${API}/v1/auth/delete-user`);
+    expect(ok.calls[0]?.init?.method).toBe("POST");
+    expect(new Headers(ok.calls[0]?.init?.headers).get("authorization")).toBe("Bearer tok");
+
+    const stale = fakeFetch(() => new Response("{}", { status: 400 }));
+    expect(await createAuthClient(API, stale.impl).deleteAccount("tok")).toEqual({
+      ok: false,
+      error: { kind: "invalid" },
+    });
+  });
 });
 
 describe("validaciones locales", () => {

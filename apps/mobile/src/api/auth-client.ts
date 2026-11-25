@@ -20,6 +20,11 @@ export interface AuthClient {
   verifyCode(email: string, code: string): Promise<AuthResult<string>>;
   me(token: string): Promise<AuthResult<Me | null>>;
   signOut(token: string): Promise<AuthResult<void>>;
+  /**
+   * Borra la cuenta y todos sus datos del servidor. Con una sesión de más de un día la API responde
+   * `invalid`: hay que volver a entrar con el código y repetir.
+   */
+  deleteAccount(token: string): Promise<AuthResult<void>>;
 }
 
 type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
@@ -82,6 +87,10 @@ export const createAuthClient = (baseUrl: string, fetchImpl: Fetch = fetch): Aut
     },
     signOut: async (token) => {
       const res = await call("/v1/auth/sign-out", json({}, token));
+      return res.ok ? { ok: true, value: undefined } : res;
+    },
+    deleteAccount: async (token) => {
+      const res = await call("/v1/auth/delete-user", json({}, token));
       return res.ok ? { ok: true, value: undefined } : res;
     },
   };

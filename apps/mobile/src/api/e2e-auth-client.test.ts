@@ -20,6 +20,7 @@ describe("autenticación del build de e2e", () => {
     });
     expect(await client.me("otro")).toEqual({ ok: true, value: null });
     expect(await client.signOut(res.value)).toEqual({ ok: true, value: undefined });
+    expect(await client.deleteAccount(res.value)).toEqual({ ok: true, value: undefined });
   });
 
   it("ningún perfil de EAS activa el modo e2e", () => {
