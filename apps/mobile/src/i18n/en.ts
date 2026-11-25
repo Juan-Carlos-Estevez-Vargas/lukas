@@ -84,6 +84,34 @@ export const en: Messages = {
   "premium.signedOut": "Sign in to try premium or redeem a coupon.",
   "settings.plans": "See plans",
   "settings.feedback": "Send feedback",
+  "settings.taxes": "Tax help (income tax and 4×1000)",
+  "taxes.title": "Tax help",
+  "taxes.intro":
+    "Using your transactions in pesos, Lukas checks the DIAN thresholds to tell whether you must file an income tax return and estimates your 4×1000.",
+  "taxes.year": "Year {year}",
+  "taxes.verdictTitle": "Tax year {year}",
+  "taxes.mustDeclare": "You must file a return",
+  "taxes.noDeclare": "You are not required to file",
+  "taxes.mustDeclareHelp":
+    "You exceed at least one threshold. The return is filed in {next}, on the date set by the last two digits of your ID.",
+  "taxes.noDeclareHelp":
+    "With what is recorded in Lukas you do not exceed any threshold. Add accounts or assets that are not here.",
+  "taxes.criterion.grossAssets": "Gross assets on December 31 (limit: over 4,500 UVT)",
+  "taxes.criterion.grossIncome": "Gross income (limit: 1,400 UVT)",
+  "taxes.criterion.creditCardSpending": "Credit card spending (limit: 1,400 UVT)",
+  "taxes.criterion.totalPurchases": "Purchases and spending (limit: 1,400 UVT)",
+  "taxes.criterion.deposits": "Bank deposits (limit: 1,400 UVT)",
+  "taxes.valueOf": "{value} of {limit}",
+  "taxes.unknownYear": "We do not have that year's UVT yet.",
+  "taxes.foreign": "Accounts in other currencies are not included; add them in pesos.",
+  "taxes.gmfTitle": "4×1000",
+  "taxes.gmfIntro":
+    "Every withdrawal or payment from banks and wallets pays 4 pesos per 1,000. One account you mark as exempt at your bank pays nothing up to 350 UVT a month.",
+  "taxes.gmfMonth": "This month you have paid about {amount} in 4×1000.",
+  "taxes.gmfExempt": "Which account did you mark as exempt at your bank?",
+  "taxes.gmfNone": "None",
+  "taxes.disclaimer":
+    "This is a guide based on each year's UVT and what you recorded. It does not replace an accountant.",
   "settings.debts": "Debts and freedom date",
   "debts.title": "Debts",
   "debts.intro":

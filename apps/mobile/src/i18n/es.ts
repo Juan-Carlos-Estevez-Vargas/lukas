@@ -85,6 +85,34 @@ export const es = {
   "premium.signedOut": "Entra a tu cuenta para probar premium o canjear un cupón.",
   "settings.plans": "Ver planes",
   "settings.feedback": "Enviar comentarios",
+  "settings.taxes": "Ayuda tributaria (renta y 4×1000)",
+  "taxes.title": "Ayuda tributaria",
+  "taxes.intro":
+    "Con tus movimientos en pesos, Lukas revisa los topes de la DIAN para saber si debes declarar renta y estima tu 4×1000.",
+  "taxes.year": "Año {year}",
+  "taxes.verdictTitle": "Año gravable {year}",
+  "taxes.mustDeclare": "Debes declarar renta",
+  "taxes.noDeclare": "No estás obligado a declarar",
+  "taxes.mustDeclareHelp":
+    "Superas al menos un tope. La declaración se presenta en {next}, en la fecha que toca según los dos últimos dígitos de tu cédula.",
+  "taxes.noDeclareHelp":
+    "Con lo registrado en Lukas no superas ningún tope. Si tienes cuentas o bienes que no están aquí, súmalos.",
+  "taxes.criterion.grossAssets": "Patrimonio bruto al 31 de diciembre (tope: más de 4.500 UVT)",
+  "taxes.criterion.grossIncome": "Ingresos brutos (tope: 1.400 UVT)",
+  "taxes.criterion.creditCardSpending": "Consumos con tarjeta de crédito (tope: 1.400 UVT)",
+  "taxes.criterion.totalPurchases": "Compras y consumos (tope: 1.400 UVT)",
+  "taxes.criterion.deposits": "Consignaciones y depósitos (tope: 1.400 UVT)",
+  "taxes.valueOf": "{value} de {limit}",
+  "taxes.unknownYear": "Aún no tenemos la UVT de ese año.",
+  "taxes.foreign": "Las cuentas en otra moneda no entran en estas cifras; súmalas en pesos.",
+  "taxes.gmfTitle": "4×1000",
+  "taxes.gmfIntro":
+    "Cada retiro o pago desde bancos y billeteras paga 4 pesos por cada 1.000. Una cuenta que marques como exenta en tu banco no paga hasta 350 UVT al mes.",
+  "taxes.gmfMonth": "Este mes llevas unos {amount} de 4×1000.",
+  "taxes.gmfExempt": "¿Cuál cuenta marcaste como exenta en el banco?",
+  "taxes.gmfNone": "Ninguna",
+  "taxes.disclaimer":
+    "Es una guía con la UVT de cada año y lo que registraste. No reemplaza a un contador.",
   "settings.debts": "Deudas y fecha de libertad",
   "debts.title": "Deudas",
   "debts.intro":
