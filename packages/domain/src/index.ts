@@ -40,6 +40,18 @@ export {
   currencyOf,
   isCurrencyCode,
 } from "./currency";
+export {
+  type Debt,
+  type DebtPayoff,
+  type DebtPlan,
+  type DebtStrategy,
+  freedomMonth,
+  MAX_MONTHS,
+  monthlyRateFactor,
+  type PrepaymentResult,
+  planDebts,
+  prepaymentSavings,
+} from "./debts";
 export { DomainError } from "./errors";
 export {
   cleanFeedback,
