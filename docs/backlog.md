@@ -579,9 +579,9 @@ Todo listo para cobrar, probado con pagos simulados y usuarios reales de prueba.
 #### FIN-406 · Sentry y PostHog
 
 - Tipo: `chore` · Tamaño: S · Requiere cuenta: Sentry, PostHog
-- [ ] Errores con scrubbing de PII
-- [ ] Feature flags
-- [ ] Embudo de activación
+- [x] Errores con scrubbing de PII (API y app, sin SDKs; ver `docs/observabilidad.md`)
+- [x] Feature flags (`useTelemetry().flag`)
+- [x] Embudo de activación
 
 **Hecho cuando:** Un error forzado aparece en Sentry sin datos personales.
 

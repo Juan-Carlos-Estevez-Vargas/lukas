@@ -90,6 +90,10 @@ jobs:
         id: web
         env:
           EXPO_PUBLIC_API_URL: ${{ steps.names.outputs.api_url }}
+          # Telemetría (FIN-406): variables del environment de GitHub; ninguna es secreta.
+          EXPO_PUBLIC_ENVIRONMENT: ${{ inputs.environment || 'staging' }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.POSTHOG_KEY }}
           WEB_HOST: ${{ steps.names.outputs.web_host }}
           CI: "1"
         run: |
