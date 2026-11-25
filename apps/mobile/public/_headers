@@ -13,6 +13,15 @@
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
+# Página del captcha (Turnstile): sin COEP, porque el iframe de Cloudflare no lo envía, y con una
+# CSP propia que solo abre challenges.cloudflare.com. No guarda ni lee datos de la app.
+/captcha/*
+  ! Content-Security-Policy
+  ! Cross-Origin-Embedder-Policy
+  ! Cross-Origin-Resource-Policy
+  Content-Security-Policy: default-src 'none'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src https://challenges.cloudflare.com; style-src 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+  Cache-Control: public, max-age=3600
+
 /_expo/static/*
   Cache-Control: public, max-age=31536000, immutable
 

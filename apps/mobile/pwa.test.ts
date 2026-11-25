@@ -26,6 +26,20 @@ describe("PWA", () => {
     expect(csp).toContain("object-src 'none'");
   });
 
+  it("la página del captcha sale del aislamiento solo con su propia CSP", () => {
+    const rule = headers.split("\n/captcha/*\n")[1]?.split("\n\n")[0] ?? "";
+    expect(rule).toContain("! Content-Security-Policy");
+    expect(rule).toContain("! Cross-Origin-Embedder-Policy");
+    const own = /Content-Security-Policy: (.+)/.exec(rule)?.[1] ?? "";
+    expect(own).toContain("default-src 'none'");
+    expect(own).toContain("script-src 'self' https://challenges.cloudflare.com;");
+    expect(own).toContain("frame-src https://challenges.cloudflare.com;");
+    expect(own).not.toMatch(/script-src[^;]*unsafe/);
+    const page = readFileSync(join(pub, "captcha", "turnstile.html"), "utf8");
+    expect(page).toContain('src="/captcha/turnstile.js"');
+    expect(page).not.toMatch(/<script>(?!<\/script>)/);
+  });
+
   it("el manifest se instala como app y sus íconos existen", () => {
     expect(manifest.display).toBe("standalone");
     expect(manifest.start_url).toBe("/");
