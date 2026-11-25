@@ -48,11 +48,11 @@ sin fallar. El QR de EAS Update se suma en un PR aparte.
 
 ## Entornos
 
-| Entorno | Cuándo se despliega | Web | API | Base de datos |
-| --- | --- | --- | --- | --- |
-| Preview | Cada PR (`preview.yml`) | `pr-<N>.<proyecto>.pages.dev` | `lukas-api-pr-<N>` | Rama `preview/pr-<N>` |
-| Staging | Cada push a `main` (`deploy.yml`) | `staging.<proyecto>.pages.dev` | `lukas-api-staging` | Rama `staging` |
-| Producción | Manual: Actions → Deploy → Run workflow → `production` | `<proyecto>.pages.dev` | `lukas-api` | Rama `main` de Neon |
+| Entorno    | Cuándo se despliega                                    | Web                            | API                 | Base de datos         |
+| ---------- | ------------------------------------------------------ | ------------------------------ | ------------------- | --------------------- |
+| Preview    | Cada PR (`preview.yml`)                                | `pr-<N>.<proyecto>.pages.dev`  | `lukas-api-pr-<N>`  | Rama `preview/pr-<N>` |
+| Staging    | Cada push a `main` (`deploy.yml`)                      | `staging.<proyecto>.pages.dev` | `lukas-api-staging` | Rama `staging`        |
+| Producción | Manual: Actions → Deploy → Run workflow → `production` | `<proyecto>.pages.dev`         | `lukas-api`         | Rama `main` de Neon   |
 
 Producción solo se despliega con aprobación explícita del dueño. El plan gratuito de GitHub no
 permite revisores obligatorios en repos privados, así que la aprobación es el disparo manual.
@@ -74,4 +74,4 @@ Las cuotas de cada servicio están en [cuotas-gratuitas.md](cuotas-gratuitas.md)
 
 ## Requisito del repositorio
 
-En **Settings → Actions → General → Workflow permissions**, activar *Allow GitHub Actions to create and approve pull requests* para que el workflow pueda abrir el PR de versiones.
+En **Settings → Actions → General → Workflow permissions**, activar _Allow GitHub Actions to create and approve pull requests_ para que el workflow pueda abrir el PR de versiones.
