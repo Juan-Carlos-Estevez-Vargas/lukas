@@ -727,8 +727,8 @@ Funciones que diferencian la app.
 #### FIN-602 · Deudas
 
 - Tipo: `feat` · Tamaño: M
-- [ ] Bola de nieve y avalancha
-- [ ] Simulador de abonos a capital
+- [x] Bola de nieve y avalancha (`packages/domain/src/debts.ts`)
+- [x] Simulador de abonos a capital (Ajustes → Deudas y fecha de libertad)
 
 **Hecho cuando:** Muestra la fecha de libertad de deudas.
 
