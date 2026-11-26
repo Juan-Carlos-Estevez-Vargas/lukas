@@ -1,5 +1,26 @@
 # @lukas/api
 
+## 0.3.0
+
+### Minor Changes
+
+- 6c7c10c: Ajustes → Borrar mi cuenta: borra la cuenta y todos los datos del servidor y del teléfono. Pide una sesión de menos de un día.
+- b8f1f05: Suscripción a premium en Android con Google Play a través de RevenueCat: compra, restaurar compras y webhook que activa, renueva, cancela o vence premium. Queda apagado hasta configurar la llave de RevenueCat.
+- ebc7fb7: El código de acceso se envía por correo con Resend en staging y producción. Queda apagado hasta subir `RESEND_API_KEY`.
+- 1f3f409: Pago de premium con Wompi desde la web: checkout firmado, webhook con checksum verificado e idempotente, y el periodo pagado se suma al vigente. Queda apagado hasta configurar las llaves de Wompi.
+- 2ca3719: Reporte de errores a Sentry y estadísticas de uso anónimas en PostHog, con limpieza de datos personales y un interruptor en Ajustes para apagarlo. Se enciende al configurar las llaves.
+
+### Patch Changes
+
+- Updated dependencies [64a77b7]
+- Updated dependencies [6020caa]
+- Updated dependencies [c4c4514]
+- Updated dependencies [1f3f409]
+- Updated dependencies [2ca3719]
+  - @lukas/domain@0.4.0
+  - @lukas/db@0.4.0
+  - @lukas/ai-tools@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

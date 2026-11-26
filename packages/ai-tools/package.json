@@ -1,6 +1,6 @@
 {
   "name": "@lukas/ai-tools",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Herramientas del agente de IA (lectura y propuestas) con esquemas Zod y un servidor MCP de pruebas",
   "type": "module",

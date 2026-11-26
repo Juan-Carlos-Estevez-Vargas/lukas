@@ -1,5 +1,15 @@
 # @lukas/domain
 
+## 0.4.0
+
+### Minor Changes
+
+- 64a77b7: Deudas: con la tasa E.A. y el pago mínimo de cada tarjeta o préstamo, Lukas muestra la fecha de libertad con avalancha o bola de nieve y cuánto se ahorra abonando a capital.
+- 6020caa: Ayuda tributaria: con los movimientos del año, Lukas compara patrimonio, ingresos, compras, consumos con tarjeta y consignaciones contra los topes en UVT y dice si probablemente debes declarar renta. También estima el 4×1000 del mes y deja marcar la cuenta exenta.
+- c4c4514: Inversiones: registra CDT, fondos, acciones, ETF o cripto con su precio, mira la rentabilidad anual y la asignación del portafolio, y simula un CDT con la retención en la fuente.
+- 1f3f409: Pago de premium con Wompi desde la web: checkout firmado, webhook con checksum verificado e idempotente, y el periodo pagado se suma al vigente. Queda apagado hasta configurar las llaves de Wompi.
+- 2ca3719: Reporte de errores a Sentry y estadísticas de uso anónimas en PostHog, con limpieza de datos personales y un interruptor en Ajustes para apagarlo. Se enciende al configurar las llaves.
+
 ## 0.3.0
 
 ### Minor Changes
