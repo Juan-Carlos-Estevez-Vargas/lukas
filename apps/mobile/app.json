@@ -9,6 +9,7 @@
     "newArchEnabled": true,
     "android": {
       "package": "co.lukas.app",
+      "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "allowBackup": false
     },

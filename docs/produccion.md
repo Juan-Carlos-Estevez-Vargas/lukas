@@ -85,8 +85,9 @@ El plan gratis da 10 000 neuronas al día; la API además limita el uso por pers
 
 ## 6. Avisos push (Firebase)
 
-1. En https://console.firebase.google.com crea el proyecto "Lukas" y una app Android con el
-   paquete `co.lukas.app`. Súbeme el `google-services.json` (no es secreto).
+1. ✅ Proyecto "Lukas" (`lukas-95310`) creado en https://console.firebase.google.com con la app
+   Android `co.lukas.app`. Su `google-services.json` (no es secreto) está en
+   `apps/mobile/google-services.json` y `app.json` lo usa con `android.googleServicesFile`.
 2. **Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada.** Esa clave
    **sí es secreta**: súbela tú en expo.dev → proyecto lukas → **Credentials → Android → FCM V1
    service account key**.
