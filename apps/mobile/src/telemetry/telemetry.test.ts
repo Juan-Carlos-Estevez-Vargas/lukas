@@ -12,7 +12,7 @@ import {
 const config = {
   sentryDsn: "https://llave@o1.ingest.sentry.io/42",
   posthogKey: "phc_prueba",
-  posthogHost: "https://eu.i.posthog.com/",
+  posthogHost: "https://us.i.posthog.com/",
   release: "0.5.0",
   environment: "staging",
   platform: "android",
@@ -45,7 +45,7 @@ describe("telemetría de la app", () => {
       note: "ana@lukas.co",
     });
     const { url, body } = call(fetchImpl);
-    expect(url).toBe("https://eu.i.posthog.com/capture/");
+    expect(url).toBe("https://us.i.posthog.com/capture/");
     const sent = JSON.parse(body);
     expect(sent).toMatchObject({
       api_key: "phc_prueba",

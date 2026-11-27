@@ -132,6 +132,7 @@ jobs:
             echo "BETTER_AUTH_SECRET=$(openssl rand -hex 32)" >> "$secrets"
           fi
           version=$(jq -r .version package.json)
+          # CLOUDFLARE_ACCOUNT_ID arma la URL de Workers AI (FIN-306); sin ella el asistente queda apagado.
           extra=()
           if [ -n "$WOMPI_PUBLIC_KEY" ]; then extra+=(--var "WOMPI_PUBLIC_KEY:$WOMPI_PUBLIC_KEY"); fi
           if [ -n "$SENTRY_DSN_API" ]; then extra+=(--var "SENTRY_DSN:$SENTRY_DSN_API"); fi
@@ -143,6 +144,7 @@ jobs:
               --var "PASSKEY_RP_ID:$WEB_HOST" \
               --var "CORS_ORIGINS:https://$WEB_HOST" \
               --var "APP_VERSION:$version" \
+              --var "CLOUDFLARE_ACCOUNT_ID:$CLOUDFLARE_ACCOUNT_ID" \
               "${extra[@]}" \
               --secrets-file "$secrets"; then
               break
