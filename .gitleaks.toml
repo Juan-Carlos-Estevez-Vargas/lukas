@@ -3,5 +3,6 @@
 useDefault = true
 
 [allowlist]
-description = "Archivos generados sin secretos"
-paths = ['''pnpm-lock\.yaml''']
+description = "Archivos generados o públicos sin secretos"
+# google-services.json lleva la API key pública de Firebase para Android (va dentro del APK).
+paths = ['''pnpm-lock\.yaml''', '''apps/mobile/google-services\.json''']

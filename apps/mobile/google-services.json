@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "112097013424",
+    "project_id": "lukas-95310",
+    "storage_bucket": "lukas-95310.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112097013424:android:3f4cfdfd69c86282ea9575",
+        "android_client_info": {
+          "package_name": "co.lukas.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAO6aRF55H9_3kCS2DjXB4xQx5vjplsaCc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
