@@ -1,5 +1,12 @@
 # @lukas/mobile
 
+## 0.5.1
+
+### Patch Changes
+
+- 4c009a3: La app Android incluye la configuración de Firebase para recibir avisos push.
+- dd6c11e: La telemetría de uso se envía a PostHog en la región US (`us.i.posthog.com`) por defecto.
+
 ## 0.5.0
 
 ### Minor Changes
