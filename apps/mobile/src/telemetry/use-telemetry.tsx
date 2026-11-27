@@ -45,7 +45,7 @@ const TelemetryContext = createContext<TelemetryState>({
 const config = {
   sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN ?? "",
   posthogKey: process.env.EXPO_PUBLIC_POSTHOG_KEY ?? "",
-  posthogHost: process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com",
+  posthogHost: process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
   release: Constants.expoConfig?.version ?? "0.0.0",
   environment: process.env.EXPO_PUBLIC_ENVIRONMENT ?? (__DEV__ ? "development" : "production"),
   platform: Platform.OS,

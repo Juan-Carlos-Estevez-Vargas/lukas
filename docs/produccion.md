@@ -70,7 +70,7 @@ Pásame 1 y 2 (no son secretos) y los pongo en los textos.
 Guía: [observabilidad.md](observabilidad.md), sección "Encenderlo". En corto:
 
 1. Sentry (plan Developer): proyectos `lukas-api` y `lukas-app`; copia los dos DSN.
-2. PostHog (plan gratis, región **EU**): proyecto "Lukas"; copia la _Project API key_ (`phc_…`).
+2. PostHog (plan gratis, región **US**): proyecto "Lukas"; copia la _Project API key_ (`phc_…`).
 3. En GitHub, environments `staging` y `production`, variables `SENTRY_DSN_API`,
    `SENTRY_DSN_APP` y `POSTHOG_KEY`.
 4. En expo.dev → proyecto lukas → **Environment variables**: `EXPO_PUBLIC_SENTRY_DSN` y

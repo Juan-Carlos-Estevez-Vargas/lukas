@@ -40,7 +40,8 @@ funciones de a pocos, no para seguridad: el servidor siempre valida.
      (_React Native_); copiar el DSN de cada uno. No son secretos;
    - en **Settings → Security & Privacy**, activar _Prevent Storing of IP Addresses_ y
      _Data Scrubber_.
-2. **PostHog** ([posthog.com](https://posthog.com), plan gratis, región **EU**):
+2. **PostHog** ([us.posthog.com](https://us.posthog.com), plan gratis, región **US**; la app
+   envía a `us.i.posthog.com`, o a lo que diga `EXPO_PUBLIC_POSTHOG_HOST`):
    - crear el proyecto "Lukas" y copiar la _Project API key_ (`phc_…`). No es secreta;
    - en **Settings → Project → IP data capture**, activar _Discard client IP data_.
 3. En GitHub, **Settings → Environments**, en `staging` y en `production`, crear las variables:
