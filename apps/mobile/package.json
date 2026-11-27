@@ -1,6 +1,6 @@
 {
   "name": "@lukas/mobile",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "App de Lukas para Android, iOS y web (Expo)",
   "main": "index.ts",
